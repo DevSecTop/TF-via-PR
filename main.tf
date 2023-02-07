@@ -43,14 +43,20 @@ resource "aws_dynamodb_table" "tfstate_lock" {
 
 module "ec2_web" {
   source       = "./modules/ec2"
-  environment  = "pre"
+  environment  = var.environment
   role         = "web"
   instance_ami = data.aws_ami.ubuntu.id
 }
 
 module "ec2_worker" {
   source       = "./modules/ec2"
-  environment  = "pre"
+  environment  = var.environment
   role         = "worker"
   instance_ami = data.aws_ami.ubuntu.id
+}
+
+module "vpc" {
+  source      = "./modules/vpc"
+  environment = var.environment
+  vpc_cidr    = "10.0.0.0/17" # VPC peering between public and private subnets
 }

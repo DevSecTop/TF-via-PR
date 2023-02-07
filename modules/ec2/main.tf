@@ -8,21 +8,21 @@ resource "aws_instance" "app" {
   }
 
   tags = {
-    "Name"        = "${var.environment}-${var.role}-app"
-    "Project"     = "learning-rdhar"
-    "Environment" = var.environment
-    "Role"        = var.role
-    "Managed"     = "terraform"
+    Name        = "${var.environment}-${var.role}-app"
+    Project     = "learning-rdhar"
+    Environment = var.environment
+    Role        = var.role
+    Managed     = "terraform"
   }
 }
 
 resource "aws_eip" "app_eip" {
   tags = {
-    "Name"        = "${var.environment}-${var.role}-app"
-    "Project"     = "learning-rdhar"
-    "Environment" = var.environment
-    "Role"        = var.role
-    "Managed"     = "terraform"
+    Name        = "${var.environment}-${var.role}-app"
+    Project     = "learning-rdhar"
+    Environment = var.environment
+    Role        = var.role
+    Managed     = "terraform"
   }
 }
 
