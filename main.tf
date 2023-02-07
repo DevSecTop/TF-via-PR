@@ -2,8 +2,15 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.53.0"
+      version = "~>4.0"
     }
+  }
+  backend "s3" {
+    bucket         = "terraform-aws-rdhar"
+    dynamodb_table = "terraform-aws-rdhar"
+    key            = "tfstates/terraform.tfstate"
+    profile        = "learning-rdhar"
+    region         = "us-east-1"
   }
 }
 
