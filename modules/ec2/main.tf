@@ -24,6 +24,10 @@ resource "aws_eip" "app_eip" {
     Role        = var.role
     Managed     = "terraform"
   }
+
+  lifecycle {
+    # prevent_destroy = true
+  }
 }
 
 resource "aws_eip_association" "app_eip_assoc" {
