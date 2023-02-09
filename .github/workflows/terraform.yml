@@ -1,34 +1,118 @@
 name: Terraform
 
 on:
+  push:
+    branches: ['main']
+    paths: ['**.tf*']
+  pull_request:
+    types: ['labeled', 'opened', 'synchronize', 'reopened']
+    paths: ['**.tf*']
   workflow_dispatch:
     inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'warning'
-        type: choice
-        options:
-          - info
-          - warning
-          - debug
-      print_tags:
-        description: 'True to print to STDOUT'
-        required: true
-        type: boolean
-      tags:
-        description: 'Test scenario tags'
-        required: true
-        type: string
       environment:
-        description: 'Environment to run tests against'
+        description: 'Terraform environment'
         type: environment
         required: true
 
 jobs:
-  print-tag:
+  terraform-cli:
     runs-on: ubuntu-latest
-    if: ${{ inputs.print_tags }}
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: ${{ github.head_ref || github.run_id }}
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_IN_AUTOMATION: true
+
+    defaults:
+      run:
+        shell: bash
+
     steps:
-      - name: Print the input tag to STDOUT
-        run: echo  The tags are ${{ inputs.tags }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup terraform-cli
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Terraform format
+        id: fmt
+        run: terraform fmt -recursive -check
+        continue-on-error: true
+
+      - name: Terraform init
+        id: init
+        run: terraform -chdir="environments/${{ github.event.label.name }}" init -backend-config="key=environments/${{ github.event.label.name }}/terraform.tfstate" # -input=false -no-color
+
+      - name: Terraform validate
+        id: validate
+        run: terraform -chdir="environments/${{ github.event.label.name }}" validate -no-color
+
+      - name: Terraform plan
+        id: plan
+        if: github.event_name == 'pull_request'
+        run: terraform -chdir="environments/${{ github.event.label.name }}" plan -input=false -no-color
+        continue-on-error: true
+
+      - name: Comment terraform diff
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: terraform\n${{ steps.plan.outputs.stdout }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform | Status')
+            })
+
+            // Prepare comment format
+            | Terraform | Status                            |
+            | --------- | --------------------------------- |
+            | Format    | \`${{ steps.fmt.outcome }}\`      |
+            | Init      | \`${{ steps.init.outcome }}\`     |
+            | Validate  | \`${{ steps.validate.outcome }}\` |
+            | Plan      | \`${{ steps.plan.outcome }}\`     |
+
+            <details><summary>Show Plan…</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            _Ran \`${{ github.workflow }}\` workflow on \`${{ env.tf_actions_working_dir }}\` directory via \`${{ github.event_name }}\` by @${{ github.actor }}_;
+
+            // Update if comment exists, otherwise create a new one
+            if (botComment) {
+              github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              })
+            } else {
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: output
+              })
+            }
+
+      - name: Terraform plan status
+        if: steps.plan.outcome == 'failure'
+        run: exit ${{ steps.plan.outputs.exitcode }}
+
+      # - name: Terraform apply
+      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      #   run: terraform -chdir="environments/${{ github.event.label.name }}" apply -auto-approve -input=false -no-color # -refresh=false
