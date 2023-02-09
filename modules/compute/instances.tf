@@ -3,27 +3,26 @@ resource "random_shuffle" "subnets" {
   result_count = 1
 }
 
-resource "aws_instance" "app" {
+module "ec2_instance" {
+  source                 = "terraform-aws-modules/ec2-instance/aws"
+  version                = "~> 4.0"
+  name                   = "${var.environment}-${var.role}-app"
   ami                    = var.instance_ami
   instance_type          = var.instance_type
-  vpc_security_group_ids = var.security_groups
   subnet_id              = random_shuffle.subnets.result[0]
+  vpc_security_group_ids = var.security_groups
 
-  root_block_device {
+  root_block_device = [{
     volume_size = var.instance_root_device_size
     volume_type = "gp2"
-  }
+  }]
 
-  tags = merge(
-    {
-      Name        = "${var.environment}-${var.role}-app"
-      Project     = "learning-rdhar"
-      Environment = var.environment
-      Role        = var.role
-      Managed     = "terraform"
-    },
-    var.tags
-  )
+  tags = merge({
+    Project     = "learning-rdhar"
+    Environment = var.environment
+    Role        = var.role
+    Managed     = "terraform"
+  }, var.tags)
 }
 
 resource "aws_eip" "app_eip" {
@@ -45,6 +44,6 @@ resource "aws_eip" "app_eip" {
 
 resource "aws_eip_association" "app_eip_assoc" {
   count         = var.create_eip ? 1 : 0
-  instance_id   = aws_instance.app.id
+  instance_id   = module.ec2_instance.id
   allocation_id = aws_eip.app_eip[0].id
 }

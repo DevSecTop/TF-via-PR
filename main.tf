@@ -1,5 +1,5 @@
 module "ec2_web" {
-  source          = "./modules/ec2"
+  source          = "./modules/compute"
   environment     = var.environment
   role            = "web"
   instance_ami    = data.aws_ami.ubuntu.id
@@ -13,7 +13,7 @@ module "ec2_web" {
 }
 
 module "ec2_worker" {
-  source          = "./modules/ec2"
+  source          = "./modules/compute"
   environment     = var.environment
   role            = "worker"
   instance_ami    = data.aws_ami.ubuntu.id
@@ -27,7 +27,7 @@ module "ec2_worker" {
 }
 
 module "vpc" {
-  source      = "./modules/vpc"
+  source      = "./modules/network"
   environment = var.environment
   vpc_cidr    = "10.0.0.0/17" # VPC peering between public and private subnets
 }
