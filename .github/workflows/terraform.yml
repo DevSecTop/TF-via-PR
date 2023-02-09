@@ -35,16 +35,6 @@ jobs:
       - name: Dump GitHub context
         id: github_context_step
         run: echo '${{ toJSON(github) }}'
-      - name: Dump job context
-        run: echo '${{ toJSON(job) }}'
-      - name: Dump steps context
-        run: echo '${{ toJSON(steps) }}'
-      - name: Dump runner context
-        run: echo '${{ toJSON(runner) }}'
-      - name: Dump strategy context
-        run: echo '${{ toJSON(strategy) }}'
-      - name: Dump matrix context
-        run: echo '${{ toJSON(matrix) }}'
 
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -54,7 +44,7 @@ jobs:
 
       - name: Terraform format
         id: fmt
-        run: terraform fmt -recursive -check
+        run: terraform fmt -recursive -check -diff
         continue-on-error: true
 
       - name: Terraform init
@@ -68,14 +58,15 @@ jobs:
       - name: Terraform plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: terraform -chdir="environments/${{ github.event.label.name }}" plan -input=false -no-color
+        run: terraform -chdir="environments/${{ github.event.label.name }}" plan -input=false -no-color | grep -v "Refreshing state...\|Reading...\|Read complete after"
+        # run: terraform -chdir="environments/${{ github.event.label.name }}" plan -input=false -no-color -out=tfplan && terraform show -no-color tfplan
         continue-on-error: true
 
       - name: Comment terraform diff
         uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
-          PLAN: terraform\n${{ steps.plan.outputs.stdout }}
+          PLAN: ${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -90,12 +81,12 @@ jobs:
             })
 
             // Prepare comment format
-            | Terraform | Status                            |
-            | --------- | --------------------------------- |
-            | Format    | \`${{ steps.fmt.outcome }}\`      |
-            | Init      | \`${{ steps.init.outcome }}\`     |
-            | Validate  | \`${{ steps.validate.outcome }}\` |
-            | Plan      | \`${{ steps.plan.outcome }}\`     |
+            \| Terraform \| Status                            \|
+            \| --------- \| --------------------------------- \|
+            \| Format    \| \`${{ steps.fmt.outcome }}\`      \|
+            \| Init      \| \`${{ steps.init.outcome }}\`     \|
+            \| Validate  \| \`${{ steps.validate.outcome }}\` \|
+            \| Plan      \| \`${{ steps.plan.outcome }}\`     \|
 
             <details><summary>Show Plan…</summary>
 
