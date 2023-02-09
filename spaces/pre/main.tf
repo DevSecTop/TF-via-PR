@@ -1,6 +1,6 @@
 module "ec2_web" {
-  source          = "./modules/compute"
-  environment     = terraform.workspace
+  source          = "../../modules/compute"
+  environment     = var.environment
   role            = "web"
   instance_ami    = data.aws_ami.ubuntu.id
   subnets         = module.vpc.vpc_public_subnets
@@ -8,13 +8,13 @@ module "ec2_web" {
   create_eip      = true
 
   tags = {
-    Name = "${terraform.workspace}-web"
+    Name = "${var.environment}-web"
   }
 }
 
 module "ec2_worker" {
-  source          = "./modules/compute"
-  environment     = terraform.workspace
+  source          = "../../modules/compute"
+  environment     = var.environment
   role            = "worker"
   instance_ami    = data.aws_ami.ubuntu.id
   subnets         = module.vpc.vpc_private_subnets
@@ -22,13 +22,13 @@ module "ec2_worker" {
   create_eip      = false
 
   tags = {
-    Name = "${terraform.workspace}-worker"
+    Name = "${var.environment}-worker"
   }
 }
 
 module "vpc" {
-  source          = "./modules/network"
-  environment     = terraform.workspace
+  source          = "../../modules/network"
+  environment     = var.environment
   vpc_cidr        = "10.0.0.0/17" # VPC peering between public and private subnets
   azs             = ["us-east-1a", "us-east-1b", "us-east-1c"]
   public_subnets  = slice(cidrsubnets("10.0.0.0/17", 4, 4, 4, 4, 4, 4), 0, 3)
