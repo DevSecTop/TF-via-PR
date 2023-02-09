@@ -4,8 +4,9 @@ resource "random_shuffle" "subnets" {
 }
 
 module "ec2_instance" {
-  source                 = "terraform-aws-modules/ec2-instance/aws"
-  version                = "~> 4.0"
+  source  = "terraform-aws-modules/ec2-instance/aws"
+  version = "~> 4.0"
+
   name                   = "${var.environment}-${var.role}-app"
   ami                    = var.instance_ami
   instance_type          = var.instance_type
@@ -30,7 +31,6 @@ resource "aws_eip" "app_eip" {
   vpc   = true
 
   tags = {
-    Name        = "${var.environment}-${var.role}-app"
     Project     = "learning-rdhar"
     Environment = var.environment
     Role        = var.role

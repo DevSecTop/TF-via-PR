@@ -9,23 +9,17 @@ variable "vpc_cidr" {
   default     = "10.0.0.0/16"
 }
 
-
-variable "public_subnet_numbers" {
-  type        = map(number)
-  description = "Map of AZ to a number used for public subnets"
-  default = {
-    "us-east-1a" = 1
-    "us-east-1b" = 2
-    "us-east-1c" = 3
-  }
+variable "azs" {
+  type        = list(string)
+  description = "List of availability zones to be used"
 }
 
-variable "private_subnet_numbers" {
-  type        = map(number)
-  description = "Map of AZ to a number used for private subnets"
-  default = {
-    "us-east-1a" = 4
-    "us-east-1b" = 5
-    "us-east-1c" = 6
-  }
+variable "public_subnets" {
+  type        = list(string)
+  description = "List of public subnets to be used"
+}
+
+variable "private_subnets" {
+  type        = list(string)
+  description = "List of private subnets to be used"
 }

@@ -1,8 +1,17 @@
-resource "aws_vpc" "vpc" {
-  cidr_block = var.vpc_cidr
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "~> 3.0"
+
+  name                   = "${var.environment}-vpc"
+  cidr                   = var.vpc_cidr
+  azs                    = var.azs
+  enable_nat_gateway     = true
+  single_nat_gateway     = true
+  one_nat_gateway_per_az = false
+  private_subnets        = var.private_subnets
+  public_subnets         = var.public_subnets
 
   tags = {
-    Name        = "${var.environment}-vpc"
     Project     = "learning-rdhar"
     Environment = var.environment
     Managed     = "terraform"
