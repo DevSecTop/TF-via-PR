@@ -4,6 +4,11 @@ module "ec2_web" {
   role         = "web"
   instance_ami = data.aws_ami.ubuntu.id
   subnets      = keys(module.vpc.vpc_public_subnets)
+  create_eip   = true
+
+  tags = {
+    Name = "${var.environment}-web"
+  }
 }
 
 module "ec2_worker" {
@@ -12,6 +17,11 @@ module "ec2_worker" {
   role         = "worker"
   instance_ami = data.aws_ami.ubuntu.id
   subnets      = keys(module.vpc.vpc_private_subnets)
+  create_eip   = false
+
+  tags = {
+    Name = "${var.environment}-worker"
+  }
 }
 
 module "vpc" {

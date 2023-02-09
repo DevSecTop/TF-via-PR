@@ -35,3 +35,15 @@ variable "security_groups" {
   description = "Security group to be used"
   default     = []
 }
+
+variable "tags" {
+  type        = map(string)
+  description = "Tags to be used"
+  default     = {}
+}
+
+variable "create_eip" {
+  type        = bool
+  description = "Create EIP for the instance"
+  default     = false
+}

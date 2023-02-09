@@ -14,16 +14,22 @@ resource "aws_instance" "app" {
     volume_type = "gp2"
   }
 
-  tags = {
-    Name        = "${var.environment}-${var.role}-app"
-    Project     = "learning-rdhar"
-    Environment = var.environment
-    Role        = var.role
-    Managed     = "terraform"
-  }
+  tags = merge(
+    {
+      Name        = "${var.environment}-${var.role}-app"
+      Project     = "learning-rdhar"
+      Environment = var.environment
+      Role        = var.role
+      Managed     = "terraform"
+    },
+    var.tags
+  )
 }
 
 resource "aws_eip" "app_eip" {
+  count = var.create_eip ? 1 : 0
+  vpc   = true
+
   tags = {
     Name        = "${var.environment}-${var.role}-app"
     Project     = "learning-rdhar"
@@ -38,6 +44,7 @@ resource "aws_eip" "app_eip" {
 }
 
 resource "aws_eip_association" "app_eip_assoc" {
+  count         = var.create_eip ? 1 : 0
   instance_id   = aws_instance.app.id
-  allocation_id = aws_eip.app_eip.id
+  allocation_id = aws_eip.app_eip[0].id
 }
