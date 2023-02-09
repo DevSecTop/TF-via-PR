@@ -24,3 +24,14 @@ variable "instance_root_device_size" {
   description = "AWS instance root device size in GB to be used"
   default     = 8
 }
+
+variable "subnets" {
+  type        = list(string)
+  description = "Subnets to be used"
+}
+
+variable "security_groups" {
+  type        = list(string)
+  description = "Security group to be used"
+  default     = []
+}

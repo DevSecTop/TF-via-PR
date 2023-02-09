@@ -1,6 +1,13 @@
+resource "random_shuffle" "subnets" {
+  input        = var.subnets
+  result_count = 1
+}
+
 resource "aws_instance" "app" {
-  ami           = var.instance_ami
-  instance_type = var.instance_type
+  ami                    = var.instance_ami
+  instance_type          = var.instance_type
+  vpc_security_group_ids = var.security_groups
+  subnet_id              = random_shuffle.subnets.result[0]
 
   root_block_device {
     volume_size = var.instance_root_device_size

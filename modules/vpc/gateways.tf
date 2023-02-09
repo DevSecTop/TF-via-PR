@@ -13,7 +13,7 @@ resource "aws_eip" "ngw" {
   vpc = true
 
   tags = {
-    Name        = "${var.environment}-private-eip"
+    Name        = "${var.environment}-ngw-eip"
     Project     = "learning-rdhar"
     Environment = var.environment
     Role        = "private"
@@ -31,7 +31,7 @@ resource "aws_nat_gateway" "ngw" {
   allocation_id = aws_eip.ngw.id
 
   tags = {
-    Name        = "${var.environment}-private-ngw"
+    Name        = "${var.environment}-ngw"
     Project     = "learning-rdhar"
     Environment = var.environment
     Role        = "private"
