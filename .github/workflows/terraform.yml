@@ -24,12 +24,19 @@ jobs:
               repo: context.repo.repo
             })
 
-            github.rest.issues.setLabels({
+            github.rest.issues.addLabels({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              labels: ['pre']
+              labels: ['bug']
             })
+
+            // github.rest.issues.setLabels({
+            //   issue_number: context.issue.number,
+            //   owner: context.repo.owner,
+            //   repo: context.repo.repo,
+            //   labels: ['pre']
+            // })
 
   terraform-cli:
     if: github.event.action == 'labeled'
