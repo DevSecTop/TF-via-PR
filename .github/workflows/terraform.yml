@@ -36,11 +36,12 @@ jobs:
               .filter((label) => label.name.indexOf('tf:') === 0)
               .map((label) => label.name.replace(/tf:/g, ''));
             console.log(result);
+            return result;
 
   plan:
     runs-on: ubuntu-latest
     needs: [environments]
-    # if: ${{ needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
+    if: ${{ needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
 
     strategy:
       fail-fast: false
