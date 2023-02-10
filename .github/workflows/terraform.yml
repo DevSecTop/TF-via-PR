@@ -36,7 +36,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        path: [ needs.check_labels.outputs.env_labels ]
+        path: [ ${{ needs.check_labels.outputs.env_labels }} ]
         # path: ['pre']
 
     concurrency:
