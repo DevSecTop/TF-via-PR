@@ -35,8 +35,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        path: ${{ needs.check_labels.outputs.env_labels }}
-        # path: ['pre']
+        path: '["pre"]'
+        # path: ${{ needs.check_labels.outputs.env_labels }}
 
     concurrency:
       group: ${{ github.head_ref || github.run_id }}
