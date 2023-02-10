@@ -2,18 +2,15 @@ name: Terraform
 
 on:
   push:
-    branches: ['main']
+    branches: [main]
     paths: ['**.tf*']
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
 
-env:
-  AWS_REGION: 'us-east-1'
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  TF_IN_AUTOMATION: true
-  TF_INPUT: false
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   check_labels:
@@ -34,120 +31,9 @@ jobs:
             })
             return issueLabels.map((issueLabel) => issueLabel.name)
 
-  run_terraform:
-    runs-on: ubuntu-latest
-    needs: ['check_labels']
-
-    strategy:
-      fail-fast: false
-      matrix:
-        path: ${{ fromJSON(needs.check_labels.outputs.matrix) }}
-
-    concurrency:
-      group: ${{ github.head_ref || github.run_id }}
-
-    defaults:
-      run:
-        shell: bash
-        working-directory: 'environments/${{ matrix.path }}'
-
-    env:
-      AWS_REGION: 'us-east-1'
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      TF_IN_AUTOMATION: true
-      TF_INPUT: false
-
-    environment: ${{ matrix.path }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup terraform cli
-        uses: hashicorp/setup-terraform@v2
-
-      - name: Terraform format
-        id: fmt
-        run: terraform fmt -recursive -check -diff
-        continue-on-error: true
-
-      - name: Terraform init
-        id: init
-        run: terraform init -backend-config="key=environments/${{ matrix.path }}/terraform.tfstate" # -no-color
-
-      - name: Terraform validate
-        id: validate
-        run: terraform validate -no-color
-
-      - name: Terraform plan
-        id: plan
-        if: github.event_name == 'pull_request'
-        run: terraform plan -no-color -out=tfplan && terraform show -no-color tfplan
-        continue-on-error: true
-
-      - name: Comment terraform diff
-        uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
-        env:
-          PLAN: ${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}
-        with:
-          script: |
-            // Retrieve existing bot comments for the PR
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            })
-            const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('Show \`${{ matrix.path }}\`')
-            })
-
-            // Prepare comment format
-            const output = `
-            | Terraform | Status                            |
-            | --------- | --------------------------------- |
-            | Format    | \`${{ steps.fmt.outcome }}\`      |
-            | Init      | \`${{ steps.init.outcome }}\`     |
-            | Validate  | \`${{ steps.validate.outcome }}\` |
-            | Plan      | \`${{ steps.plan.outcome }}\`     |
-
-            <details><summary>Show \`${{ matrix.path }}\` environment plan…</summary>
-
-            \`\`\`
-            ${process.env.PLAN}
-            \`\`\`
-
-            </details>`;
-
-            // Update if comment exists, otherwise create a new one
-            if (botComment) {
-              github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: output
-              })
-            } else {
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: output
-              })
-            }
-
-      - name: Terraform plan status
-        if: steps.plan.outcome == 'failure'
-        run: exit ${{ steps.plan.outputs.exitcode }}
-
-      # - name: Terraform apply
-      #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      #   run: terraform apply -auto-approve -no-color # -refresh=false
-
   plan:
     runs-on: ubuntu-latest
-    needs: ['check_labels']
+    needs: [check_labels]
 
     strategy:
       fail-fast: false
@@ -155,7 +41,14 @@ jobs:
         path: ${{ fromJSON(needs.check_labels.outputs.matrix) }}
 
     env:
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    environment:
+      name: ${{ matrix.path }}
+      url: https://github.com/rdhar/terraform-aws/tree/main/environments/${{ matrix.path }}
 
     steps:
       - name: Checkout
@@ -166,3 +59,114 @@ jobs:
         with:
           path: environments/${{ matrix.path }}
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
+
+  # run_terraform:
+  #   runs-on: ubuntu-latest
+  #   needs: ['check_labels']
+
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       path: ${{ fromJSON(needs.check_labels.outputs.matrix) }}
+
+  #   concurrency:
+  #     group: ${{ github.head_ref || github.run_id }}
+
+  #   defaults:
+  #     run:
+  #       shell: bash
+  #       working-directory: 'environments/${{ matrix.path }}'
+
+  #   env:
+  #     AWS_REGION: 'us-east-1'
+  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #     TF_IN_AUTOMATION: true
+  #     TF_INPUT: false
+
+  #   environment: ${{ matrix.path }}
+
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+
+  #     - name: Setup terraform cli
+  #       uses: hashicorp/setup-terraform@v2
+
+  #     - name: Terraform format
+  #       id: fmt
+  #       run: terraform fmt -recursive -check -diff
+  #       continue-on-error: true
+
+  #     - name: Terraform init
+  #       id: init
+  #       run: terraform init -backend-config="key=environments/${{ matrix.path }}/terraform.tfstate" # -no-color
+
+  #     - name: Terraform validate
+  #       id: validate
+  #       run: terraform validate -no-color
+
+  #     - name: Terraform plan
+  #       id: plan
+  #       if: github.event_name == 'pull_request'
+  #       run: terraform plan -no-color -out=tfplan && terraform show -no-color tfplan
+  #       continue-on-error: true
+
+  #     - name: Comment terraform diff
+  #       uses: actions/github-script@v6
+  #       if: github.event_name == 'pull_request'
+  #       env:
+  #         PLAN: ${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}
+  #       with:
+  #         script: |
+  #           // Retrieve existing bot comments for the PR
+  #           const { data: comments } = await github.rest.issues.listComments({
+  #             owner: context.repo.owner,
+  #             repo: context.repo.repo,
+  #             issue_number: context.issue.number,
+  #           })
+  #           const botComment = comments.find(comment => {
+  #             return comment.user.type === 'Bot' && comment.body.includes('Show \`${{ matrix.path }}\`')
+  #           })
+
+  #           // Prepare comment format
+  #           const output = `
+  #           | Terraform | Status                            |
+  #           | --------- | --------------------------------- |
+  #           | Format    | \`${{ steps.fmt.outcome }}\`      |
+  #           | Init      | \`${{ steps.init.outcome }}\`     |
+  #           | Validate  | \`${{ steps.validate.outcome }}\` |
+  #           | Plan      | \`${{ steps.plan.outcome }}\`     |
+
+  #           <details><summary>Show \`${{ matrix.path }}\` environment plan…</summary>
+
+  #           \`\`\`
+  #           ${process.env.PLAN}
+  #           \`\`\`
+
+  #           </details>`;
+
+  #           // Update if comment exists, otherwise create a new one
+  #           if (botComment) {
+  #             github.rest.issues.updateComment({
+  #               owner: context.repo.owner,
+  #               repo: context.repo.repo,
+  #               comment_id: botComment.id,
+  #               body: output
+  #             })
+  #           } else {
+  #             github.rest.issues.createComment({
+  #               issue_number: context.issue.number,
+  #               owner: context.repo.owner,
+  #               repo: context.repo.repo,
+  #               body: output
+  #             })
+  #           }
+
+  #     - name: Terraform plan status
+  #       if: steps.plan.outcome == 'failure'
+  #       run: exit ${{ steps.plan.outputs.exitcode }}
+
+  #     - name: Terraform apply
+  #       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #       run: terraform apply -auto-approve -no-color # -refresh=false
