@@ -11,7 +11,6 @@ on:
 
 jobs:
   set-labels:
-    if: github.event.action != 'labeled'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
