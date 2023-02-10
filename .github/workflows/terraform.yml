@@ -16,7 +16,6 @@ jobs:
 
     steps:
       - uses: actions/github-script@v6
-        id: labels_script
         with:
           script: |
             const { data: issueLabels } = await github.rest.issues.listLabelsOnIssue({
@@ -26,7 +25,8 @@ jobs:
             })
             return issueLabels.map((issueLabel) => issueLabel.name)
 
-      - run: echo ${{ steps.labels_script.outputs.result }}
+      - run: echo ${{ steps.labels_script.outputs.result }} >> $GITHUB_OUTPUT
+        id: labels_script
 
   run_terraform:
     runs-on: ubuntu-latest
@@ -35,9 +35,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        path: ${{ github.event.pull_request.labels.*.name }}
+        path: ${{ needs.check_labels.outputs.env_labels }}
+        # path: ${{ github.event.pull_request.labels.*.name }}
         # path: ['pre']
-        # path: ${{ needs.check_labels.outputs.env_labels }}
 
     concurrency:
       group: ${{ github.head_ref || github.run_id }}
