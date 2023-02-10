@@ -26,7 +26,7 @@ jobs:
             })
             return issueLabels.map((issueLabel) => issueLabel.name)
 
-      - run: echo ${{ steps.script.outputs.result }} >> $GITHUB_OUTPUT
+      - run: echo "${{ steps.script.outputs.result }}" >> $GITHUB_OUTPUT
         id: labels
 
   run_terraform:
