@@ -3,7 +3,6 @@ name: Terraform
 on:
   push:
     branches: [main]
-    paths: ['**.tf*']
   pull_request:
     types: [synchronize, opened, reopened, labeled, unlabeled]
   workflow_dispatch:
@@ -24,7 +23,6 @@ env:
 jobs:
   environments:
     runs-on: ubuntu-latest
-
     outputs:
       matrix: ${{ steps.set_matrix.outputs.result }}
 
@@ -42,11 +40,9 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            const result = issue_labels
+            return issue_labels
               .filter((label) => label.name.indexOf('tf:') === 0)
               .map((label) => label.name.replace(/tf:/g, ''));
-            console.log(result);
-            return result;
 
   plan:
     runs-on: ubuntu-latest
@@ -57,10 +53,6 @@ jobs:
       fail-fast: false
       matrix:
         path: ${{ fromJSON(needs.environments.outputs.matrix) }}
-
-    environment:
-      name: ${{ matrix.path }}
-      url: https://github.com/rdhar/terraform-aws/tree/main/environments/${{ matrix.path }}
 
     steps:
       - name: Checkout repository
