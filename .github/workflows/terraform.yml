@@ -24,15 +24,14 @@ jobs:
         id: set_matrix
         with:
           script: |
-            const { data: issueLabels } = await github.rest.issues.listLabelsOnIssue({
+            const { data: issue_labels } = await github.rest.issues.listLabelsOnIssue({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            console.log('---');
-            console.log(issueLabels);
-            console.log('---');
-            return issueLabels.map((issueLabel) => issueLabel.name.replace(/tf:/g, ''));
+            return issue_labels
+              .filter((label) => label.name.indexOf('tf:') === 0)
+              .map((label) => label.name.replace(/tf:/g, ''));
 
   plan:
     runs-on: ubuntu-latest
