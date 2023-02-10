@@ -45,7 +45,7 @@ jobs:
         with:
           script: |
             const { data: issue_labels } = await github.rest.issues.listLabelsOnIssue({
-              issue_number: context.issue.number,
+              issue_number: event.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
