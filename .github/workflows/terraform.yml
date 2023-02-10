@@ -27,6 +27,15 @@ jobs:
       matrix: ${{ steps.set_matrix.outputs.result }}
 
     steps:
+      - name: Test echo
+        run: |
+          echo github.context.issue.number = '${{ github.context.issue.number }}'
+          echo github.event.issue.number = '${{ github.event.issue.number }}'
+          echo github.event.number = '${{ github.event.number }}'
+          echo github.event.pull_request.number = '${{ github.event.pull_request.number }}'
+          echo 'pull_request_number::$(gh pr view --json number -q .number)'
+          echo '$(gh pr view --json number -q .number)'
+
       - name: GitHub context
         run: echo '${{ toJSON(github) }}'
 
