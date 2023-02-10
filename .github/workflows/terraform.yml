@@ -33,7 +33,6 @@ jobs:
               .filter((label) => label.name.indexOf('tf:') === 0)
               .map((label) => label.name.replace(/tf:/g, ''));
             console.log(result);
-            return result;
 
   plan:
     runs-on: ubuntu-latest
