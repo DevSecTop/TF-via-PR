@@ -50,13 +50,6 @@ jobs:
     concurrency:
       group: ${{ github.head_ref || github.run_id }}
 
-    defaults:
-      run:
-        shell: bash
-      with:
-        path: environments/${{ matrix.path }}
-        backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
-
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_REGION: us-east-1
@@ -71,22 +64,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Terraform format
-        uses: dflook/terraform-fmt-check@v1
-        with:
-
       - name: Terraform validate
         uses: dflook/terraform-validate@v1
         with:
+          path: environments/${{ matrix.path }}
+          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
+          path: environments/${{ matrix.path }}
+          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
       - name: Terraform apply
         if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
         uses: dflook/terraform-apply@v1
         with:
+          path: environments/${{ matrix.path }}
+          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
   #     - name: Terraform format
   #       id: fmt
