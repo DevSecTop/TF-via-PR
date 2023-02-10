@@ -154,6 +154,9 @@ jobs:
       matrix:
         path: ${{ fromJSON(needs.check_labels.outputs.matrix) }}
 
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
