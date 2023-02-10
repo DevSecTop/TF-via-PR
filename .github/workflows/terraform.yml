@@ -5,6 +5,7 @@ on:
     branches: ['main']
     paths: ['**.tf*']
   pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
 
 jobs:
