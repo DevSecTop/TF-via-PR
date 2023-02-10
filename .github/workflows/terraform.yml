@@ -35,7 +35,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        path: ['pre']
+        path: ${{ github.event.pull_request.labels.*.name }}
+        # path: ['pre']
         # path: ${{ needs.check_labels.outputs.env_labels }}
 
     concurrency:
