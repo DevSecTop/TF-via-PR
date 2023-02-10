@@ -26,6 +26,8 @@ jobs:
             })
             return issueLabels.map((issueLabel) => issueLabel.name);
 
+      - run: echo ${{ steps.labels_script.outputs.result }}
+
   run_terraform:
     runs-on: ubuntu-latest
     needs: ['check_labels']
