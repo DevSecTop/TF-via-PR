@@ -19,17 +19,6 @@ jobs:
       - name: GitHub context
         run: echo '${{ toJSON(github) }}'
 
-
-  # context_log:
-  #   runs-on: ubuntu-latest
-
-  #   env:
-  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  #   steps:
-  #     - name: GitHub context
-  #       run: echo ${{ toJSON(github) }}
-
   check_labels:
     runs-on: ubuntu-latest
 
