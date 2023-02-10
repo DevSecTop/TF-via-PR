@@ -60,7 +60,7 @@ jobs:
 
       - name: Terraform init
         id: init
-        run: terraform -chdir="environments/${{ matrix.path }}" init -backend-config="key=environments/${{ matrix.path }}/terraform.tfstate" # -input=false -no-color
+        run: terraform -chdir="environments/${{ matrix.path }}" init -backend-config="key=environments/${{ matrix.path }}/terraform.tfstate" # -no-color
 
       - name: Terraform validate
         id: validate
@@ -69,7 +69,7 @@ jobs:
       - name: Terraform plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: terraform -chdir="environments/${{ matrix.path }}" plan -input=false -no-color -out=tfplan && terraform -chdir="environments/${{ matrix.path }}" show -no-color tfplan
+        run: terraform -chdir="environments/${{ matrix.path }}" plan -no-color -out=tfplan && terraform -chdir="environments/${{ matrix.path }}" show -no-color tfplan
         continue-on-error: true
 
       - name: Comment terraform diff
@@ -129,4 +129,4 @@ jobs:
 
       # - name: Terraform apply
       #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      #   run: terraform -chdir="environments/${{ github.event.label.name }}" apply -auto-approve -input=false -no-color # -refresh=false
+      #   run: terraform -chdir="environments/${{ matrix.path }}" apply -auto-approve -no-color # -refresh=false
