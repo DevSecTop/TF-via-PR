@@ -64,8 +64,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: terraform plan
+      - name: Terraform plan
         uses: dflook/terraform-plan@v1
+        with:
+          path: environments/${{ matrix.path }}
+          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
+
+      - name: Terraform apply
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+        uses: dflook/terraform-apply@v1
         with:
           path: environments/${{ matrix.path }}
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
@@ -139,11 +146,3 @@ jobs:
   #               body: output
   #             })
   #           }
-
-  #     - name: Terraform plan status
-  #       if: steps.plan.outcome == 'failure'
-  #       run: exit ${{ steps.plan.outputs.exitcode }}
-
-  #     - name: Terraform apply
-  #       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  #       run: terraform apply -auto-approve -no-color # -refresh=false
