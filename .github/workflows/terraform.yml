@@ -33,8 +33,7 @@ jobs:
           echo github.event.issue.number = '${{ github.event.issue.number }}'
           echo github.event.number = '${{ github.event.number }}'
           echo github.event.pull_request.number = '${{ github.event.pull_request.number }}'
-          echo 'pull_request_number::$(gh pr view --json number -q .number)'
-          echo '$(gh pr view --json number -q .number)'
+          echo '${{ gh pr view --json number -q .number }}'
 
       - name: GitHub context
         run: echo '${{ toJSON(github) }}'
@@ -45,7 +44,7 @@ jobs:
         with:
           script: |
             const { data: issue_labels } = await github.rest.issues.listLabelsOnIssue({
-              issue_number: github.event.number,
+              issue_number: ${{ github.event.number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
