@@ -16,6 +16,7 @@ jobs:
 
     steps:
       - uses: actions/github-script@v6
+        id: script
         with:
           script: |
             const { data: issueLabels } = await github.rest.issues.listLabelsOnIssue({
@@ -25,8 +26,8 @@ jobs:
             })
             return issueLabels.map((issueLabel) => issueLabel.name)
 
-      - run: echo ${{ steps.labels_script.outputs.result }} >> $GITHUB_OUTPUT
-        id: labels_script
+      - run: echo ${{ steps.script.outputs.result }} >> $GITHUB_OUTPUT
+        id: labels
 
   run_terraform:
     runs-on: ubuntu-latest
