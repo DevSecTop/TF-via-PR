@@ -24,14 +24,14 @@ jobs:
               repo: context.repo.repo
             })
 
-            console.table(issueLabels)
+            console.log(issueLabels)
 
-            github.rest.issues.setLabels({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: [issueLabels.name]
-            })
+            // github.rest.issues.setLabels({
+            //   issue_number: context.issue.number,
+            //   owner: context.repo.owner,
+            //   repo: context.repo.repo,
+            //   labels: [issueLabels.name]
+            // })
 
   terraform-cli:
     if: github.event.action == 'labeled'
