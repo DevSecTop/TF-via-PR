@@ -27,18 +27,6 @@ jobs:
       matrix: ${{ steps.set_matrix.outputs.result }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Test echo
-        run: |
-          echo github.event.number = '${{ github.event.number }}'
-          echo github.event.pull_request.number = '${{ github.event.pull_request.number }}'
-          echo $(gh pr view --json number -q .number)
-
-      - name: GitHub context
-        run: echo '${{ toJSON(github) }}'
-
       - name: Set matrix
         uses: actions/github-script@v6
         id: set_matrix
