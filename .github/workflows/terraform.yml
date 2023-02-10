@@ -97,10 +97,12 @@ jobs:
             })
 
             // Prepare comment format
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            | Terraform | Status                            |
+            | --------- | --------------------------------- |
+            | Format    | \`${{ steps.fmt.outcome }}\`      |
+            | Init      | \`${{ steps.init.outcome }}\`     |
+            | Validate  | \`${{ steps.validate.outcome }}\` |
+            | Plan      | \`${{ steps.plan.outcome }}\`     |
 
             <details><summary>Show Plan</summary>
 
