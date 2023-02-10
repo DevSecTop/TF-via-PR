@@ -147,10 +147,13 @@ jobs:
 
   plan:
     runs-on: ubuntu-latest
+    needs: ['check_labels']
+
     strategy:
       fail-fast: false
       matrix:
         path: ${{ fromJSON(needs.check_labels.outputs.matrix) }}
+
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
