@@ -18,17 +18,17 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // const { data: issueLabels } = await github.rest.issues.listLabelsOnIssue({
-            //   issue_number: context.issue.number,
-            //   owner: context.repo.owner,
-            //   repo: context.repo.repo
-            // })
+            const { data: issueLabels } = await github.rest.issues.listLabelsOnIssue({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            })
 
             github.rest.issues.setLabels({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              labels: ['pre']
+              labels: issueLabels.map((issueLabel) => issueLabel.name)
             })
 
   terraform-cli:
