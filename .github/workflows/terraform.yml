@@ -74,7 +74,7 @@ jobs:
               issue_number: context.issue.number,
             })
             const botComment = comments.find(comment => {
-              return comment.user.type === 'bot' && comment.body.includes('Terraform | Status')
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform | Status')
             })
 
             // Prepare comment format
