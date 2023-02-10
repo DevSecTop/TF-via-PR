@@ -54,10 +54,6 @@ jobs:
       matrix:
         path: ${{ fromJSON(needs.environments.outputs.matrix) }}
 
-    environment:
-      name: ${{ matrix.path }}
-      url: https://github.com/rdhar/terraform-aws/tree/main/environments/${{ matrix.path }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
