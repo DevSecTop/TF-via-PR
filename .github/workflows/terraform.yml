@@ -150,4 +150,4 @@ jobs:
       - name: terraform plan
         uses: dflook/terraform-plan@v1
         with:
-          path: pre
+          path: 'environments/pre'
