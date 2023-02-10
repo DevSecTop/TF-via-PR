@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      envs: ${{ steps.labels.outputs.result }}
+      envs: ${{ steps.labels.outputs.envs }}
 
     steps:
       - id: script
@@ -27,7 +27,7 @@ jobs:
             return issueLabels.map((issueLabel) => issueLabel.name)
 
       - id: labels
-        run: echo "${{ steps.script.outputs.result }}" >> $GITHUB_OUTPUT
+        run: echo "envs=${{ steps.script.outputs.result }}" >> $GITHUB_OUTPUT
 
   run_terraform:
     runs-on: ubuntu-latest
