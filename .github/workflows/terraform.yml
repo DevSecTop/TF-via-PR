@@ -18,7 +18,7 @@ jobs:
       - uses: actions/github-script@v6
         id: labels_script
         with:
-          result-encoding: string
+          # result-encoding: string
           script: |
             const { data: issueLabels } = await github.rest.issues.listLabelsOnIssue({
               issue_number: context.issue.number,
