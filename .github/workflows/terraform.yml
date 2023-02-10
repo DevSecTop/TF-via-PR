@@ -23,7 +23,8 @@ jobs:
       - name: GitHub context
         run: echo '${{ toJSON(github) }}'
 
-      - uses: actions/github-script@v6
+      - name: Set matrix
+        uses: actions/github-script@v6
         id: set_matrix
         with:
           script: |
