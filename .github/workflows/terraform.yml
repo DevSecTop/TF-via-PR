@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    types: [synchronize, opened, reopened, labeled, unlabeled]
+    types: [synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
 
 permissions:
