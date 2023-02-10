@@ -110,7 +110,7 @@ jobs:
 
             </details>
 
-            _Ran \`${{ github.workflow }}\` workflow on \`${{ env.tf_actions_working_dir }}\` directory via \`${{ github.event_name }}\` by @${{ github.actor }}_;
+            _Ran \`${{ github.workflow }}\` workflow on \`${{ env.tf_actions_working_dir }}\` directory via \`${{ github.event_name }}\` by @${{ github.actor }}_`;
 
             // Update if comment exists, otherwise create a new one
             if (botComment) {
