@@ -14,8 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
 
-    matrix:
-      path: ['pre']
+    strategy:
+      matrix:
+        path: ['pre']
 
     concurrency:
       group: ${{ github.head_ref || github.run_id }}
