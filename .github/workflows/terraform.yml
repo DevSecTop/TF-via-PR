@@ -59,16 +59,15 @@ jobs:
       - name: Terraform plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: terraform -chdir="environments/${{ github.event.label.name }}" plan -input=false -no-color | grep -v "Refreshing state...\|Reading...\|Read complete after"
-        # run: terraform -chdir="environments/${{ github.event.label.name }}" plan -input=false -no-color -out=tfplan && terraform show -no-color tfplan
+        run: terraform -chdir="environments/${{ github.event.label.name }}" plan -input=false -no-color -out=tfplan && terraform show -no-color tfplan
+        # run: terraform -chdir="environments/${{ github.event.label.name }}" plan -input=false -no-color | grep -v "Refreshing state...\|Reading...\|Read complete after"
         continue-on-error: true
 
       - name: Comment terraform diff
         uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
-          PLAN: ${{ steps.plan.outputs.stdout }} | grep -v "Refreshing state...\|Reading...\|Read complete after"
-          # PLAN: ${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}
+          PLAN: ${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}
         with:
           script: |
             // Retrieve existing bot comments for the PR
