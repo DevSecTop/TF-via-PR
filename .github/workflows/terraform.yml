@@ -13,15 +13,23 @@ permissions:
   pull-requests: write
 
 jobs:
-  context_log:
+  dump_contexts_to_log:
     runs-on: ubuntu-latest
-
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     steps:
-      - name: GitHub context
-        run: echo ${{ toJSON(github) }}
+      - name: Dump GitHub context
+        id: github_context_step
+        run: echo '${{ toJSON(github) }}'
+
+
+  # context_log:
+  #   runs-on: ubuntu-latest
+
+  #   env:
+  #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  #   steps:
+  #     - name: GitHub context
+  #       run: echo ${{ toJSON(github) }}
 
   check_labels:
     runs-on: ubuntu-latest
