@@ -94,24 +94,16 @@ jobs:
               issue_number: context.issue.number,
             })
             const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('Terraform Status')
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform Format and Style')
             })
 
             // Prepare comment format
-            #### Terraform Status
-            * Format: \`${{ steps.fmt.outcome }}\`
-            * Init: \`${{ steps.init.outcome }}\`
-            * Validate: \`${{ steps.validate.outcome }}\`
-            * Plan: \`${{ steps.plan.outcome }}\`
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
 
-            // | Terraform | Status                            |
-            // | --------- | --------------------------------- |
-            // | Format    | \`${{ steps.fmt.outcome }}\`      |
-            // | Init      | \`${{ steps.init.outcome }}\`     |
-            // | Validate  | \`${{ steps.validate.outcome }}\` |
-            // | Plan      | \`${{ steps.plan.outcome }}\`     |
-
-            <details><summary>Show Plan…</summary>
+            <details><summary>Show Plan</summary>
 
             \`\`\`\n
             ${process.env.PLAN}
@@ -119,7 +111,7 @@ jobs:
 
             </details>
 
-            _Ran \`${{ github.workflow }}\` workflow on \`${{ env.tf_actions_working_dir }}\` directory via \`${{ github.event_name }}\` by @${{ github.actor }}_;
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
 
             // Update if comment exists, otherwise create a new one
             if (botComment) {
