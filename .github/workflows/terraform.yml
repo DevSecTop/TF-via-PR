@@ -92,9 +92,7 @@ jobs:
             ${process.env.PLAN}
             \`\`\`
 
-            </details>
-
-            _Run in \`environments/${{ github.event.label.name }}\` directory via \`${{ github.event_name }}\`_`;
+            </details>`;
 
             // Update if comment exists, otherwise create a new one
             if (botComment) {
