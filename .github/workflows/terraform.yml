@@ -13,8 +13,16 @@ jobs:
     if: github.event.action == 'labeled'
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+
+    matrix:
+      path: ['pre']
+
     concurrency:
       group: ${{ github.head_ref || github.run_id }}
+
+    defaults:
+      run:
+        shell: bash
 
     env:
       AWS_REGION: 'us-east-1'
@@ -22,10 +30,6 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TF_IN_AUTOMATION: true
       TF_INPUT: false
-
-    defaults:
-      run:
-        shell: bash
 
     steps:
       - name: Dump GitHub context
@@ -65,7 +69,6 @@ jobs:
           PLAN: ${{ steps.plan.outputs.stdout }} | grep -v "Refreshing state...\|Reading...\|Read complete after"
           # PLAN: ${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             // Retrieve existing bot comments for the PR
             const { data: comments } = await github.rest.issues.listComments({
