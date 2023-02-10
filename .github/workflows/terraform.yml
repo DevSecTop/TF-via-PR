@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths: ['**.tf*']
   pull_request:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    types: [synchronize, opened, reopened, labeled, unlabeled]
   workflow_dispatch:
 
 permissions:
@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: GitHub context
         run: echo ${{ toJSON(github) }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   check_labels:
     runs-on: ubuntu-latest
