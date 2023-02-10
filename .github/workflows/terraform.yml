@@ -29,7 +29,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo
             })
-            return issueLabels.map((issueLabel) => issueLabel.name)
+            return issueLabels.map((issueLabel) => issueLabel.name.replace(/tf:/g, ''))
 
   plan:
     runs-on: ubuntu-latest
