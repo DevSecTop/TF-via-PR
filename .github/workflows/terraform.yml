@@ -82,7 +82,8 @@ jobs:
         uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         env:
-          PLAN: ${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}
+          PLAN: ${{ steps.plan.outputs.stdout | grep -v "Refreshing state...\|Reading...\|Read complete after" }}
+          # PLAN: ${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -93,7 +94,7 @@ jobs:
               issue_number: context.issue.number,
             })
             const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('Terraform | Status')
+              return comment.user.type === 'bot' && comment.body.includes('Terraform | Status')
             })
 
             // Prepare comment format
@@ -113,7 +114,7 @@ jobs:
 
             </details>
 
-            _Ran \`${{ github.workflow }}\` workflow on \`environments/${{ github.event.label.name }}\` directory via \`${{ github.event_name }}\` by @${{ github.actor }}_`;
+            _Run in \`environments/${{ github.event.label.name }}\` directory via \`${{ github.event_name }}\`_`;
 
             // Update if comment exists, otherwise create a new one
             if (botComment) {
