@@ -8,14 +8,33 @@ on:
     types: ['labeled', 'opened', 'synchronize', 'reopened']
     paths: ['**.tf*']
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Terraform environment'
-        type: environment
-        required: true
 
 jobs:
+  set-labels:
+    if: github.event.action != 'labeled'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueLabels = github.rest.issues.listLabelsOnIssue({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            })
+
+            console.table(issueLabels)
+
+            github.rest.issues.setLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: issueLabels
+            })
+
   terraform-cli:
+    if: github.event.action == 'labeled'
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     concurrency:
@@ -77,16 +96,22 @@ jobs:
               issue_number: context.issue.number,
             })
             const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('Terraform | Status')
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform Status')
             })
 
             // Prepare comment format
-            \| Terraform \| Status                            \|
-            \| --------- \| --------------------------------- \|
-            \| Format    \| \`${{ steps.fmt.outcome }}\`      \|
-            \| Init      \| \`${{ steps.init.outcome }}\`     \|
-            \| Validate  \| \`${{ steps.validate.outcome }}\` \|
-            \| Plan      \| \`${{ steps.plan.outcome }}\`     \|
+            #### Terraform Status
+            * Format: \`${{ steps.fmt.outcome }}\`
+            * Init: \`${{ steps.init.outcome }}\`
+            * Validate: \`${{ steps.validate.outcome }}\`
+            * Plan: \`${{ steps.plan.outcome }}\`
+
+            // | Terraform | Status                            |
+            // | --------- | --------------------------------- |
+            // | Format    | \`${{ steps.fmt.outcome }}\`      |
+            // | Init      | \`${{ steps.init.outcome }}\`     |
+            // | Validate  | \`${{ steps.validate.outcome }}\` |
+            // | Plan      | \`${{ steps.plan.outcome }}\`     |
 
             <details><summary>Show Plan…</summary>
 
