@@ -35,8 +35,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        path: ${{ needs.check-labels.outputs.env_labels }}
-        # path: ['pre']
+        path: ['pre']
+        # path: ${{ needs.check-labels.outputs.env_labels }}
 
     concurrency:
       group: ${{ github.head_ref || github.run_id }}
@@ -53,6 +53,8 @@ jobs:
       TF_INPUT: false
 
     steps:
+      - run: echo "${{ needs.check-labels.outputs.env_labels }}"
+
       - name: Dump GitHub context
         id: github_context_step
         run: echo '${{ toJSON(github) }}'
