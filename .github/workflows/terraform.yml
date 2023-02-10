@@ -13,6 +13,13 @@ permissions:
   pull-requests: write
 
 jobs:
+  context_log:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: GitHub context
+        run: echo ${{ toJSON(github) }}
+
   check_labels:
     runs-on: ubuntu-latest
 
