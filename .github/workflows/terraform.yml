@@ -24,7 +24,7 @@ jobs:
               repo: context.repo.repo
             })
 
-            console.log(issueLabels)
+            console.log(issueLabels.name)
 
             // github.rest.issues.setLabels({
             //   issue_number: context.issue.number,
