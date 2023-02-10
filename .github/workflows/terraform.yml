@@ -58,12 +58,14 @@ jobs:
       - name: Terraform validate
         uses: dflook/terraform-validate@v1
         with:
+          label: ${{ matrix.path }}
           path: environments/${{ matrix.path }}
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
+          label: ${{ matrix.path }}
           path: environments/${{ matrix.path }}
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
@@ -79,7 +81,7 @@ jobs:
 
     environment:
       name: ${{ matrix.path }}
-      url: https://github.com/rdhar/terraform-aws/tree/main/environments/${{ matrix.path }}
+      url: https://github.com/${{ github.repository }}/pull/${{ github.event.number }}/checks
 
     steps:
       - name: Checkout repository
@@ -88,5 +90,6 @@ jobs:
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         with:
+          label: ${{ matrix.path }}
           path: environments/${{ matrix.path }}
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
