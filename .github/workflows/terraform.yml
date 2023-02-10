@@ -6,7 +6,6 @@ on:
     paths: ['**.tf*']
   pull_request:
     types: ['labeled', 'opened', 'synchronize', 'reopened']
-    paths: ['**.tf*']
   workflow_dispatch:
 
 jobs:
@@ -42,6 +41,7 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       TF_IN_AUTOMATION: true
+      TF_INPUT: false
 
     defaults:
       run:
@@ -93,7 +93,7 @@ jobs:
               issue_number: context.issue.number,
             })
             const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('Terraform Format and Style')
+              return comment.user.type === 'Bot' && comment.body.includes('Terraform | Status')
             })
 
             // Prepare comment format
@@ -105,7 +105,7 @@ jobs:
             | Validate  | \`${{ steps.validate.outcome }}\` |
             | Plan      | \`${{ steps.plan.outcome }}\`     |
 
-            <details><summary>Show Plan</summary>
+            <details><summary>Show Plan…</summary>
 
             \`\`\`\n
             ${process.env.PLAN}
@@ -113,7 +113,7 @@ jobs:
 
             </details>
 
-            _Ran \`${{ github.workflow }}\` workflow on \`${{ env.tf_actions_working_dir }}\` directory via \`${{ github.event_name }}\` by @${{ github.actor }}_`;
+            _Ran \`${{ github.workflow }}\` workflow on \`environments/${{ github.event.label.name }}\` directory via \`${{ github.event_name }}\` by @${{ github.actor }}_`;
 
             // Update if comment exists, otherwise create a new one
             if (botComment) {
