@@ -45,7 +45,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        path: ${{ fromJSON('[ 'pre' ]') }}
+        path: ['pre']
+        # path: ${{ fromJSON(needs.environments.outputs.matrix) }}
 
     concurrency:
       group: ${{ github.head_ref || github.run_id }}
