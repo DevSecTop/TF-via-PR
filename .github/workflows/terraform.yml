@@ -5,12 +5,10 @@ on:
     branches: ['main']
     paths: ['**.tf*']
   pull_request:
-    types: ['labeled', 'opened', 'synchronize', 'reopened']
   workflow_dispatch:
 
 jobs:
   terraform-cli:
-    if: github.event.action == 'labeled'
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
 
@@ -50,17 +48,16 @@ jobs:
 
       - name: Terraform init
         id: init
-        run: terraform -chdir="environments/${{ github.event.label.name }}" init -backend-config="key=environments/${{ github.event.label.name }}/terraform.tfstate" # -input=false -no-color
+        run: terraform -chdir="environments/${{ matrix.path }}" init -backend-config="key=environments/${{ matrix.path }}/terraform.tfstate" # -input=false -no-color
 
       - name: Terraform validate
         id: validate
-        run: terraform -chdir="environments/${{ github.event.label.name }}" validate -no-color
+        run: terraform -chdir="environments/${{ matrix.path }}" validate -no-color
 
       - name: Terraform plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: terraform -chdir="environments/${{ github.event.label.name }}" plan -input=false -no-color -out=tfplan && terraform -chdir="environments/${{ github.event.label.name }}" show -no-color tfplan
-        # run: terraform -chdir="environments/${{ github.event.label.name }}" plan -input=false -no-color | grep -v "Refreshing state...\|Reading...\|Read complete after"
+        run: terraform -chdir="environments/${{ matrix.path }}" plan -input=false -no-color -out=tfplan && terraform -chdir="environments/${{ matrix.path }}" show -no-color tfplan
         continue-on-error: true
 
       - name: Comment terraform diff
@@ -77,7 +74,7 @@ jobs:
               issue_number: context.issue.number,
             })
             const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('Show \`${{ github.event.label.name }}\`')
+              return comment.user.type === 'Bot' && comment.body.includes('Show \`${{ matrix.path }}\`')
             })
 
             // Prepare comment format
@@ -89,7 +86,7 @@ jobs:
             | Validate  | \`${{ steps.validate.outcome }}\` |
             | Plan      | \`${{ steps.plan.outcome }}\`     |
 
-            <details><summary>Show \`${{ github.event.label.name }}\` environment plan…</summary>
+            <details><summary>Show \`${{ matrix.path }}\` environment plan…</summary>
 
             \`\`\`
             ${process.env.PLAN}
