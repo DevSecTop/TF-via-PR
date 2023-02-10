@@ -77,7 +77,7 @@ jobs:
               issue_number: context.issue.number,
             })
             const botComment = comments.find(comment => {
-              return comment.user.type === 'Bot' && comment.body.includes('plan for \`${{ github.event.label.name }}\`')
+              return comment.user.type === 'Bot' && comment.body.includes('Show \`${{ github.event.label.name }}\`')
             })
 
             // Prepare comment format
@@ -89,9 +89,9 @@ jobs:
             | Validate  | \`${{ steps.validate.outcome }}\` |
             | Plan      | \`${{ steps.plan.outcome }}\`     |
 
-            <details><summary>Show plan for \`${{ github.event.label.name }}\` environment…</summary>
+            <details><summary>Show \`${{ github.event.label.name }}\` environment plan…</summary>
 
-            \`\`\`\n
+            \`\`\`
             ${process.env.PLAN}
             \`\`\`
 
