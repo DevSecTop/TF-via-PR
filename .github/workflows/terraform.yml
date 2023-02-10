@@ -16,11 +16,12 @@ jobs:
   context_log:
     runs-on: ubuntu-latest
 
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - name: GitHub context
         run: echo ${{ toJSON(github) }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   check_labels:
     runs-on: ubuntu-latest
