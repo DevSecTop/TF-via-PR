@@ -24,12 +24,12 @@ jobs:
               repo: context.repo.repo
             })
 
-            github.rest.issues.addLabels({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: ['bug']
-            })
+            // github.rest.issues.addLabels({
+            //   issue_number: context.issue.number,
+            //   owner: context.repo.owner,
+            //   repo: context.repo.repo,
+            //   labels: ['bug']
+            // })
 
             // github.rest.issues.setLabels({
             //   issue_number: context.issue.number,
