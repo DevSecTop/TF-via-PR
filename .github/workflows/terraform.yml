@@ -147,6 +147,10 @@ jobs:
 
   plan:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        path: ${{ fromJSON(needs.check_labels.outputs.matrix) }}
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -156,4 +160,5 @@ jobs:
       - name: terraform plan
         uses: dflook/terraform-plan@v1
         with:
-          path: 'environments/pre'
+          path: environments/${{ matrix.path }}
+          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
