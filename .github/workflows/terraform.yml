@@ -35,7 +35,7 @@ jobs:
         id: set_matrix
         with:
           script: |
-            if (context.issue.number) {
+            if (!isNaN(context.issue.number)) {
               const tf_labels = (
                 await github.rest.issues.listLabelsOnIssue({
                   issue_number: context.issue.number,
@@ -44,6 +44,8 @@ jobs:
                 })
               ).data;
             }
+            console.log('${{ github.event.number }}');
+            console.log(context.issue.number);
             console.log(tf_labels.map((label) => label.name.replace(/tf:/g, '')));
 
   # plan:
