@@ -96,7 +96,7 @@ jobs:
 
     environment:
       name: ${{ matrix.path }}
-      url: https://github.com/${{ github.repository }}/pull/${{ github.event.number }}/checks
+      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     steps:
       - name: Checkout repository
