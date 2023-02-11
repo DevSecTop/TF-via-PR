@@ -35,23 +35,11 @@ jobs:
         id: set_matrix
         with:
           script: |
-            if (${{ github.event.number }}) {
-              const tf_labels = (
-                await github.rest.issues.listLabelsOnIssue({
-                  issue_number: context.issue.number,
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                })
-              ).data;
-            } else {
-              const tf_labels = (
-                await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                  commit_sha: ${{ github.sha }},
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                })
-              ).data[0].labels;
-            }
+            const { data: tf_labels } = await github.rest.issues.listLabelsOnIssue({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
             return tf_labels
               .filter((label) => label.name.indexOf('tf:') === 0)
               .map((label) => label.name.replace(/tf:/g, ''));
