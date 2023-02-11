@@ -47,15 +47,15 @@ jobs:
             } else {
               tf_labels = (
                 await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                  commit_sha: '${{ github.sha }}',
+                  commit_sha: context.sha,
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                 })
               ).data[0].labels;
             }
-            console.log('${{ github.sha }}');
-            console.log(context.sha);
-            console.log(tf_labels.map((label) => label.name.replace(/tf:/g, '')));
+            return tf_labels
+              .filter((label) => label.name.indexOf('tf:') === 0)
+              .map((label) => label.name.replace(/tf:/g, ''));
 
   # plan:
   #   runs-on: ubuntu-latest
