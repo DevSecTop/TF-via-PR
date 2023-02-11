@@ -60,7 +60,7 @@ jobs:
   plan:
     runs-on: ubuntu-latest
     needs: [environments]
-    if: ${{ needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' && github.event_name == 'pull_request' }}
+    if: ${{ github.event_name == 'pull_request' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
 
     strategy:
       fail-fast: false
@@ -87,7 +87,7 @@ jobs:
   apply:
     runs-on: ubuntu-latest
     needs: [environments]
-    if: ${{ needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' && github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
 
     strategy:
       fail-fast: false
