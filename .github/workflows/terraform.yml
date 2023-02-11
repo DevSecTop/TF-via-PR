@@ -30,6 +30,13 @@ jobs:
       - name: Github context
         run: echo '${{ toJSON(github) }}'
 
+      - name: Echo numbers
+        run: |
+          echo github.event.number = ${{ github.event.number }}
+          echo github.event.issue.number = ${{ github.event.issue.number }}
+          echo github.event.pull_request.number = ${{ github.event.pull_request.number }}
+          echo github.context.issue.number = ${{ github.context.issue.number }}
+
       - name: Set matrix
         uses: actions/github-script@v6
         id: set_matrix
