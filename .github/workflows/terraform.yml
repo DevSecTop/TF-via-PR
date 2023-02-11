@@ -40,11 +40,9 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            const result = issue_labels
+            return issue_labels
               .filter((label) => label.name.indexOf('tf:') === 0)
               .map((label) => label.name.replace(/tf:/g, ''));
-            console.log(result);
-            return result;
 
   # plan:
   #   runs-on: ubuntu-latest
