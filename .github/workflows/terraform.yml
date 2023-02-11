@@ -27,6 +27,9 @@ jobs:
       matrix: ${{ steps.set_matrix.outputs.result }}
 
     steps:
+      - name: Github context
+        run: echo '${{ toJSON(github) }}'
+
       - name: Set matrix
         uses: actions/github-script@v6
         id: set_matrix
@@ -37,58 +40,60 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            return issue_labels
+            const result = issue_labels
               .filter((label) => label.name.indexOf('tf:') === 0)
               .map((label) => label.name.replace(/tf:/g, ''));
+            console.log(result);
+            return result;
 
-  plan:
-    runs-on: ubuntu-latest
-    needs: [environments]
-    if: ${{ needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' && github.event_name == 'pull_request' }}
+  # plan:
+  #   runs-on: ubuntu-latest
+  #   needs: [environments]
+  #   if: ${{ needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' && github.event_name == 'pull_request' }}
 
-    strategy:
-      fail-fast: false
-      matrix:
-        path: ${{ fromJSON(needs.environments.outputs.matrix) }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       path: ${{ fromJSON(needs.environments.outputs.matrix) }}
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: Terraform validate
-        uses: dflook/terraform-validate@v1
-        with:
-          path: environments/${{ matrix.path }}
-          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
+  #     - name: Terraform validate
+  #       uses: dflook/terraform-validate@v1
+  #       with:
+  #         path: environments/${{ matrix.path }}
+  #         backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
-      - name: Terraform plan
-        uses: dflook/terraform-plan@v1
-        with:
-          label: ${{ matrix.path }}
-          path: environments/${{ matrix.path }}
-          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
+  #     - name: Terraform plan
+  #       uses: dflook/terraform-plan@v1
+  #       with:
+  #         label: ${{ matrix.path }}
+  #         path: environments/${{ matrix.path }}
+  #         backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
-  apply:
-    runs-on: ubuntu-latest
-    needs: [environments]
-    if: ${{ needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' && github.event_name == 'push' }}
+  # apply:
+  #   runs-on: ubuntu-latest
+  #   needs: [environments]
+  #   if: ${{ needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' && github.event_name == 'push' }}
 
-    strategy:
-      fail-fast: false
-      matrix:
-        path: ${{ fromJSON(needs.environments.outputs.matrix) }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       path: ${{ fromJSON(needs.environments.outputs.matrix) }}
 
-    environment:
-      name: ${{ matrix.path }}
-      url: https://github.com/${{ github.repository }}/pull/${{ github.event.number }}/checks
+  #   environment:
+  #     name: ${{ matrix.path }}
+  #     url: https://github.com/${{ github.repository }}/pull/${{ github.event.number }}/checks
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: Terraform apply
-        uses: dflook/terraform-apply@v1
-        with:
-          label: ${{ matrix.path }}
-          path: environments/${{ matrix.path }}
-          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
+  #     - name: Terraform apply
+  #       uses: dflook/terraform-apply@v1
+  #       with:
+  #         label: ${{ matrix.path }}
+  #         path: environments/${{ matrix.path }}
+  #         backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
