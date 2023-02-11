@@ -75,6 +75,7 @@ jobs:
         uses: dflook/terraform-validate@v1
         with:
           path: environments/${{ matrix.path }}
+          backend_config_file: modules/backend.tfvars
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
       - name: Terraform plan
@@ -82,6 +83,7 @@ jobs:
         with:
           label: ${{ matrix.path }}
           path: environments/${{ matrix.path }}
+          backend_config_file: modules/backend.tfvars
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
   apply:
@@ -107,4 +109,5 @@ jobs:
         with:
           label: ${{ matrix.path }}
           path: environments/${{ matrix.path }}
+          backend_config_file: modules/backend.tfvars
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
