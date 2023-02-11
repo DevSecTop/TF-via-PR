@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    types: [synchronize, opened, reopened, labeled, unlabeled]
+    types: [synchronize, reopened, labeled, unlabeled]
   workflow_dispatch:
 
 permissions:
@@ -27,16 +27,13 @@ jobs:
       matrix: ${{ steps.set_matrix.outputs.result }}
 
     steps:
-      - name: GitHub context
-        run: echo '${{ toJSON(github) }}'
-
       - name: Set matrix
         uses: actions/github-script@v6
         id: set_matrix
         with:
           script: |
             const { data: issue_labels } = await github.rest.issues.listLabelsOnIssue({
-              issue_number: context.issue.number,
+              issue_number: ${{ github.event.number }},
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
@@ -67,6 +64,7 @@ jobs:
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
+          label: ${{ matrix.path }}
           path: environments/${{ matrix.path }}
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
@@ -82,7 +80,7 @@ jobs:
 
     environment:
       name: ${{ matrix.path }}
-      url: https://github.com/rdhar/terraform-aws/tree/main/environments/${{ matrix.path }}
+      url: https://github.com/${{ github.repository }}/pull/${{ github.event.number }}/checks
 
     steps:
       - name: Checkout repository
@@ -91,5 +89,6 @@ jobs:
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         with:
+          label: ${{ matrix.path }}
           path: environments/${{ matrix.path }}
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
