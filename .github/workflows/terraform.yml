@@ -44,9 +44,17 @@ jobs:
                   repo: context.repo.repo,
                 })
               ).data;
+            } else {
+              tf_labels = (
+                await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  commit_sha: '${{ github.sha }}',
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                })
+              ).data[0].labels;
             }
-            console.log('${{ github.event.number }}');
-            console.log(context.issue.number);
+            console.log('${{ github.sha }}');
+            console.log(context.sha);
             console.log(tf_labels.map((label) => label.name.replace(/tf:/g, '')));
 
   # plan:
