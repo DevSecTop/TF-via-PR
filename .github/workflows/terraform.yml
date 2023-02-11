@@ -59,16 +59,16 @@ jobs:
         uses: dflook/terraform-validate@v1
         with:
           path: environments/${{ matrix.path }}
-          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
           backend_config_file: environments/providers.tf
+          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
           label: ${{ matrix.path }}
           path: environments/${{ matrix.path }}
-          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
           backend_config_file: environments/providers.tf
+          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
   apply:
     runs-on: ubuntu-latest
