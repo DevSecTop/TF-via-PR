@@ -35,7 +35,7 @@ jobs:
         id: set_matrix
         with:
           script: |
-            if (context.issue.number) {
+            if (${{ github.event.number }}) {
               const tf_labels = (
                 await github.rest.issues.listLabelsOnIssue({
                   issue_number: context.issue.number,
