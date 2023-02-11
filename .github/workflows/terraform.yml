@@ -53,6 +53,7 @@ jobs:
                 })
               ).data[0].labels;
             }
+            console.log(tf_labels.map((label) => label.name.replace(/tf:/g, '')));
             return tf_labels
               .filter((label) => label.name.indexOf('tf:') === 0)
               .map((label) => label.name.replace(/tf:/g, ''));
