@@ -30,24 +30,29 @@ jobs:
       - name: Github context
         run: echo '${{ toJSON(github) }}'
 
-      - name: Echo numbers
-        run: |
-          echo github.event.number = ${{ github.event.number }}
-          echo github.event.issue.number = ${{ github.event.issue.number }}
-          echo github.event.pull_request.number = ${{ github.event.pull_request.number }}
-          echo github.context.issue.number = ${{ github.context.issue.number }}
-
       - name: Set matrix
         uses: actions/github-script@v6
         id: set_matrix
         with:
           script: |
-            const { data: issue_labels } = await github.rest.issues.listLabelsOnIssue({
-              issue_number: ${{ github.event.number }},
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-            return issue_labels
+            if (context.issue.number) {
+              const tf_labels = (
+                await github.rest.issues.listLabelsOnIssue({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                })
+              ).data;
+            } else {
+              const tf_labels = (
+                await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  commit_sha: ${{ github.sha }},
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                })
+              ).data[0].labels;
+            }
+            return tf_labels
               .filter((label) => label.name.indexOf('tf:') === 0)
               .map((label) => label.name.replace(/tf:/g, ''));
 
