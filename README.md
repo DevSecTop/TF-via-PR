@@ -49,9 +49,11 @@
 
 1. Merge the PR to re-activate the workflow and deploy your IaC to each environment with the plan output via `terraform apply`.
 
+   1. To maintain state lock of the backend, the workflow includes build concurrency control. In addition, a merge queue requirement can be enforced to prevent overlapping runs while increasing the rate at which PRs are merged. See [this article](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/merging-a-pull-request-with-a-merge-queue) for more information.
+
 ## Contributions
 
-PRs are welcome and appreciated. Please open [an issue](https://github.com/rdhar/terraform-aws/issues/new/choose) if you would like to discuss any changes.
+PRs are welcome and appreciated. Please open [a discussion](https://github.com/rdhar/aws-terraform-multiple-environments/discussions) if you would like to get in touch.
 
 Major props to [dflook/terraform-github-actions](https://github.com/dflook/terraform-github-actions) for making this CI/CD possible with ease.
 
