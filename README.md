@@ -1,6 +1,6 @@
-# AWS Terraform Workflow from Multiple Directories
+# AWS Terraform Workflow from Multiple Environments
 
-> Terraform is a platform-agnostic tool which can orchestrate AWS infrastructure as code (IaC). This workflow enables deployment from multiple directories via GitHub Actions only. Use-cases include environment isolation and/or managing multiple AWS accounts with different backends from a single repository.
+> Terraform is a platform-agnostic tool which can orchestrate AWS infrastructure as code (IaC). This workflow enables deployment from multiple environments via GitHub Actions only. Use-cases include directory-based environment isolation and management of multiple AWS backends from a single repository.
 
 - [Prerequisites](#prerequisites)
 - [Usage](#usage)
