@@ -1,41 +1,55 @@
 name: Terraform
 
 on:
-  push:
-    branches: [main]
+  # For terraform plan
   pull_request:
     types: [synchronize, reopened, labeled, unlabeled]
+
+  # For terraform apply
+  push:
+    branches: [main]
+
+  # Fallback on manual trigger
   workflow_dispatch:
 
+# For GITHUB_TOKEN to amend pull request comments
 permissions:
   contents: read
   pull-requests: write
 
+# To run a single job at a time along with a fallback value
 concurrency:
   group: ${{ github.head_ref || github.run_id }}
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_REGION: us-east-1
+  AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
+  # Get the list of environments on which to run terraform plan/apply
   environments:
     runs-on: ubuntu-latest
+
+    # Set the list of environments as output for subsequent jobs
     outputs:
       matrix: ${{ steps.set_matrix.outputs.result }}
 
     steps:
+      # Print github context for debugging
       - name: Github context
         run: echo '${{ toJSON(github) }}'
 
+      # Query GitHub API to return a filtered list of labels
       - name: Set matrix
         uses: actions/github-script@v6
         id: set_matrix
         with:
           script: |
             let result;
+
+            // If issue number is present (on pull_request event) then get the labels from the issue
             if (context.issue.number) {
               result = (
                 await github.rest.issues.listLabelsOnIssue({
@@ -44,6 +58,8 @@ jobs:
                   repo: context.repo.repo,
                 })
               ).data;
+
+            // Otherwise (on push event) get the labels from the commit
             } else {
               result = (
                 await github.rest.repos.listPullRequestsAssociatedWithCommit({
@@ -53,15 +69,19 @@ jobs:
                 })
               ).data[0].labels;
             }
+
+            // Return filtered list of labels with 'tf:' prefix removed
             return result
-              .filter((label) => label.name.indexOf('tf:') === 0)
+              .filter((label) => label.name.startsWith('tf:'))
               .map((label) => label.name.replace(/tf:/g, ''));
 
   plan:
+    # Only run on pull_request event if one or more environments are present
+    if: ${{ github.event_name == 'pull_request' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
     runs-on: ubuntu-latest
     needs: [environments]
-    if: ${{ github.event_name == 'pull_request' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
 
+    # Run for each environment and continue to release state lock on fail
     strategy:
       fail-fast: false
       matrix:
@@ -71,31 +91,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Check terraform configuration is valid
       - name: Terraform validate
         uses: dflook/terraform-validate@v1
         with:
           path: environments/${{ matrix.path }}
-          backend_config_file: modules/backend.tfvars
+          backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
+      # Run terraform plan with environment label
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
           label: ${{ matrix.path }}
           path: environments/${{ matrix.path }}
-          backend_config_file: modules/backend.tfvars
+          backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
 
   apply:
+    # Only run on push event if one or more environments are present
+    if: ${{ github.event_name == 'push' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
     runs-on: ubuntu-latest
     needs: [environments]
-    if: ${{ github.event_name == 'push' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
 
+    # Run for each environment and continue to release state lock on fail
     strategy:
       fail-fast: false
       matrix:
         path: ${{ fromJSON(needs.environments.outputs.matrix) }}
 
+    # Set GitHub environment to track deployment status
     environment:
       name: ${{ matrix.path }}
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -104,10 +129,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Run terraform apply with environment label
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         with:
           label: ${{ matrix.path }}
           path: environments/${{ matrix.path }}
-          backend_config_file: modules/backend.tfvars
+          backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
