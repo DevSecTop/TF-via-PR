@@ -20,7 +20,7 @@ permissions:
 # To run a single job at a time along with a fallback value
 concurrency:
   cancel-in-progress: true
-  group: ${{ github.head_ref || github.run_id }}
+  group: ${{ ${{ github.workflow }}-${{ github.head_ref }} || github.run_id }}
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
