@@ -114,6 +114,16 @@ jobs:
           backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
 
+      # Initialise terraform workspace if required
+      - name: Terraform workspace
+        if: env.tf_workspace != 'default'
+        uses: dflook/terraform-new-workspace@v1
+        with:
+          workspace: ${{ env.tf_workspace }}
+          path: environments/${{ env.tf_environment }}
+          backend_config_file: environments/backend.tfvars
+          backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
+
       # Run terraform plan with environment and workspace
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
