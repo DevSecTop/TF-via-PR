@@ -87,9 +87,9 @@ jobs:
     steps:
       - name: test
         run: |
-          echo ${{ matrix.path }}
-          echo ${ ${{ matrix.path }} //--*/.}
-          echo ${ ${{ matrix.path }} //*--/.}
+          input = ${{ matrix.path }}
+          echo ${input/--*}
+          echo ${input/*--}
 
   # plan:
   #   # Only run on pull_request event if one or more environments are present
