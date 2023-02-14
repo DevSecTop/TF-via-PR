@@ -128,7 +128,7 @@ jobs:
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
-          label: ${{ env.tf_environment }}
+          label: ${{ env.tf_environment }}-${{ env.tf_workspace }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -170,7 +170,7 @@ jobs:
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         with:
-          label: ${{ env.tf_environment }}
+          label: ${{ env.tf_environment }}-${{ env.tf_workspace }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
