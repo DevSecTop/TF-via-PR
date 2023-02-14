@@ -59,9 +59,8 @@ Major props to [dflook/terraform-github-actions](https://github.com/dflook/terra
 
 ## To-do
 
-- Support [workspaces](https://developer.hashicorp.com/terraform/cloud-docs/workspaces), with ephemeral test-environments as a use-case.
+- Support ephemeral test-environments as a use-case.
 - Enable destruction of a given environment using "tf_destroy:" prefix.
-- Add workflow run > job URL to deployment environment link.
 
 ## License
 
