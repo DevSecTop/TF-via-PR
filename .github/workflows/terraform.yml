@@ -20,7 +20,7 @@ permissions:
 # To run a single job at a time along with a fallback value
 concurrency:
   cancel-in-progress: true
-  group: ${{ github.workflow }}-${{ github.head_ref }} || ${{ github.run_id }}
+  group: ${{ github.workflow }}--${{ github.head_ref }} || ${{ github.run_id }}
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -113,12 +113,13 @@ jobs:
           string="${{ matrix.path }}"
           echo tf_environment=${string/--*} >> $GITHUB_ENV
           echo tf_workspace=${string/*--} >> $GITHUB_ENV
-          echo ${{ github.workflow }}-${{ github.head_ref }}
+          echo ${{ github.workflow }}--${{ github.head_ref }}
 
       # Check terraform configuration is valid
       - name: Terraform validate
         uses: dflook/terraform-validate@v1
         with:
+          label: ${{ env.tf_environment }}--${{ env.tf_workspace }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -128,7 +129,7 @@ jobs:
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
-          label: ${{ env.tf_environment }}-${{ env.tf_workspace }}
+          label: ${{ env.tf_environment }}--${{ env.tf_workspace }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -170,7 +171,7 @@ jobs:
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         with:
-          label: ${{ env.tf_environment }}-${{ env.tf_workspace }}
+          label: ${{ env.tf_environment }}--${{ env.tf_workspace }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
