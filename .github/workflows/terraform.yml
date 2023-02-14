@@ -95,7 +95,7 @@ jobs:
     # Only run on pull_request event if one or more environments are present
     if: ${{ github.event_name == 'pull_request' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
     runs-on: ubuntu-latest
-    needs: [environments]
+    needs: [test]
 
     steps:
       - name: test
