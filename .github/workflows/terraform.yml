@@ -74,7 +74,8 @@ jobs:
             // Return filtered list of labels with 'tf:' prefix removed
             return result
               .filter((label) => label.name.startsWith('tf:'))
-              .map((label) => label.name.replace(/tf:/g, ''));
+              .map((label) => label.name.replace('tf:', ''))
+              .map((label) => (label.match('--') ? label : label + '--default'));
 
   plan:
     # Only run on pull_request event if one or more environments are present
@@ -96,18 +97,20 @@ jobs:
       - name: Terraform validate
         uses: dflook/terraform-validate@v1
         with:
-          path: environments/${{ matrix.path }}
+          path: environments/${{ matrix.path/--* }}
           backend_config_file: environments/backend.tfvars
-          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
+          backend_config: key=environments/${{ matrix.path/--* }}/terraform.tfstate
+          # workspace: ${{ matrix.path /*-- }}
 
       # Run terraform plan with environment label
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
-          label: ${{ matrix.path }}
-          path: environments/${{ matrix.path }}
+          label: ${{ matrix.path/--* }}
+          workspace: ${{ matrix.path /*-- }}
           backend_config_file: environments/backend.tfvars
-          backend_config: key=environments/${{ matrix.path }}/terraform.tfstate
+          backend_config: key=environments/${{ matrix.path/--* }}/terraform.tfstate
+          # path: environments/${{ matrix.path/--* }}
 
   apply:
     # Only run on push event if one or more environments are present
