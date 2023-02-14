@@ -79,7 +79,7 @@ jobs:
 
   plan:
     # Only run on pull_request event if one or more environments are present
-    if: ${{ github.event_name == 'pull_request' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
+    if: github.event_name == 'pull_request' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]'
     runs-on: ubuntu-latest
     needs: [environments]
 
@@ -126,7 +126,7 @@ jobs:
 
   apply:
     # Only run on push event if one or more environmentsx are present
-    if: ${{ github.event_name == 'push' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
+    if: github.event_name == 'push' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]'
     runs-on: ubuntu-latest
     needs: [environments]
 
