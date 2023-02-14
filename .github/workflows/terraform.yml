@@ -77,19 +77,19 @@ jobs:
               .map((label) => label.name.replace('tf:', ''))
               .map((label) => (label.match('--') ? label : label + '--default'));
 
-  test:
-    runs-on: ubuntu-latest
-    needs: [environments]
-    strategy:
-      fail-fast: false
-      matrix:
-        path: ${{ fromJSON(needs.environments.outputs.matrix) }}
-    steps:
-      - name: test
-        run: |
-          string="${{ matrix.path }}"
-          echo tf_environment=${string/--*} >> $GITHUB_ENV
-          echo tf_workspace=${string/*--} >> $GITHUB_ENV
+  # test:
+  #   runs-on: ubuntu-latest
+  #   needs: [environments]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       path: ${{ fromJSON(needs.environments.outputs.matrix) }}
+  #   steps:
+  #     - name: test
+  #       run: |
+  #         string="${{ matrix.path }}"
+  #         echo tf_environment=${string/--*} >> $GITHUB_ENV
+  #         echo tf_workspace=${string/*--} >> $GITHUB_ENV
 
   plan:
     # Only run on pull_request event if one or more environments are present
@@ -97,40 +97,41 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test]
 
+    # Run for each environment and continue to release state lock on fail
+    strategy:
+      fail-fast: false
+      matrix:
+        path: ${{ fromJSON(needs.environments.outputs.matrix) }}
+
     steps:
-      - name: test
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set terraform environment and workspace variables
+      - name: Terraform environment
         run: |
-          echo ${{ env.tf_environment }}
-          echo ${{ env.tf_workspace }}
+          string="${{ matrix.path }}"
+          echo tf_environment=${string/--*} >> $GITHUB_ENV
+          echo tf_workspace=${string/*--} >> $GITHUB_ENV
 
-  #   # Run for each environment and continue to release state lock on fail
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       path: ${{ fromJSON(needs.environments.outputs.matrix) }}
+      # Check terraform configuration is valid
+      - name: Terraform validate
+        uses: dflook/terraform-validate@v1
+        with:
+          path: environments/${{ env.tf_environment }}
+          backend_config_file: environments/backend.tfvars
+          backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
+          # workspace: ${{ env.tf_workspace }}
 
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-
-  #     # Check terraform configuration is valid
-  #     - name: Terraform validate
-  #       uses: dflook/terraform-validate@v1
-  #       with:
-  #         path: environments/${{ matrix.path/--* }}
-  #         backend_config_file: environments/backend.tfvars
-  #         backend_config: key=environments/${{ matrix.path/--* }}/terraform.tfstate
-  #         # workspace: ${{ matrix.path /*-- }}
-
-  #     # Run terraform plan with environment label
-  #     - name: Terraform plan
-  #       uses: dflook/terraform-plan@v1
-  #       with:
-  #         label: ${{ matrix.path/--* }}
-  #         workspace: ${{ matrix.path /*-- }}
-  #         backend_config_file: environments/backend.tfvars
-  #         backend_config: key=environments/${{ matrix.path/--* }}/terraform.tfstate
-  #         # path: environments/${{ matrix.path/--* }}
+      # Run terraform plan with environment label
+      - name: Terraform plan
+        uses: dflook/terraform-plan@v1
+        with:
+          label: ${{ env.tf_environment }}
+          path: environments/${{ env.tf_environment }}
+          backend_config_file: environments/backend.tfvars
+          backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
+          # workspace: ${{ env.tf_workspace }}
 
   # apply:
   #   # Only run on push event if one or more environments are present
