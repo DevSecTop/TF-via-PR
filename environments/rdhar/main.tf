@@ -21,12 +21,22 @@ locals {
   }
 }
 
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+}
+
 resource "aws_instance" "demo" {
-  ami           = "ami-0557a15b87f6559cf" # ubuntu-jammy-22.04-amd64
+  ami           = data.aws_ami.ubuntu.id
   instance_type = local.instance_types[terraform.workspace]
 
   tags = merge({
-    Name    = "demo"
+    Name    = "demo-${terraform.workspace}"
     Project = "learning-rdhar"
     }, local.tags[terraform.workspace]
   )

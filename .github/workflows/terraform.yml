@@ -20,7 +20,7 @@ permissions:
 # Run a single job at a time along with a fallback value
 concurrency:
   cancel-in-progress: true
-  group: ${{ github.head_ref }} || ${{ github.run_id }}
+  group: ${{ github.head_ref || github.run_id }}
 
 # Use bash for string manipulation
 defaults:
