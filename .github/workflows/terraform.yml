@@ -75,7 +75,7 @@ jobs:
             return result
               .filter((label) => label.name.startsWith('tf:'))
               .map((label) => label.name.replace('tf:', ''))
-              .map((label) => (label.match(/--/) ? label : label + '--default'));
+              .map((label) => (label.match('--') ? label : label + '--default'));
 
   # test:
   #   runs-on: ubuntu-latest
