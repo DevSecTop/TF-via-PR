@@ -17,7 +17,7 @@ permissions:
   contents: read
   pull-requests: write
 
-# To run a single job at a time along with a fallback value
+# Run a single job at a time along with a fallback value
 concurrency:
   cancel-in-progress: true
   group: ${{ github.head_ref }} || ${{ github.run_id }}
@@ -51,7 +51,7 @@ jobs:
           script: |
             let result;
 
-            // If issue number is present (on pull_request event) then get the labels from the issue
+            // If issue number is present (ie., on pull_request event) then get the labels from the issue
             if (context.issue.number) {
               result = (
                 await github.rest.issues.listLabelsOnIssue({
@@ -61,7 +61,7 @@ jobs:
                 })
               ).data;
 
-            // Otherwise (on push event) get the labels from the commit
+            // Otherwise (ie., on push event) get the labels from the commit
             } else {
               result = (
                 await github.rest.repos.listPullRequestsAssociatedWithCommit({
