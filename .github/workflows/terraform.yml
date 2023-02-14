@@ -74,8 +74,8 @@ jobs:
             // Return filtered list of labels with 'tf:' prefix removed
             return result
               .filter((label) => label.name.startsWith('tf:'))
-              .map((label) => label.name.replace('tf:', ''))
-              .map((label) => (label.match('--') ? label : label + '--default'));
+              .map((label) => label.name.replace('tf:', ''));
+              // .map((label) => (label.match('--') ? label : label + '--default'));
 
   # test:
   #   runs-on: ubuntu-latest
@@ -88,6 +88,7 @@ jobs:
   #     - name: test
   #       run: |
   #         string="${{ matrix.path }}"
+  #         echo tf_environment_label=${string/--*} >> $GITHUB_ENV
   #         echo tf_environment=${string/--*} >> $GITHUB_ENV
   #         echo tf_workspace=${string/*--} >> $GITHUB_ENV
 
@@ -111,14 +112,13 @@ jobs:
       - name: Terraform environment
         run: |
           string="${{ matrix.path }}"
-          if [[ string == *"--default" ]]; then
-            echo tf_environment_label=${string/--*} >> $GITHUB_ENV
+          if [[ string == *"--"* ]]; then
+            echo tf_environment=${string/--*} >> $GITHUB_ENV
+            echo tf_workspace=${string/*--} >> $GITHUB_ENV
           else
-            echo tf_environment_label=${string} >> $GITHUB_ENV
+            echo tf_environment=${string} >> $GITHUB_ENV
+            echo tf_workspace="default" >> $GITHUB_ENV
           fi
-          echo tf_environment=${string/--*} >> $GITHUB_ENV
-          echo tf_workspace=${string/*--} >> $GITHUB_ENV
-          echo $tf_environment_label
           echo $tf_environment
           echo $tf_workspace
 
@@ -135,7 +135,7 @@ jobs:
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
-          label: ${{ env.tf_environment_label }}
+          label: ${{ matrix.path }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -155,7 +155,7 @@ jobs:
 
     # Set GitHub environment to track deployment status
     environment:
-      name: ${{ env.tf_environment_label }}
+      name: ${{ matrix.path }}
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     steps:
@@ -170,14 +170,19 @@ jobs:
       - name: Terraform environment
         run: |
           string="${{ matrix.path }}"
-          echo tf_environment=${string/--*} >> $GITHUB_ENV
-          echo tf_workspace=${string/*--} >> $GITHUB_ENV
+          if [[ string == *"--"* ]]; then
+            echo tf_environment=${string/--*} >> $GITHUB_ENV
+            echo tf_workspace=${string/*--} >> $GITHUB_ENV
+          else
+            echo tf_environment=${string} >> $GITHUB_ENV
+            echo tf_workspace="default" >> $GITHUB_ENV
+          fi
 
       # Run terraform apply with environment label
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         with:
-          label: ${{ env.tf_environment_label }}
+          label: ${{ matrix.path }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
