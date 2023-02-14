@@ -17,10 +17,15 @@ permissions:
   contents: read
   pull-requests: write
 
-# To run a single job at a time along with a fallback value
+# Run a single job at a time along with a fallback value
 concurrency:
   cancel-in-progress: true
   group: ${{ github.head_ref }} || ${{ github.run_id }}
+
+# Use bash for string manipulation
+defaults:
+  run:
+    shell: bash
 
 env:
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -29,20 +34,16 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  # Get the list of environments on which to run terraform plan/apply
+  # Get the list of labels on the PR or commit
   environments:
     runs-on: ubuntu-latest
 
-    # Set the list of environments as output for subsequent jobs
+    # Store the list of labels for subsequent jobs
     outputs:
       matrix: ${{ steps.set_matrix.outputs.result }}
 
     steps:
-      # Print github context for debugging
-      - name: Github context
-        run: echo '${{ toJSON(github) }}'
-
-      # Query GitHub API to return a filtered list of labels
+      # Query GitHub API via @octokit/core
       - name: Set matrix
         uses: actions/github-script@v6
         id: set_matrix
@@ -50,7 +51,7 @@ jobs:
           script: |
             let result;
 
-            // If issue number is present (on pull_request event) then get the labels from the issue
+            // If issue number is present (ie., on pull_request event) then get the labels from the issue
             if (context.issue.number) {
               result = (
                 await github.rest.issues.listLabelsOnIssue({
@@ -60,7 +61,7 @@ jobs:
                 })
               ).data;
 
-            // Otherwise (on push event) get the labels from the commit
+            // Otherwise (ie., on push event) get the labels from the commit
             } else {
               result = (
                 await github.rest.repos.listPullRequestsAssociatedWithCommit({
@@ -75,30 +76,14 @@ jobs:
             return result
               .filter((label) => label.name.startsWith('tf:'))
               .map((label) => label.name.replace('tf:', ''));
-              // .map((label) => (label.match('--') ? label : label + '--default'));
-
-  # test:
-  #   runs-on: ubuntu-latest
-  #   needs: [environments]
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       path: ${{ fromJSON(needs.environments.outputs.matrix) }}
-  #   steps:
-  #     - name: test
-  #       run: |
-  #         string="${{ matrix.path }}"
-  #         echo tf_environment_label=${string/--*} >> $GITHUB_ENV
-  #         echo tf_environment=${string/--*} >> $GITHUB_ENV
-  #         echo tf_workspace=${string/*--} >> $GITHUB_ENV
 
   plan:
-    # Only run on pull_request event if one or more environments are present
-    if: ${{ github.event_name == 'pull_request' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
+    # Terraform plan only on pull_request event if one or more environments are present
+    if: github.event_name == 'pull_request' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]'
     runs-on: ubuntu-latest
     needs: [environments]
 
-    # Run for each environment and continue to release state lock on fail
+    # Run for each label and continue through to release state lock
     strategy:
       fail-fast: false
       matrix:
@@ -112,15 +97,13 @@ jobs:
       - name: Terraform environment
         run: |
           string="${{ matrix.path }}"
-          if [[ string == *"--"* ]]; then
-            echo tf_environment=${string/--*} >> $GITHUB_ENV
-            echo tf_workspace=${string/*--} >> $GITHUB_ENV
+          if [[ $string == *"--"* ]]; then
+            echo tf_environment=${string/--*/} >>$GITHUB_ENV
+            echo tf_workspace=${string/*--/} >>$GITHUB_ENV
           else
-            echo tf_environment=${string} >> $GITHUB_ENV
-            echo tf_workspace="default" >> $GITHUB_ENV
+            echo tf_environment=${string} >>$GITHUB_ENV
+            echo tf_workspace="default" >>$GITHUB_ENV
           fi
-          echo $tf_environment
-          echo $tf_workspace
 
       # Check terraform configuration is valid
       - name: Terraform validate
@@ -131,7 +114,17 @@ jobs:
           backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
 
-      # Run terraform plan with environment label
+      # Initialise terraform workspace if required
+      - name: Terraform workspace
+        if: env.tf_workspace != 'default'
+        uses: dflook/terraform-new-workspace@v1
+        with:
+          workspace: ${{ env.tf_workspace }}
+          path: environments/${{ env.tf_environment }}
+          backend_config_file: environments/backend.tfvars
+          backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
+
+      # Run terraform plan with environment and workspace
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
@@ -142,8 +135,8 @@ jobs:
           backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
 
   apply:
-    # Only run on push event if one or more environments are present
-    if: ${{ github.event_name == 'push' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]' }}
+    # Terraform apply only on push event if one or more environments are present
+    if: github.event_name == 'push' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]'
     runs-on: ubuntu-latest
     needs: [environments]
 
@@ -159,10 +152,6 @@ jobs:
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     steps:
-      # Print github context for debugging
-      - name: Github context
-        run: echo '${{ toJSON(github) }}'
-
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -170,15 +159,15 @@ jobs:
       - name: Terraform environment
         run: |
           string="${{ matrix.path }}"
-          if [[ string == *"--"* ]]; then
-            echo tf_environment=${string/--*} >> $GITHUB_ENV
-            echo tf_workspace=${string/*--} >> $GITHUB_ENV
+          if [[ $string == *"--"* ]]; then
+            echo tf_environment=${string/--*/} >>$GITHUB_ENV
+            echo tf_workspace=${string/*--/} >>$GITHUB_ENV
           else
-            echo tf_environment=${string} >> $GITHUB_ENV
-            echo tf_workspace="default" >> $GITHUB_ENV
+            echo tf_environment=${string} >>$GITHUB_ENV
+            echo tf_workspace="default" >>$GITHUB_ENV
           fi
 
-      # Run terraform apply with environment label
+      # Run terraform apply with environment and workspace
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         with:
