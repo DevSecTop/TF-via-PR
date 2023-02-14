@@ -8,7 +8,7 @@ resource "aws_security_group" "public" {
     Project     = "learning-rdhar"
     Environment = var.environment
     Role        = "public"
-    Managed     = "terraform"
+    Terraform   = terraform.workspace
   }
 }
 
@@ -58,7 +58,7 @@ resource "aws_security_group" "private" {
     Project     = "learning-rdhar"
     Environment = var.environment
     Role        = "private"
-    Managed     = "terraform"
+    Terraform   = terraform.workspace
   }
 }
 

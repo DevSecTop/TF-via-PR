@@ -12,6 +12,6 @@ module "vpc" {
   tags = {
     Project     = "learning-rdhar"
     Environment = var.environment
-    Managed     = "terraform"
+    Terraform   = terraform.workspace
   }
 }
