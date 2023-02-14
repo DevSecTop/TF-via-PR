@@ -113,6 +113,7 @@ jobs:
           string="${{ matrix.path }}"
           echo tf_environment=${string/--*} >> $GITHUB_ENV
           echo tf_workspace=${string/*--} >> $GITHUB_ENV
+          echo ${{ github.workflow }}-${{ github.head_ref }}
 
       # Check terraform configuration is valid
       - name: Terraform validate
@@ -151,6 +152,10 @@ jobs:
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     steps:
+      # Print github context for debugging
+      - name: Github context
+        run: echo '${{ toJSON(github) }}'
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
