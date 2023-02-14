@@ -20,7 +20,6 @@ module "ec2_instance" {
     Project     = "learning-rdhar"
     Environment = var.environment
     Role        = var.role
-    Managed     = "terraform"
   }, var.tags)
 }
 
@@ -32,7 +31,7 @@ resource "aws_eip" "app_eip" {
     Project     = "learning-rdhar"
     Environment = var.environment
     Role        = var.role
-    Managed     = "terraform"
+    Terraform   = terraform.workspace
   }
 
   lifecycle {
