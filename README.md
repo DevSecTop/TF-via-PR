@@ -83,7 +83,7 @@ resource "aws_instance" "demo" {
    …
 ```
 
-To deploy a workspace called "staging" in "environments/demo" directory with the workflow, add "`tf:demo--staging`" as a label to the PR. Note the "`--`" delimiter between the environment directory and the workspace names.
+To deploy a workspace called "staging" in "environments/demo" directory, add "`tf:demo--staging`" as a label to the PR. Note the "`--`" delimiter between the environment directory and the workspace names.
 
 For local use, we initialize as before then select the workspace for plan/apply:
 
