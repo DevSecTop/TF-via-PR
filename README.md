@@ -14,12 +14,12 @@
 
 ## Prerequisites
 
-- Pass our AWS credentials as environment variables into our GitHub Actions workflow. See [this article](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars) for more information.
+- Pass in AWS credentials as environment variables to GitHub Actions. See [this article](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars) for more information.
 - Provision a Terraform backend to store our configuration. See [this article](https://developer.hashicorp.com/terraform/language/settings/backends/configuration) for more information.
 
 ## TL;DR
 
-1. Clone this repository and populate required secrets as environment variables.
+1. Copy this repository structure and populate secrets required by [the workflow](.github/workflows/terraform.yml).
 1. Configure [backend.tf](environments/backend.tfvars) which is shared between each environment.
 1. Add our IaC in a nested folder within [environments](environments) directory.
 1. Open a PR with a label corresponding to our directory name prefixed with "`tf:`".<br>
