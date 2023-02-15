@@ -36,8 +36,7 @@ resource "aws_instance" "demo" {
   instance_type = local.instance_types[terraform.workspace]
 
   tags = merge({
-    Name    = "demo-${terraform.workspace}"
-    Project = "learning-rdhar"
+    Name = "demo-${terraform.workspace}"
     }, local.tags[terraform.workspace]
   )
 }
