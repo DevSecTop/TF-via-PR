@@ -46,6 +46,7 @@ resource "aws_instance" "demo" {
 
   tags = merge({
     Name = "demo-${terraform.workspace}"
+    Role = "demo"
     }, local.tags[terraform.workspace]
   )
 }
