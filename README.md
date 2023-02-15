@@ -33,7 +33,7 @@
 
 ### Workflow
 
-Environment isolation is achieved by the nesting directories under [environments](environments) with their own [providers.tf](environments/demo/providers.tf). While there is a shared [backend.tf](environments/backend.tfvars), each environment can specify its own configuration or pass it in via `backend_config:` in the workflow.
+Environment isolation is achieved by nesting directories under [environments](environments) with their own [providers.tf](environments/demo/providers.tf). While there is a shared [backend.tf](environments/backend.tfvars), each environment can specify its own configuration or pass it in via `backend_config:` in the workflow.
 
 Reusable, stateless components can be placed in the [modules](modules/) directory, from where they can be imported into each environment. For example:
 
