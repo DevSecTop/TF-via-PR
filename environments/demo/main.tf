@@ -13,16 +13,19 @@ locals {
 
   tags = {
     default = {
-      Terraform = terraform.workspace
       Owner     = "rdhar"
+      Region    = local.aws_region[terraform.workspace]
+      Terraform = terraform.workspace
     }
     develop = {
-      Terraform = terraform.workspace
       Owner     = "rdhar"
+      Region    = local.aws_region[terraform.workspace]
+      Terraform = terraform.workspace
     }
     staging = {
-      Terraform = terraform.workspace
       Owner     = "rdhar"
+      Region    = local.aws_region[terraform.workspace]
+      Terraform = terraform.workspace
     }
   }
 }
