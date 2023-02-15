@@ -1,16 +1,22 @@
 locals {
   aws_region = {
-    default = "us-east-1"
+    default = "us-east-2"
+    develop = "us-east-2"
     staging = "ca-central-1"
   }
 
   instance_types = {
     default = "t2.micro"
-    staging = "t3.micro"
+    develop = "t3.micro"
+    staging = "t2.small"
   }
 
   tags = {
     default = {
+      Terraform = terraform.workspace
+      Owner     = "rdhar"
+    }
+    develop = {
       Terraform = terraform.workspace
       Owner     = "rdhar"
     }

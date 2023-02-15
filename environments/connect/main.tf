@@ -7,20 +7,6 @@ module "vpc" {
   private_subnets = slice(cidrsubnets("10.0.0.0/17", 4, 4, 4, 4, 4, 4), 3, 6)
 }
 
-module "ec2_web" {
-  source          = "../../modules/compute"
-  environment     = var.environment
-  role            = "web"
-  instance_ami    = data.aws_ami.ubuntu.id
-  subnets         = module.vpc.vpc_public_subnets
-  security_groups = [module.vpc.security_group_public]
-  create_eip      = true
-
-  tags = {
-    Name = "${var.environment}-web"
-  }
-}
-
 # module "ec2_worker" {
 #   source          = "../../modules/compute"
 #   environment     = var.environment
@@ -32,5 +18,19 @@ module "ec2_web" {
 
 #   tags = {
 #     Name = "${var.environment}-worker"
+#   }
+# }
+
+# module "ec2_web" {
+#   source          = "../../modules/compute"
+#   environment     = var.environment
+#   role            = "web"
+#   instance_ami    = data.aws_ami.ubuntu.id
+#   subnets         = module.vpc.vpc_public_subnets
+#   security_groups = [module.vpc.security_group_public]
+#   create_eip      = true
+
+#   tags = {
+#     Name = "${var.environment}-web"
 #   }
 # }

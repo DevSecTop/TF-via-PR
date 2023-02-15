@@ -12,6 +12,4 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = local.aws_region[terraform.workspace]
-}
+provider "aws" {}
