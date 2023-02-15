@@ -1,6 +1,6 @@
 locals {
   aws_region = {
-    default = "us-east-2"
+    default = "us-east-1"
     develop = "us-east-2"
     staging = "ca-central-1"
   }
@@ -13,16 +13,19 @@ locals {
 
   tags = {
     default = {
-      Terraform = terraform.workspace
       Owner     = "rdhar"
+      Region    = local.aws_region[terraform.workspace]
+      Terraform = terraform.workspace
     }
     develop = {
-      Terraform = terraform.workspace
       Owner     = "rdhar"
+      Region    = local.aws_region[terraform.workspace]
+      Terraform = terraform.workspace
     }
     staging = {
-      Terraform = terraform.workspace
       Owner     = "rdhar"
+      Region    = local.aws_region[terraform.workspace]
+      Terraform = terraform.workspace
     }
   }
 }
@@ -43,6 +46,7 @@ resource "aws_instance" "demo" {
 
   tags = merge({
     Name = "demo-${terraform.workspace}"
+    Role = "demo"
     }, local.tags[terraform.workspace]
   )
 }
