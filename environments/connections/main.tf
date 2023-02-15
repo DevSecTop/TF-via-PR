@@ -21,16 +21,16 @@ module "ec2_web" {
   }
 }
 
-module "ec2_worker" {
-  source          = "../../modules/compute"
-  environment     = var.environment
-  role            = "worker"
-  instance_ami    = data.aws_ami.ubuntu.id
-  subnets         = module.vpc.vpc_private_subnets
-  security_groups = [module.vpc.security_group_private]
-  create_eip      = false
+# module "ec2_worker" {
+#   source          = "../../modules/compute"
+#   environment     = var.environment
+#   role            = "worker"
+#   instance_ami    = data.aws_ami.ubuntu.id
+#   subnets         = module.vpc.vpc_private_subnets
+#   security_groups = [module.vpc.security_group_private]
+#   create_eip      = false
 
-  tags = {
-    Name = "${var.environment}-worker"
-  }
-}
+#   tags = {
+#     Name = "${var.environment}-worker"
+#   }
+# }

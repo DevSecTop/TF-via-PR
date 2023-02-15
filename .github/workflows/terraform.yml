@@ -74,8 +74,8 @@ jobs:
 
             // Return filtered list of labels with 'tf:' prefix removed
             return result
-              .filter((label) => label.name.startsWith('tf:'))
-              .map((label) => label.name.replace('tf:', ''));
+              .filter((label) => label.name.toLowerCase().startsWith("tf:"))
+              .map((label) => label.name.toLowerCase().replace("tf:", ""));
 
   plan:
     # Terraform plan only on pull_request event if one or more environments are present
