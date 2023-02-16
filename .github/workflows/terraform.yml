@@ -9,9 +9,6 @@ on:
   push:
     branches: [main]
 
-  # Fallback on manual trigger
-  workflow_dispatch:
-
 # Run a single job at a time along with a fallback value
 concurrency:
   cancel-in-progress: true
@@ -93,8 +90,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Set terraform environment and workspace variables
-      - name: Terraform environment
+      # Set local variables
+      - name: Local variables
         run: |
           string="${{ matrix.path }}"
           if [[ $string == *"--"* ]]; then
@@ -155,8 +152,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Set terraform environment and workspace variables
-      - name: Terraform environment
+      # Set local variables
+      - name: Local variables
         run: |
           string="${{ matrix.path }}"
           if [[ $string == *"--"* ]]; then

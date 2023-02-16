@@ -29,6 +29,8 @@
 1. Merge the PR to deploy our IaC to each environment.
 1. Read on for more usage details…
 
+![Animated walkthrough of the environment provisioning workflow.](https://i.imgur.com/UTOGeAu.png 'Animated walkthrough of the environment provisioning workflow.')
+
 ## Usage
 
 ### Workflow
@@ -84,6 +86,8 @@ resource "aws_instance" "demo" {
 ```
 
 To deploy a workspace called "staging" in "environments/demo" directory, add "`tf:demo--staging`" as a label to the PR. Note the "`--`" delimiter between the environment directory and the workspace names.
+
+![Animated walkthrough of the workspace provisioning workflow.](https://i.imgur.com/d8TMKzE.png 'Animated walkthrough of the workspace provisioning workflow.')
 
 For local use, we initialize as before then select the workspace for plan/apply:
 
