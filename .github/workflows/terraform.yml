@@ -9,7 +9,7 @@ on:
   push:
     branches: [main]
 
-# Run a single job at a time along with a fallback value
+# Run a single workflow per branch along with a fallback for concurrent runs
 concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -45,16 +45,12 @@ jobs:
 
       - name: Test echo commands
         run: |
-          echo "github.head_ref": ${{ github.head_ref }}
-          echo "github.ref": ${{ github.ref }}
-          echo "github.run_id": ${{ github.run_id }}
-          echo "github.job.container.id": ${{ github.job.container.id }}
-          echo "github.workflow": ${{ github.workflow }}
-          echo "github.head_ref || github.run_id": ${{ github.head_ref || github.run_id }}
-          echo "github.workflow-github.head_ref || github.run_id": ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+          echo "concurrency": ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
           echo ${{ toJson(github.context) }}
-          echo ${{ toJson(github.job) }}
-          echo ${{ toJson(github.jobs) }}
+          echo ${{ toJson(job) }}
+          echo ${{ toJson(job.context) }}
+          echo ${{ toJson(jobs) }}
+          echo ${{ toJson(jobs.context) }}
 
       # Query GitHub API via @octokit/core
       - name: Set matrix
