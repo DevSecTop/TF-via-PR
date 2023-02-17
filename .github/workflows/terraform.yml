@@ -49,7 +49,6 @@ jobs:
           echo ${{ toJson(github.context) }}
           echo ${{ toJson(job) }}
           echo ${{ toJson(job.context) }}
-          echo ${{ toJson(jobs.context) }}
 
       # Query GitHub API via @octokit/core
       - name: Set matrix
