@@ -40,19 +40,6 @@ jobs:
       matrix: ${{ steps.set_matrix.outputs.result }}
 
     steps:
-      - name: Echo github context
-        run: echo ${{ toJson(github.context) }}
-
-      - name: Test echo commands
-        run: |
-          echo "concurrency": ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-          echo '${{ toJSON(github) }}'
-          echo '${{ toJSON(job) }}'
-          echo '${{ toJSON(steps) }}'
-          echo '${{ toJSON(runner) }}'
-          echo '${{ toJSON(strategy) }}'
-          echo '${{ toJSON(matrix) }}'
-
       # Query GitHub API via @octokit/core
       - name: Set matrix
         uses: actions/github-script@v6
