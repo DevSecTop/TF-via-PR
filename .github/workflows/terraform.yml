@@ -46,8 +46,11 @@ jobs:
           echo "github.ref": ${{ github.ref }}
           echo "github.run_id": ${{ github.run_id }}
           echo "github.job_id": ${{ github.job_id }}
+          echo "github.job.id": ${{ github.job.id }
+          echo "github.job.job_id": ${{ github.job.job_id }}
           echo "github.workflow": ${{ github.workflow }}
           echo "github.head_ref || github.run_id": ${{ github.head_ref || github.run_id }}
+          echo "github.workflow-github.head_ref || github.run_id": ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
 
       # Query GitHub API via @octokit/core
       - name: Set matrix
