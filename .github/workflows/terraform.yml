@@ -9,10 +9,10 @@ on:
   push:
     branches: [main]
 
-# Run a single job at a time along with a fallback value
+# Run a single terraform workflow per branch along with a fallback for concurrent runs
 concurrency:
   cancel-in-progress: true
-  group: ${{ github.head_ref || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
 
 # Use bash for string manipulation
 defaults:
