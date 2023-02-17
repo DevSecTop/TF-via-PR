@@ -40,6 +40,14 @@ jobs:
       matrix: ${{ steps.set_matrix.outputs.result }}
 
     steps:
+      - name: Test echo commands
+        run: |
+          echo "github.event_name": ${{ github.event_name }}
+          echo "github.head_ref": ${{ github.head_ref }}
+          echo "github.ref": ${{ github.ref }}
+          echo "github.run_id": ${{ github.run_id }}
+          echo "github.workflow": ${{ github.workflow }}
+
       # Query GitHub API via @octokit/core
       - name: Set matrix
         uses: actions/github-script@v6
