@@ -46,9 +46,12 @@ jobs:
       - name: Test echo commands
         run: |
           echo "concurrency": ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
-          echo ${{ toJson(github.context) }}
-          echo ${{ toJson(job) }}
-          echo ${{ toJson(job.context) }}
+          echo '${{ toJSON(github) }}'
+          echo '${{ toJSON(job) }}'
+          echo '${{ toJSON(steps) }}'
+          echo '${{ toJSON(runner) }}'
+          echo '${{ toJSON(strategy) }}'
+          echo '${{ toJSON(matrix) }}'
 
       # Query GitHub API via @octokit/core
       - name: Set matrix
