@@ -42,11 +42,12 @@ jobs:
     steps:
       - name: Test echo commands
         run: |
-          echo "github.event_name": ${{ github.event_name }}
           echo "github.head_ref": ${{ github.head_ref }}
           echo "github.ref": ${{ github.ref }}
           echo "github.run_id": ${{ github.run_id }}
+          echo "github.job_id": ${{ github.job_id }}
           echo "github.workflow": ${{ github.workflow }}
+          echo "github.head_ref || github.run_id": ${{ github.head_ref || github.run_id }}
 
       # Query GitHub API via @octokit/core
       - name: Set matrix
