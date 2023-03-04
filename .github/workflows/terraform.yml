@@ -4,10 +4,12 @@ on:
   # For terraform plan
   pull_request:
     types: [synchronize, reopened, labeled, unlabeled]
+    paths: ['environments/**', 'modules/**']
 
   # For terraform apply
   push:
     branches: [main]
+    paths: ['environments/**', 'modules/**']
 
   # Fallback for manual trigger
   workflow_dispatch:
