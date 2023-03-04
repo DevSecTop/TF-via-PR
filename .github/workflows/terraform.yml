@@ -140,6 +140,12 @@ jobs:
       matrix:
         path: ${{ fromJSON(needs.environments.outputs.matrix) }}
 
+    # Set GitHub environment to track deployment status
+    environment:
+      name: ${ env.tf_label /*:/}
+      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      # name: ${{ env.tf_label }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -169,8 +175,3 @@ jobs:
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
-
-    # Set GitHub environment to track deployment status
-    environment:
-      name: ${{ env.tf_label }}
-      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
