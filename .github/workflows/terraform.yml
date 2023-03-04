@@ -48,12 +48,6 @@ jobs:
     outputs:
       matrix: ${{ steps.set_matrix.outputs.result }}
 
-    # Set GitHub environment to track deployment status
-    environment:
-      name: ${{env.tf_label/*:/}}
-      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      # name: ${{ env.tf_label }}
-
     steps:
       # Query GitHub API via @octokit/core
       - name: Set matrix
@@ -133,6 +127,12 @@ jobs:
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
+
+    # Set GitHub environment to track deployment status
+    environment:
+      name: ${{env.tf_label/*:/}}
+      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      # name: ${{ env.tf_label }}
 
   apply:
     # Terraform apply only on push event if one or more environments are present
