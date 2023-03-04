@@ -87,15 +87,16 @@ jobs:
       - name: Local variables
         run: |
           string="${{ matrix.path }}"
+          echo tf_label=${string/*:/} >> $GITHUB_ENV
           if [[ $string == *"--"* ]]; then
             prefix=${string/--*/}
-            echo tf_workspace=${string/*--/} >> $GITHUB_ENV
             echo tf_action=${prefix/:*/} >> $GITHUB_ENV
             echo tf_environment=${prefix/*:/} >> $GITHUB_ENV
+            echo tf_workspace=${string/*--/} >> $GITHUB_ENV
           else
-            echo tf_workspace="default" >> $GITHUB_ENV
             echo tf_action=${string/:*/} >> $GITHUB_ENV
             echo tf_environment=${string/*:/} >> $GITHUB_ENV
+            echo tf_workspace="default" >> $GITHUB_ENV
           fi
 
       # Initialise terraform workspace if required
@@ -112,7 +113,7 @@ jobs:
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
-          label: ${{ env.tf_environment }}
+          label: ${{ env.tf_label }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -123,7 +124,7 @@ jobs:
         if: env.tf_action == 'tf_preview'
         uses: dflook/terraform-apply@v1
         with:
-          label: ${{ env.tf_environment }}
+          label: ${{ env.tf_label }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -143,7 +144,7 @@ jobs:
 
     # Set GitHub environment to track deployment status
     environment:
-      name: ${{ env.tf_environment }}
+      name: ${{ env.tf_label }}
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     steps:
@@ -154,22 +155,23 @@ jobs:
       - name: Local variables
         run: |
           string="${{ matrix.path }}"
+          echo tf_label=${string/*:/} >> $GITHUB_ENV
           if [[ $string == *"--"* ]]; then
             prefix=${string/--*/}
-            echo tf_workspace=${string/*--/} >> $GITHUB_ENV
             echo tf_action=${prefix/:*/} >> $GITHUB_ENV
             echo tf_environment=${prefix/*:/} >> $GITHUB_ENV
+            echo tf_workspace=${string/*--/} >> $GITHUB_ENV
           else
-            echo tf_workspace="default" >> $GITHUB_ENV
             echo tf_action=${string/:*/} >> $GITHUB_ENV
             echo tf_environment=${string/*:/} >> $GITHUB_ENV
+            echo tf_workspace="default" >> $GITHUB_ENV
           fi
 
       # Run terraform apply with environment and workspace
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         with:
-          label: ${{ env.tf_environment }}
+          label: ${{ env.tf_label }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
