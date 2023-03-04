@@ -130,9 +130,8 @@ jobs:
 
     # Set GitHub environment to track deployment status
     environment:
-      name: ${{env.tf_label/*:/}}
+      name: ${{ env.tf_label }}
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      # name: ${{ env.tf_label }}
 
   apply:
     # Terraform apply only on push event if one or more environments are present
