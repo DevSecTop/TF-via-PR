@@ -83,9 +83,10 @@ jobs:
 
       # Set local variables
       - name: Local variables
+        id: tf_vars
         run: |
           string="${{ matrix.path }}"
-          echo tf_label=${string/*:/} >> $GITHUB_ENV
+          echo tf_label=${string/*:/} >> $GITHUB_OUTPUT
           if [[ $string == *"--"* ]]; then
             prefix=${string/--*/}
             echo tf_action=${prefix/:*/} >> $GITHUB_ENV
@@ -111,7 +112,7 @@ jobs:
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
-          label: ${{ env.tf_label }}
+          label: ${{ steps.tf_vars.outputs.tf_label }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -122,7 +123,7 @@ jobs:
         if: env.tf_action == 'tf_preview'
         uses: dflook/terraform-apply@v1
         with:
-          label: ${{ env.tf_label }}
+          label: ${{ steps.tf_vars.outputs.tf_label }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -130,7 +131,7 @@ jobs:
 
     # Set GitHub environment to track deployment status
     environment:
-      name: format('{0}', ${{ env.tf_label }})
+      name: ${{ steps.tf_vars.outputs.tf_label }}
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       # name: ${{ env.tf_label }}
 
