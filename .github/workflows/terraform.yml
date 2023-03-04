@@ -147,9 +147,9 @@ jobs:
         path: ${{ fromJSON(needs.environments.outputs.matrix) }}
 
     # Set GitHub environment to track deployment status
-    environment:
-      name: ${env.tf_label/*:/}
-      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    # environment:
+    #   name: ${env.tf_label/*:/}
+    #   url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       # name: ${{ env.tf_label }}
 
     steps:
