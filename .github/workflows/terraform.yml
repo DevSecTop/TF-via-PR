@@ -128,11 +128,6 @@ jobs:
           backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
 
-    # Set GitHub environment to track deployment status
-    environment:
-      name: ${{ matrix.path[1] }}
-      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
   apply:
     # Terraform apply only on push event if one or more environments are present
     if: (github.event_name == 'push' || inputs.terraform == 'apply') && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]'
@@ -146,10 +141,9 @@ jobs:
         path: ${{ fromJSON(needs.environments.outputs.matrix) }}
 
     # Set GitHub environment to track deployment status
-    # environment:
-    #   name: ${env.tf_label/*:/}
-    #   url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-    # name: ${{ env.tf_label }}
+    environment:
+      name: ${{ matrix.path[1] }}
+      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
     steps:
       - name: Checkout repository
@@ -158,16 +152,12 @@ jobs:
       # Set local variables
       - name: Local variables
         run: |
-          string="${{ matrix.path }}"
-          echo tf_label=${string/*:/} >> $GITHUB_ENV
+          string="${{ matrix.path[1] }}"
           if [[ $string == *"--"* ]]; then
-            prefix=${string/--*/}
-            echo tf_action=${prefix/:*/} >> $GITHUB_ENV
-            echo tf_environment=${prefix/*:/} >> $GITHUB_ENV
+            echo tf_environment=${string/--*/} >> $GITHUB_ENV
             echo tf_workspace=${string/*--/} >> $GITHUB_ENV
           else
-            echo tf_action=${string/:*/} >> $GITHUB_ENV
-            echo tf_environment=${string/*:/} >> $GITHUB_ENV
+            echo tf_environment=${string} >> $GITHUB_ENV
             echo tf_workspace="default" >> $GITHUB_ENV
           fi
 
@@ -175,7 +165,7 @@ jobs:
       - name: Terraform apply
         uses: dflook/terraform-apply@v1
         with:
-          label: ${{ env.tf_label }}
+          label: ${{ matrix.path[1] }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
