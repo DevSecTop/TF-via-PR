@@ -9,15 +9,6 @@ on:
   push:
     branches: [main]
 
-  # Fallback for manual trigger
-  workflow_dispatch:
-    inputs:
-      terraform:
-        required: true
-        type: choice
-        default: plan
-        options: [plan, apply]
-
 # Run a single terraform workflow per branch along with a fallback for concurrent runs
 concurrency:
   cancel-in-progress: true
@@ -71,7 +62,7 @@ jobs:
 
   plan:
     # Terraform plan only on pull_request event if one or more environments are present
-    if: (github.event_name == 'pull_request' || inputs.terraform == 'plan') && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]'
+    if: github.event_name == 'pull_request' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]'
     runs-on: ubuntu-latest
     needs: [environments]
 
@@ -132,7 +123,7 @@ jobs:
 
   apply:
     # Terraform apply only on push event if one or more environments are present
-    if: (github.event_name == 'push' || inputs.terraform == 'apply') && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]'
+    if: github.event_name == 'push' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]'
     runs-on: ubuntu-latest
     needs: [environments]
 
