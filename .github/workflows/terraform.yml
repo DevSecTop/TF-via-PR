@@ -102,6 +102,8 @@ jobs:
 
       - name: debug
         run: |
+          echo ${{ matrix.path }}
+          echo ${{ matrix.path[*] }}
           echo ${{ env.tf_label }}
           echo ${{ env.tf_action }}
           echo ${{ env.tf_environment }}
