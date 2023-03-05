@@ -55,9 +55,10 @@ jobs:
         id: set_matrix
         with:
           script: |
+            console.log(context)
             return (
               await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                commit_sha: context.payload.after,
+                commit_sha: context.payload.after || context.payload.pull_request.head.sha || context.sha,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
               })
@@ -87,24 +88,14 @@ jobs:
       # Set local variables
       - name: Local variables
         run: |
-          string="${{ matrix.path }}"
-          echo tf_label=${string/*:/} >> $GITHUB_ENV
+          string="${{ matrix.path[1] }}"
           if [[ $string == *"--"* ]]; then
-            prefix=${string/--*/}
-            echo tf_action=${prefix/:*/} >> $GITHUB_ENV
-            echo tf_environment=${prefix/*:/} >> $GITHUB_ENV
+            echo tf_environment=${string/--*/} >> $GITHUB_ENV
             echo tf_workspace=${string/*--/} >> $GITHUB_ENV
           else
-            echo tf_action=${string/:*/} >> $GITHUB_ENV
-            echo tf_environment=${string/*:/} >> $GITHUB_ENV
+            echo tf_environment=${string} >> $GITHUB_ENV
             echo tf_workspace="default" >> $GITHUB_ENV
           fi
-
-      - name: Debug
-        run: |
-          echo ${{ matrix.path[0] }}
-          echo ${{ matrix.path[1] }}
-          echo ${{ {matrix.path[1]/*--/} }}
 
       # Initialise terraform workspace if required
       - name: Terraform workspace
@@ -120,7 +111,7 @@ jobs:
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
-          label: ${{ env.tf_label }}
+          label: ${{ matrix.path[1] }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -128,19 +119,19 @@ jobs:
 
       # Run terraform apply with environment and workspace if 'tf_preview' prefix is present
       - name: Terraform apply
-        if: env.tf_action == 'tf_preview'
+        if: ${{ matrix.path[0] }} == 'tf_preview'
         uses: dflook/terraform-apply@v1
         with:
-          label: ${{ env.tf_label }}
+          label: ${{ matrix.path[1] }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
 
     # Set GitHub environment to track deployment status
-    # environment:
-    #   name: ${{ env.tf_label }}
-    #   url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    environment:
+      name: ${{ matrix.path[1] }}
+      url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   apply:
     # Terraform apply only on push event if one or more environments are present
