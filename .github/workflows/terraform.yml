@@ -68,15 +68,6 @@ jobs:
                 return [prefix, suffix];
               });
 
-  earth:
-    runs-on: ubuntu-latest
-    needs: [environments]
-
-    steps:
-      - name: debug
-        run: |
-          echo ${{ fromJSON(needs.environments.outputs.matrix) }}
-
   plan:
     # Terraform plan only on pull_request event if one or more environments are present
     if: (github.event_name == 'pull_request' || inputs.terraform == 'plan') && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]'
@@ -108,6 +99,13 @@ jobs:
             echo tf_environment=${string/*:/} >> $GITHUB_ENV
             echo tf_workspace="default" >> $GITHUB_ENV
           fi
+
+      - name: debug
+        run: |
+          echo ${{ env.tf_label }}
+          echo ${{ env.tf_action }}
+          echo ${{ env.tf_environment }}
+          echo ${{ env.tf_workspace }}
 
       # Initialise terraform workspace if required
       - name: Terraform workspace
