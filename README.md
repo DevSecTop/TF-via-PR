@@ -25,8 +25,8 @@
 1. Copy this repository structure and populate secrets required by [the workflow](.github/workflows/terraform.yml).
 1. Configure [backend.tf](environments/backend.tfvars) which is shared between each environment.
 1. Add our IaC in a nested folder within [environments](environments) directory.
-1. Open a PR with a label corresponding to our directory name prefixed with "`tf:`".<br>
-   E.g., for "environments/demo", that'd be "`tf:demo`".
+1. Open a PR with a label corresponding to our directory name prefixed with `tf:`.<br>
+   E.g., for "environments/demo", that'd be `tf:demo`.
 1. Add more labels to include multiple directories in the same PR.
 1. Review the planned output for each given environment.
 1. Merge the PR to deploy our IaC to each environment.
@@ -74,11 +74,11 @@ terraform -chdir="environments/demo" apply
 
 ### Destroy
 
-To replicate Terraform’s "`plan/apply -destroy`", we can prefix with "`tf_destroy`" to generate a plan to destroy all resources. The plan will be carried out on merge.
+To replicate Terraform’s `plan/apply -destroy`, we can prefix with `tf_destroy` to generate a plan to destroy all resources. The plan will be carried out on merge.
 
 ### Apply
 
-To replicate Terraform’s "`apply -auto-approve`", we can prefix with "`tf_apply`" to generate and run the plan immediately.
+To replicate Terraform’s `apply -auto-approve`, we can prefix with `tf_apply` to generate and run the plan immediately.
 
 ## Workspaces
 
@@ -98,7 +98,7 @@ resource "aws_instance" "demo" {
     …
 ```
 
-To deploy a workspace called "staging" in "environments/demo" directory, add "`tf:demo--staging`" as a label to the PR. Note the "`--`" delimiter between the environment directory and the workspace names.
+To deploy a workspace called "staging" in "environments/demo" directory, add `tf:demo--staging` as a label to the PR. Note the `--` delimiter between the environment directory and the workspace names.
 
 ![Animated walkthrough of the workspace provisioning workflow.](assets/animated_walkthrough--workspace.png)
 
