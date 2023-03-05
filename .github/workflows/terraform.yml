@@ -58,7 +58,7 @@ jobs:
             console.log(context)
             return (
               await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                commit_sha: context.payload.after,
+                commit_sha: context.payload.after || context.sha,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
               })
@@ -88,13 +88,13 @@ jobs:
       # Set local variables
       - name: Local variables
         run: |
-          string="${{ matrix.path[1] }}"
-          if [[ $string == *"--"* ]]; then
+          string='${{ matrix.path[1] }}'
+          if [[ $string == *'--'* ]]; then
             echo tf_environment=${string/--*/} >> $GITHUB_ENV
             echo tf_workspace=${string/*--/} >> $GITHUB_ENV
           else
             echo tf_environment=${string} >> $GITHUB_ENV
-            echo tf_workspace="default" >> $GITHUB_ENV
+            echo tf_workspace='default' >> $GITHUB_ENV
           fi
 
       # Initialise terraform workspace if required
@@ -152,13 +152,13 @@ jobs:
       # Set local variables
       - name: Local variables
         run: |
-          string="${{ matrix.path[1] }}"
-          if [[ $string == *"--"* ]]; then
+          string='${{ matrix.path[1] }}'
+          if [[ $string == *'--'* ]]; then
             echo tf_environment=${string/--*/} >> $GITHUB_ENV
             echo tf_workspace=${string/*--/} >> $GITHUB_ENV
           else
             echo tf_environment=${string} >> $GITHUB_ENV
-            echo tf_workspace="default" >> $GITHUB_ENV
+            echo tf_workspace='default' >> $GITHUB_ENV
           fi
 
       # Run terraform apply with environment and workspace
