@@ -78,7 +78,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        path: ${{ fromJSON(needs.environments.outputs.matrix) }}
+        path: ${{ toJson(fromJson(needs.environments.outputs.matrix)) }}
 
     steps:
       - name: Checkout repository
