@@ -55,6 +55,7 @@ jobs:
         id: set_matrix
         with:
           script: |
+            console.log(context);
             return (
               await github.rest.repos.listPullRequestsAssociatedWithCommit({
                 commit_sha: context.payload.after || context.payload.pull_request.head.sha || context.sha,
