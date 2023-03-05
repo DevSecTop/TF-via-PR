@@ -104,8 +104,8 @@ jobs:
         run: |
           echo ${{ matrix.path[0] }}
           echo ${{ matrix.path[1] }}
-          echo ${{ env.tf_environment }}
-          echo ${{ env.tf_workspace }}
+          echo ${{ matrix.path[1]/*--/ }}
+          # ${string}
 
       # Initialise terraform workspace if required
       - name: Terraform workspace
