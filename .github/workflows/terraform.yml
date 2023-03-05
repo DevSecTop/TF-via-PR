@@ -119,7 +119,7 @@ jobs:
 
       # Run terraform apply with environment and workspace if 'tf_preview' prefix is present
       - name: Terraform apply
-        if: ${{ matrix.path[0] }} == 'tf_preview'
+        if: matrix.path[0] == 'tf_preview'
         uses: dflook/terraform-apply@v1
         with:
           label: ${{ matrix.path[1] }}
