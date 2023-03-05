@@ -57,6 +57,7 @@ jobs:
           script: |
             return (
               await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                // Short-circuit evaluation to fetch the latest SHA from any change event
                 commit_sha: context.payload.after || context.payload.pull_request.head.sha || context.sha,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
