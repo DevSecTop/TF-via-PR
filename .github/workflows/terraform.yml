@@ -100,15 +100,10 @@ jobs:
             echo tf_workspace="default" >> $GITHUB_ENV
           fi
 
-      - name: debug
+      - name: Debug
         run: |
           echo ${{ matrix.path[0] }}
           echo ${{ matrix.path[1] }}
-          echo ${{ matrix.path }}
-          echo ${{ matrix.path }}[0]
-          echo ${{ matrix.path[*] }}
-          echo ${{ env.tf_label }}
-          echo ${{ env.tf_action }}
           echo ${{ env.tf_environment }}
           echo ${{ env.tf_workspace }}
 
