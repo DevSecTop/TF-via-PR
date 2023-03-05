@@ -102,9 +102,10 @@ jobs:
 
       - name: debug
         run: |
+          echo ${{ matrix.path[0] }}
+          echo ${{ matrix.path[1] }}
           echo ${{ matrix.path }}
           echo ${{ matrix.path }}[0]
-          echo ${{ matrix.path[0] }}
           echo ${{ matrix.path[*] }}
           echo ${{ env.tf_label }}
           echo ${{ env.tf_action }}
