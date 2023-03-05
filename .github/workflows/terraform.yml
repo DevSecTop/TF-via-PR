@@ -58,7 +58,7 @@ jobs:
             console.log(context)
             return (
               await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                commit_sha: context.payload.after || context.sha,
+                commit_sha: context.payload.after || context.payload.pull_request.head.sha || context.sha,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
               })
