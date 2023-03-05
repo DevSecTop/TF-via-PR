@@ -63,7 +63,20 @@ jobs:
               })
             ).data[0].labels
               .filter((label) => label.name.startsWith('tf'))
-              .map((label) => label.name);
+              .map((label) => {
+                let [prefix, suffix] = label.name.split(':');
+                return [prefix, suffix];
+              })
+            );
+
+  earth:
+    runs-on: ubuntu-latest
+    needs: [environments]
+
+    steps:
+      - name: debug
+        run: |
+          echo ${{ fromJSON(needs.environments.outputs.matrix) }}
 
   plan:
     # Terraform plan only on pull_request event if one or more environments are present
@@ -83,10 +96,9 @@ jobs:
 
       # Set local variables
       - name: Local variables
-        id: tf_vars
         run: |
           string="${{ matrix.path }}"
-          echo tf_label=${string/*:/} >> $GITHUB_OUTPUT
+          echo tf_label=${string/*:/} >> $GITHUB_ENV
           if [[ $string == *"--"* ]]; then
             prefix=${string/--*/}
             echo tf_action=${prefix/:*/} >> $GITHUB_ENV
@@ -112,7 +124,7 @@ jobs:
       - name: Terraform plan
         uses: dflook/terraform-plan@v1
         with:
-          label: ${{ steps.tf_vars.outputs.tf_label }}
+          label: ${{ env.tf_label }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -123,7 +135,7 @@ jobs:
         if: env.tf_action == 'tf_preview'
         uses: dflook/terraform-apply@v1
         with:
-          label: ${{ steps.tf_vars.outputs.tf_label }}
+          label: ${{ env.tf_label }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -131,9 +143,8 @@ jobs:
 
     # Set GitHub environment to track deployment status
     environment:
-      name: ${{ steps.tf_vars.outputs.tf_label }}
+      name: ${{ env.tf_label }}
       url: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      # name: ${{ env.tf_label }}
 
   apply:
     # Terraform apply only on push event if one or more environments are present
