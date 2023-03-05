@@ -112,7 +112,7 @@ jobs:
         uses: dflook/terraform-plan@v1
         with:
           label: ${{ matrix.path[1] }}
-          destroy: ${{ contains(matrix.path[0], 'destroy') }}
+          destroy: ${{ contains(matrix.path[0], 'tf_destroy') }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -124,7 +124,7 @@ jobs:
         uses: dflook/terraform-apply@v1
         with:
           label: ${{ matrix.path[1] }}
-          destroy: ${{ contains(matrix.path[0], 'destroy') }}
+          destroy: ${{ contains(matrix.path[0], 'tf_destroy') }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
@@ -168,7 +168,7 @@ jobs:
         uses: dflook/terraform-apply@v1
         with:
           label: ${{ matrix.path[1] }}
-          destroy: ${{ contains(matrix.path[0], 'destroy') }}
+          destroy: ${{ contains(matrix.path[0], 'tf_destroy') }}
           workspace: ${{ env.tf_workspace }}
           path: environments/${{ env.tf_environment }}
           backend_config_file: environments/backend.tfvars
