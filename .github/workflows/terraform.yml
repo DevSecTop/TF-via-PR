@@ -78,7 +78,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        path: ${{ needs.environments.outputs.matrix }}
+        path: ${{ fromJson(needs.environments.outputs.matrix) }}
 
     steps:
       - name: Checkout repository
@@ -103,6 +103,8 @@ jobs:
       - name: debug
         run: |
           echo ${{ matrix.path }}
+          echo ${{ matrix.path }}[0]
+          echo ${{ matrix.path[0] }}
           echo ${{ matrix.path[*] }}
           echo ${{ env.tf_label }}
           echo ${{ env.tf_action }}
