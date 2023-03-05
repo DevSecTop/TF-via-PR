@@ -118,9 +118,9 @@ jobs:
           backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
 
-      # Run terraform apply with environment and workspace if 'tf_preview' prefix is present
+      # Run terraform apply with environment and workspace if 'preview' is present
       - name: Terraform apply
-        if: matrix.path[0] == 'tf_preview'
+        if: contains(matrix.path[0], 'preview')
         uses: dflook/terraform-apply@v1
         with:
           label: ${{ matrix.path[1] }}
