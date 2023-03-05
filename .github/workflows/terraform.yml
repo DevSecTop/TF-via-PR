@@ -66,8 +66,7 @@ jobs:
               .map((label) => {
                 let [prefix, suffix] = label.name.split(':');
                 return [prefix, suffix];
-              })
-            );
+              });
 
   earth:
     runs-on: ubuntu-latest
