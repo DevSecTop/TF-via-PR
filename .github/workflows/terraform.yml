@@ -55,7 +55,6 @@ jobs:
         id: set_matrix
         with:
           script: |
-            console.log(context)
             return (
               await github.rest.repos.listPullRequestsAssociatedWithCommit({
                 commit_sha: context.payload.after || context.payload.pull_request.head.sha || context.sha,
@@ -138,7 +137,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        path: ${{ fromJSON(needs.environments.outputs.matrix) }}
+        path: ${{ fromJson(needs.environments.outputs.matrix) }}
 
     # Set GitHub environment to track deployment status
     environment:
