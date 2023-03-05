@@ -65,8 +65,8 @@ jobs:
             ).data[0].labels
               .filter((label) => label.name.startsWith('tf'))
               .map((label) => {
-                let [prefix, suffix] = label.name.split(':');
-                return [prefix, suffix];
+                let [head, body] = label.name.split(':');
+                return [head, body];
               });
 
   plan:
