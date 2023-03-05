@@ -104,8 +104,7 @@ jobs:
         run: |
           echo ${{ matrix.path[0] }}
           echo ${{ matrix.path[1] }}
-          echo ${{ matrix.path[1]/*--/ }}
-          # ${string}
+          echo ${{ ${matrix.path[1]/*--/} }}
 
       # Initialise terraform workspace if required
       - name: Terraform workspace
