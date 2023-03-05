@@ -7,6 +7,9 @@
 - [Usage](#usage)
   - [Workflow](#workflow)
   - [Local](#local)
+- [Modes](#modes)
+  - [Destroy](#destroy)
+  - [Apply](#apply)
 - [Workspaces](#workspaces)
 - [Contributions](#contributions)
 - [To-do](#to-do)
@@ -41,8 +44,8 @@ Reusable, stateless components can be placed in the [modules](modules/) director
 
 ```terraform
 module "vpc" {
-   source = "../../modules/network"
-   …
+    source = "../../modules/network"
+    …
 ```
 
 The label-driven workflow lets us opt-in/out of deploying our IaC to multiple environments and review each of their planned outputs in a single PR. This data is queried from GitHub API via [octokit](https://octokit.github.io/rest.js/v18#issues-list-labels-on-issue) client.
@@ -57,8 +60,8 @@ To initialize in "environments/demo" directory, run:
 
 ```shell
 terraform -chdir="environments/demo" init \
-   -backend-config="../backend.tfvars" \
-   -backend-config="key=environments/demo/terraform.tfstate"
+    -backend-config="../backend.tfvars" \
+    -backend-config="key=environments/demo/terraform.tfstate"
 ```
 
 To plan/apply in "environments/demo" directory, run:
@@ -67,22 +70,32 @@ To plan/apply in "environments/demo" directory, run:
 terraform -chdir="environments/demo" apply
 ```
 
+## Modes
+
+### Destroy
+
+To replicate Terraform’s "`plan/apply -destroy`", we can prefix with "`tf_destroy`" to generate a plan to destroy all resources. The plan will be carried out on merge.
+
+### Apply
+
+To replicate Terraform’s "`apply -auto-approve`", we can prefix with "`tf_apply`" to generate and run the plan immediately.
+
 ## Workspaces
 
 Terraform [workspaces](https://developer.hashicorp.com/terraform/language/state/workspaces) allow us to associate multiple states with a single configuration. In conjunction with parameter interpolation, we can vary our configuration state dynamically based on the workspace name. This can be useful to provision different instance types or even different regions. For example:
 
 ```terraform
 locals {
-   instance_types = {
-      default = "t2.micro"
-      staging = "t2.medium"
-   }
+    instance_types = {
+        default = "t2.micro"
+        staging = "t2.medium"
+    }
 }
 
 resource "aws_instance" "demo" {
-   instance_type = local.instance_types[terraform.workspace]
-   tags = { Name = "demo-${terraform.workspace}" }
-   …
+    instance_type = local.instance_types[terraform.workspace]
+    tags = { Name = "demo-${terraform.workspace}" }
+    …
 ```
 
 To deploy a workspace called "staging" in "environments/demo" directory, add "`tf:demo--staging`" as a label to the PR. Note the "`--`" delimiter between the environment directory and the workspace names.
@@ -104,9 +117,8 @@ Major props to [dflook/terraform-github-actions](https://github.com/dflook/terra
 
 ## To-do
 
-- Support ephemeral test-environments as a use-case.
-- Enable destruction of a given environment using "`tf_destroy:`" prefix.
-- Implement drift detection on a scheduled cron.
+- Automated drift detection.
+- Ephemeral test environments.
 
 ## License
 

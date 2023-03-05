@@ -55,10 +55,9 @@ jobs:
         id: set_matrix
         with:
           script: |
-            console.log(context);
             return (
               await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                commit_sha: context.payload.pull_request.head.sha || context.sha,
+                commit_sha: context.payload.after || context.payload.pull_request.head.sha || context.sha,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
               })
@@ -118,9 +117,9 @@ jobs:
           backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
 
-      # Run terraform apply with environment and workspace if 'preview' is present
+      # Run terraform apply with environment and workspace if 'apply' is present
       - name: Terraform apply
-        if: contains(matrix.path[0], 'preview')
+        if: contains(matrix.path[0], 'apply')
         uses: dflook/terraform-apply@v1
         with:
           label: ${{ matrix.path[1] }}
