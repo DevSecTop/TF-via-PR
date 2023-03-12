@@ -14,25 +14,14 @@ concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
 
-# Use bash for string manipulation
-defaults:
-  run:
-    shell: bash
-
 # For GITHUB_TOKEN to amend pull request comments
 permissions:
   contents: read
   pull-requests: write
 
-env:
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 jobs:
   # Get the list of labels on the PR or commit
-  environments:
+  labels:
     runs-on: ubuntu-latest
 
     # Store the list of labels for subsequent jobs
@@ -40,7 +29,7 @@ jobs:
       matrix: ${{ steps.set_matrix.outputs.result }}
 
     steps:
-      # Query GitHub API via @octokit/core
+      # Query GitHub API to return a list of 'tf' prefixed labels via @octokit/core
       - name: Set matrix
         uses: actions/github-script@v6
         id: set_matrix
@@ -61,16 +50,22 @@ jobs:
               });
 
   plan:
-    # Terraform plan only on pull_request event if one or more environments are present
-    if: github.event_name == 'pull_request' && needs.environments.outputs.matrix != '' && toJson(fromJson(needs.environments.outputs.matrix)) != '[]'
+    # Terraform plan only on pull_request event if one or more labels are present
+    if: github.event_name == 'pull_request' && needs.labels.outputs.matrix != '' && toJson(fromJson(needs.labels.outputs.matrix)) != '[]'
     runs-on: ubuntu-latest
-    needs: [environments]
+    needs: [labels]
 
     # Run for each label and continue through to release state lock
     strategy:
       fail-fast: false
       matrix:
-        path: ${{ fromJson(needs.environments.outputs.matrix) }}
+        path: ${{ fromJson(needs.labels.outputs.matrix) }}
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout repository
