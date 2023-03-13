@@ -1,31 +1,35 @@
 name: Terraform
 
+# This is a reusable workflow to run terraform plan and apply
+# on 'pull_request' and 'push' events respectively. Learn more:
+# https://github.com/o11y-top/aws-terraform-multiple-environments/#readme
+
 on:
   workflow_call:
     secrets:
-      # Input environment variables required by terraform
       env:
+        description: 'Input environment variables required by terraform'
         required: true
 
-# Allow only one of this workflow to run at a time per branch
+# Allow only one of this workflow to run at a time per branch.
 concurrency:
-  cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
-  # Get the list of labels on the PR or commit
+  # Query GitHub API to return a list of labels on the PR or commit
+  # then output the list of 'tf' prefixed labels for subsequent use
+  # in the format: [['tf', 'label1'], ['tf_auto_approve', 'label2']]
   labels:
     runs-on: ubuntu-latest
 
-    # Store the list of labels for subsequent job
     outputs:
-      matrix: ${{ steps.set_matrix.outputs.result }}
+      matrix: ${{ steps.labels.outputs.result }}
 
     steps:
-      # Query GitHub API to return a list of 'tf' prefixed labels via @octokit/core
-      - name: Set matrix
+      - name: Get labels
         uses: actions/github-script@v6
-        id: set_matrix
+        id: labels
         with:
           script: |
             return (
@@ -42,23 +46,23 @@ jobs:
                 return [head, body];
               });
 
-  exec:
-    # Execute terraform if one or more 'tf' labels are present
+  run:
+    # Run terraform if one or more 'tf' prefixed labels are present.
     needs: [labels]
     if: needs.labels.outputs.matrix != '' && toJson(fromJson(needs.labels.outputs.matrix)) != '[]'
     runs-on: ubuntu-latest
 
-    # Run for each label and continue through to release state lock
+    # Run for each label and continue through to release state lock.
     strategy:
       fail-fast: false
       matrix:
         path: ${{ fromJson(needs.labels.outputs.matrix) }}
 
-    # Track GitHub environment status for each label
+    # Track GitHub environment deployment status for each label.
     environment:
       name: ${{ matrix.path[1] }}
 
-    # Allow GITHUB_TOKEN to amend pull request comments
+    # Allow GITHUB_TOKEN to read repository and create/amend PR comments.
     permissions:
       contents: read
       pull-requests: write
@@ -70,13 +74,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Set environment variables
+      # Set environment variables.
       - name: Environment variables
         run: |
           # Add input environment variables to GITHUB_ENV
-          for i in "${{ secrets.env }}"
+          for i in '${{ secrets.env }}'
           do
-            printf "%s\n" $i >> $GITHUB_ENV
+            printf '%s\n' $i >> $GITHUB_ENV
           done
 
           # Add terraform environment and workspace variables to GITHUB_ENV
@@ -89,7 +93,7 @@ jobs:
             echo tf_workspace='default' >> $GITHUB_ENV
           fi
 
-      # Initialise terraform workspace if required
+      # Initialise terraform workspace if one is specified.
       - name: Terraform workspace
         if: env.tf_workspace != 'default'
         uses: dflook/terraform-new-workspace@v1
@@ -99,7 +103,7 @@ jobs:
           backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
 
-      # Run terraform plan on 'pull_request' event
+      # Run terraform plan on 'pull_request' event.
       - name: Terraform plan
         if: github.event_name == 'pull_request'
         uses: dflook/terraform-plan@v1
@@ -111,7 +115,7 @@ jobs:
           backend_config_file: environments/backend.tfvars
           backend_config: key=environments/${{ env.tf_environment }}/terraform.tfstate
 
-      # Run terraform apply on 'push' event or if 'auto_approve' label is present
+      # Run terraform apply on 'push' event or if 'auto_approve' label is present.
       - name: Terraform apply
         if: github.event_name == 'push' || contains(matrix.path[0], 'auto_approve')
         uses: dflook/terraform-apply@v1
