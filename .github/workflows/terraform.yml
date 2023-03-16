@@ -1,20 +1,28 @@
-name: Terraform
+name: Terraform Reusable
 
-# This is a reusable workflow to run terraform plan and apply
-# on 'pull_request' and 'push' events respectively. Learn more:
+# This is a reusable workflow to run terraform plan and apply on
+# 'pull_request' and 'push' events using matrix strategy. Learn more:
 # https://github.com/o11y-top/aws-terraform-multiple-environments/#readme
 
 on:
   workflow_call:
     secrets:
       env:
-        description: 'Input environment variables required by terraform'
+        description: Input environment variables required by terraform
         required: true
 
 # Allow only one of this workflow to run at a time per branch.
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
+
+# Allow read repository contents, write deployments and pull requests.
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   # Query GitHub API to return a list of labels on the PR or commit
@@ -27,6 +35,42 @@ jobs:
       matrix: ${{ steps.labels.outputs.result }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # List changed environment directories when PR is opened.
+      - name: Get changed environments once
+        if: github.event.action == 'opened'
+        id: changed
+        uses: tj-actions/changed-files@v35
+        with:
+          dir_names_max_depth: 2
+          dir_names: true
+          files: environments/**
+          json_raw_format: true
+          json: true
+
+      # Add 'tf' prefixed labels for changed environments when PR is opened.
+      - name: Add changed environment labels once
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v6
+        env:
+          changed: ${{ steps.changed.outputs.all_modified_files }}
+        with:
+          script: |
+            // Parse changed environment directory paths then add labels
+            // in the format: ['tf:label1', 'tf:label2']
+            const labels = JSON.parse(process.env.changed).map((str) => {
+              return 'tf:' + str.substring(str.indexOf('/') + 1);
+            });
+            github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              labels: labels,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+      # Output a list of 'tf' prefixed labels.
       - name: Get labels
         uses: actions/github-script@v6
         id: labels
@@ -34,7 +78,7 @@ jobs:
           script: |
             return (
               await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                // Short-circuit evaluation to fetch the latest SHA from any change event
+                // Short-circuit evaluation to get a SHA from any change event
                 commit_sha: context.payload.after || context.payload.pull_request.head.sha || context.sha,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -49,26 +93,17 @@ jobs:
   run:
     # Run terraform if one or more 'tf' prefixed labels are present.
     needs: [labels]
-    if: needs.labels.outputs.matrix != '' && toJson(fromJson(needs.labels.outputs.matrix)) != '[]'
+    if: needs.labels.outputs.matrix != '' && toJSON(fromJSON(needs.labels.outputs.matrix)) != '[]'
     runs-on: ubuntu-latest
 
     # Run for each label and continue through to release state lock.
     strategy:
       fail-fast: false
       matrix:
-        path: ${{ fromJson(needs.labels.outputs.matrix) }}
+        path: ${{ fromJSON(needs.labels.outputs.matrix) }}
 
-    # Track GitHub environment deployment status for each label.
-    environment:
-      name: ${{ matrix.path[1] }}
-
-    # Allow GITHUB_TOKEN to read repository and create/amend PR comments.
-    permissions:
-      contents: read
-      pull-requests: write
-
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    # Update environment deployment status.
+    environment: ${{ matrix.path[1] }}
 
     steps:
       - name: Checkout repository
@@ -77,12 +112,6 @@ jobs:
       # Set environment variables.
       - name: Environment variables
         run: |
-          # Add input environment variables to GITHUB_ENV
-          for i in '${{ secrets.env }}'
-          do
-            printf '%s\n' $i >> $GITHUB_ENV
-          done
-
           # Add terraform environment and workspace variables to GITHUB_ENV
           string='${{ matrix.path[1] }}'
           if [[ $string == *'--'* ]]; then
@@ -92,6 +121,8 @@ jobs:
             echo tf_environment=${string} >> $GITHUB_ENV
             echo tf_workspace='default' >> $GITHUB_ENV
           fi
+          # Add input environment variables to GITHUB_ENV
+          for i in '${{ secrets.env }}'; do printf '%s\n' $i >> $GITHUB_ENV; done
 
       # Initialise terraform workspace if one is specified.
       - name: Terraform workspace

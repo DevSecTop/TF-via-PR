@@ -1,0 +1,19 @@
+name: Terraform Runner
+
+on:
+  # For terraform plan
+  pull_request:
+    types: [labeled, opened, reopened, synchronize]
+
+  # For terraform apply
+  push:
+    branches: [main]
+
+jobs:
+  terraform:
+    # uses: o11y-top/aws-terraform-multiple-environments/.github/workflows/terraform.yml@ref
+    uses: ./.github/workflows/terraform.yml
+    secrets:
+      env: |
+        AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
