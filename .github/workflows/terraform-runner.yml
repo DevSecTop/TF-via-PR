@@ -1,4 +1,4 @@
-name: Terraform
+name: Terraform Runner
 
 on:
   # For terraform plan
