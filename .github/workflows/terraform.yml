@@ -40,7 +40,7 @@ jobs:
 
       # List changed environment directories when PR is opened or updated by bots.
       - name: Get changed environments once
-        if: github.event.action == 'opened' || contains(github.actor, '[bot]')
+        if: contains(github.event.action, 'opened') || contains(github.actor, '[bot]')
         id: changed
         uses: tj-actions/changed-files@v35
         with:
@@ -52,7 +52,7 @@ jobs:
 
       # Add 'tf' prefixed labels for changed environments when PR is opened or updated by bots.
       - name: Add changed environment labels once
-        if: github.event.action == 'opened' || contains(github.actor, '[bot]')
+        if: steps.changed.outcome == 'success' && toJSON(fromJSON(steps.changed.outputs.all_modified_files)) != '[]'
         uses: actions/github-script@v6
         env:
           changed: ${{ steps.changed.outputs.all_modified_files }}
@@ -93,7 +93,7 @@ jobs:
   run:
     # Run terraform if one or more 'tf' prefixed labels are present.
     needs: [labels]
-    if: needs.labels.outputs.matrix != '' && toJSON(fromJSON(needs.labels.outputs.matrix)) != '[]'
+    if: toJSON(fromJSON(needs.labels.outputs.matrix)) != '[]'
     runs-on: ubuntu-latest
 
     # Run for each label and continue through to release state lock.
