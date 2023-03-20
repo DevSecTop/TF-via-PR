@@ -38,9 +38,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # List changed environment directories when PR is opened.
+      # List changed environment directories when PR is opened or updated by bots.
       - name: Get changed environments once
-        if: github.event.action == 'opened'
+        if: github.event.action == 'opened' || contains(github.actor, '[bot]')
         id: changed
         uses: tj-actions/changed-files@v35
         with:
@@ -50,9 +50,9 @@ jobs:
           json_raw_format: true
           json: true
 
-      # Add 'tf' prefixed labels for changed environments when PR is opened.
+      # Add 'tf' prefixed labels for changed environments when PR is opened or updated by bots.
       - name: Add changed environment labels once
-        if: github.event.action == 'opened'
+        if: github.event.action == 'opened' || contains(github.actor, '[bot]')
         uses: actions/github-script@v6
         env:
           changed: ${{ steps.changed.outputs.all_modified_files }}
