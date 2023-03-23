@@ -1,6 +1,6 @@
 # AWS Terraform Workflow for Multiple Environments
 
-> Terraform is a platform-agnostic tool which can orchestrate AWS infrastructure as code (IaC). This workflow enables deployment from multiple environments via GitHub Actions only. Use-cases include directory-based environment isolation and management of multiple backends/workspaces from a single repository.
+> Terraform is a platform-agnostic tool which can orchestrate AWS infrastructure as code (IaC). This reusable workflow enables deployment of multiple environments via GitHub Actions. Use-cases include directory-based environment isolation and management of multiple backends/workspaces from a single repository.
 
 - [Prerequisites](#prerequisites)
 - [TL;DR](#tldr)
@@ -17,20 +17,28 @@
 
 ## Prerequisites
 
-- Pass in AWS credentials as environment variables to GitHub Actions. See [this article](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars) for more information.
-- Provision a Terraform backend to store our configuration. See [this article](https://developer.hashicorp.com/terraform/language/settings/backends/configuration) for more information.
+- Provision a [Terraform backend](https://developer.hashicorp.com/terraform/language/settings/backends/configuration) to store configuration state files.
+- Store AWS credentials as [Actions secrets](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) to reference as environment variables.
 
 ## TL;DR
 
-1. Copy this repository structure and populate secrets required by [the workflow](.github/workflows/terraform.yml).
-1. Configure [backend.tf](environments/backend.tfvars) which is shared between each environment.
-1. Add our IaC in a nested folder within [environments](environments) directory.
-1. Open a PR with a label corresponding to our directory name prefixed with `tf:`.<br>
-   E.g., for "environments/demo", that'd be `tf:demo`.
-1. Add more labels to include multiple directories in the same PR.
-1. Review the planned output for each given environment.
-1. Merge the PR to deploy our IaC to each environment.
-1. Read on for more usage details…
+1. Reference the reusable Terraform workflow and pass in environment variables as secrets.
+
+   ```yml
+   uses: o11y-top/aws-terraform-multiple-environments/.github/workflows/terraform.yml@3
+   secrets:
+     env: |
+       AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+       AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+   ```
+
+1. Add workflow triggers, as shown in [terraform-runner.yml](.github/workflows/terraform-runner.yml).
+1. Add IaC configurations to a nested folder within [environments](environments) directory.
+1. Configure the [backend.tf](environments/backend.tfvars) which is shared between all environments.
+
+PRs which modify IaC will automatically add a label corresponding to the directory name. For example, changes within "environments/demo" would be labelled with `tf:demo`.
+
+We can override these labels before merging the PR to apply the generated plans. Read on for more usage details and features.
 
 ![Animated walkthrough of the environment provisioning workflow.](assets/animated_walkthrough.png)
 
@@ -38,19 +46,18 @@
 
 ### Workflow
 
-Environment isolation is achieved by nesting directories under [environments](environments) with their own [providers.tf](environments/demo/providers.tf). While there is a shared [backend.tf](environments/backend.tfvars), each environment can specify its own configuration or pass it in via `backend_config:` in the workflow.
+Environment isolation is achieved by nesting directories under [environments](environments) with their own [providers.tf](environments/demo/providers.tf) in addition to the shared [backend.tf](environments/backend.tfvars).
 
-Reusable, stateless components can be placed in the [modules](modules/) directory, from where they can be imported into each environment. For example:
+Reusable, stateless components can be placed in the [modules](modules/) directory to be imported into each environment. For example:
 
-```terraform
+```hcl
 module "vpc" {
-    source = "../../modules/network"
-    …
+  source = "../../modules/network"
 ```
 
-The label-driven workflow lets us opt-in/out of deploying our IaC to multiple environments and review each of their planned outputs in a single PR. This data is queried from GitHub API via [octokit](https://octokit.github.io/rest.js/v18#issues-list-labels-on-issue) client.
+The label-driven workflow lets us opt-in/out of deploying our IaC to multiple environments and review each of their planned outputs in a single PR.
 
-While state locking is recommended on the backend, the workflow features built-in concurrency control as well as a [merge queue](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/merging-a-pull-request-with-a-merge-queue) to prevent overlapping runs.
+While state locking is recommended on the backend, the workflow features built-in concurrency control to prevent overlapping runs.
 
 ### Local
 
@@ -60,8 +67,8 @@ To initialize in "environments/demo" directory, run:
 
 ```shell
 terraform -chdir="environments/demo" init \
-    -backend-config="../backend.tfvars" \
-    -backend-config="key=environments/demo/terraform.tfstate"
+  -backend-config="../backend.tfvars" \
+  -backend-config="key=environments/demo/terraform.tfstate"
 ```
 
 To plan/apply in "environments/demo" directory, run:
@@ -78,27 +85,26 @@ To replicate Terraform’s `plan/apply -destroy`, we can prefix with `tf_destroy
 
 ### Apply
 
-To replicate Terraform’s `apply -auto-approve`, we can prefix with `tf_apply` to generate and run the plan immediately.
+To replicate Terraform’s `apply -auto-approve`, we can prefix with `tf_auto_approve` to generate and apply the plan immediately.
 
 ## Workspaces
 
-Terraform [workspaces](https://developer.hashicorp.com/terraform/language/state/workspaces) allow us to associate multiple states with a single configuration. In conjunction with parameter interpolation, we can vary our configuration state dynamically based on the workspace name. This can be useful to provision different instance types or even different regions. For example:
+Terraform [workspaces](https://developer.hashicorp.com/terraform/language/state/workspaces) allow us to associate multiple states with a single configuration. In conjunction with parameter interpolation, we can vary our configuration state dynamically based on the workspace name. For example:
 
-```terraform
+```hcl
 locals {
-    instance_types = {
-        default = "t2.micro"
-        staging = "t2.medium"
-    }
+  instance_types = {
+    default = "t2.micro"
+    staging = "t2.medium"
+  }
 }
 
 resource "aws_instance" "demo" {
-    instance_type = local.instance_types[terraform.workspace]
-    tags = { Name = "demo-${terraform.workspace}" }
-    …
+  instance_type = local.instance_types[terraform.workspace]
+  tags = { Name = "demo-${terraform.workspace}" }
 ```
 
-To deploy a workspace called "staging" in "environments/demo" directory, add `tf:demo--staging` as a label to the PR. Note the `--` delimiter between the environment directory and the workspace names.
+To deploy a workspace called "staging" in "environments/demo" directory, add `tf:demo--staging` as a label to the PR. Note the `--` delimiter between the environment directory and the workspace name.
 
 ![Animated walkthrough of the workspace provisioning workflow.](assets/animated_walkthrough--workspace.png)
 
@@ -122,6 +128,8 @@ Major props to [dflook/terraform-github-actions](https://github.com/dflook/terra
 
 ## License
 
-Neither myself nor this project are associated with AWS or Terraform. All works herein are my own and shared of my own volition.
+Neither myself nor this project are associated with AWS or Terraform.
+
+All works herein are my own and shared of my own volition.
 
 [Copyleft](LICENSE) @ All wrongs reserved.

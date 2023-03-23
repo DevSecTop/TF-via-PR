@@ -1,5 +1,5 @@
 <!-- omit in toc -->
-# Contributing to AWS Terraform Workflow for Multiple Environments
+# Contributing
 
 First off, thanks for taking the time to contribute!
 

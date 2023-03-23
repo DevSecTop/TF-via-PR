@@ -1,4 +1,4 @@
-# Code of Conduct - AWS Terraform Workflow for Multiple Environments
+# Code of Conduct
 
 ## Our Pledge
 
