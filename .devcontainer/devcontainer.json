@@ -1,0 +1,36 @@
+{
+  "name": "Terraform",
+  "image": "mcr.microsoft.com/vscode/devcontainers/base:ubuntu-22.04",
+  "features": {
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "latest",
+      "tflint": "latest",
+      "terragrunt": "latest"
+    },
+    "ghcr.io/dhoeric/features/terraform-docs:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "dockerDashComposeVersion": "v2"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["hashicorp.terraform"],
+      "settings": {
+        "terraform.languageServer": {
+          "enabled": true,
+          "args": ["serve"]
+        }
+      }
+    }
+  },
+  "remoteEnv": {
+    "TF_LOG": "'info",
+    "TF_LOG_PATH": "'./terraform.log"
+  }
+}
