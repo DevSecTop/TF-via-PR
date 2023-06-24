@@ -1,0 +1,3 @@
+# These owners will be the default owners for everything in the repo.
+# Order is important as the last matching pair takes precedence.
+*       @rdhar
