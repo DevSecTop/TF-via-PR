@@ -99,7 +99,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # v2.2.0
         with:
           aws-region: ${{ env.CONFIGURE_AWS_REGION }}
-          role-to-assume: ${{ env.CONFIGURE_AWS_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ env.CONFIGURE_AWS_ROLE }}
 
       - name: Add PR label
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
