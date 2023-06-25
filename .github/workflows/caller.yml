@@ -4,10 +4,11 @@ on: # https://docs.github.com/en/actions/using-workflows/events-that-trigger-wor
   issue_comment:
     types: [created, edited]
 
+permissions:
+  id-token: write # (Optional) Required by aws-actions/configure-aws-credentials for OIDC authentication.
+
 jobs:
   terraform: # Parse terraform command(s) from comment body and run on PR branch.
-    # permissions:
-    #   id-token: write # (Optional) Required by aws-actions/configure-aws-credentials for OIDC authentication.
 
     # uses: devsectop/tf-via-pr/.github/workflows/tf.yml@main
     uses: ./.github/workflows/tf.yml
