@@ -99,7 +99,7 @@ module "sample_bucket" {
   source = "../modules/s3_bucket"
 ```
 
-For [OIDC][configure_oidc] authentication, the [aws-actions/configure-aws-credentials][configure_aws_credentials] action is available for use by passing `CONFIGURE_AWS_CREDENTIALS=true` alongside the inputs of your choice for retrieving short-lived credentials. Additionally, the `id-token: write` permission is [explicitly required][oidc_token_permissions] to secure consumption of the generated token from the called workflow to the caller workflow only when intended.
+For [OIDC][configure_oidc] authentication, the [aws-actions/configure-aws-credentials][configure_aws_credentials] action is available for use by passing `CONFIGURE_AWS_REGION=us-east-1` (or another region) alongside the inputs of your choice for retrieving short-lived credentials. Additionally, the `id-token: write` permission is [explicitly required][oidc_token_permissions] to secure consumption of the generated token from the called workflow to the caller workflow only when intended.
 
 ## Security
 
