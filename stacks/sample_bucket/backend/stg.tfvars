@@ -1,3 +1,3 @@
-bucket = "twc-terraform-states"
+bucket = "tfstates"
 key    = "stg.tfstate"
 region = "us-east-1"

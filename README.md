@@ -52,10 +52,10 @@ Use-case scenario: Provision resources in multiple workspaces with different inp
 -terraform=apply -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 
 #3 PR Comment: Plan destruction of a targeted resource in a workspace with input variable file.
--terraform=plan -destroy -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars -target=aws_instance.sample
+-terraform=plan -destroy -target=aws_instance.sample -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 
 #4 PR Comment: Apply destruction of a targeted resource in a workspace with input variable file.
--terraform=apply -destroy -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars -target=aws_instance.sample
+-terraform=apply -destroy -target=aws_instance.sample -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 ```
 
 Use-case scenario: Provision resources with multiple different backends in bulk, simultaneously, followed by destruction without confirmation.
@@ -79,14 +79,14 @@ Use-case scenario: Provision resources with multiple different backends in bulk,
 The following CLI arguments are supported simultaneously, supplied in any order:
 
 - `auto-approve`: Flag to skip confirmation before applying the plan (e.g., `-auto-approve`).
-- `backend-config`: Path to backend configuration file(s) (e.g., `-backend-config=stacks/backend.tfvars`).
+- `backend-config`: Path to backend configuration file(s) (e.g., `-backend-config=backend/dev.tfvars`).
 - `chdir`: Path to a directory containing Terraform configuration files (e.g., `-chdir=stacks/sample_instance`).
 - `destroy`: Flag to destroy resources managed by Terraform (e.g., `-destroy`).
 - `parallelism`: Number of concurrent operations to run (e.g., `-parallelism=10`).
 - `replace`: List of resource addresses to replace (e.g., `-replace=aws_instance.this,aws_instance.that`).
 - `target`: List of resource addresses to target (e.g., `-target=aws_instance.this,aws_instance.that`).
-- `var-file`: Path to variable file(s) (e.g., `-var-file=stacks/prod.tfvars`).
-- `workspace`: Name of Terraform workspace to select (e.g., `-workspace=prod`).
+- `var-file`: Path to variable file(s) (e.g., `-var-file=env/dev.tfvars`).
+- `workspace`: Name of Terraform workspace to select (e.g., `-workspace=dev`).
 
 ### AWS
 
