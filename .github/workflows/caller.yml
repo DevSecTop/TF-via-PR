@@ -7,14 +7,14 @@ on: # https://docs.github.com/en/actions/using-workflows/events-that-trigger-wor
 jobs:
   terraform: # Parse terraform command(s) from comment body and run on PR branch.
     permissions:
-      id-token: write # (Optional): https://github.blog/changelog/2023-06-15-github-actions-securing-openid-connect-oidc-token-permissions-in-reusable-workflows.
+      id-token: write # (Optional) Required by aws-actions/configure-aws-credentials for OIDC authentication.
 
     # uses: devsectop/tf-via-pr/.github/workflows/tf.yml@main
     uses: ./.github/workflows/tf.yml
 
     secrets:
       env_vars: |
-        AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_ROLE=${{ secrets.AWS_ROLE }}
-        AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        CONFIGURE_AWS_CREDENTIALS=true
+        CONFIGURE_AWS_REGION=us-east-1
+        CONFIGURE_AWS_ROLE_TO_ASSUME=${{ secrets.AWS_ROLE_TO_ASSUME }}
         TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
