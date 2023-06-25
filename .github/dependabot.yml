@@ -17,18 +17,3 @@ updates:
     directory: stacks/sample_instance
     schedule:
       interval: daily
-
-  - package-ecosystem: terraform
-    directory: environments/bravo
-    schedule:
-      interval: daily
-
-  - package-ecosystem: terraform
-    directory: environments/connect
-    schedule:
-      interval: daily
-
-  - package-ecosystem: terraform
-    directory: environments/demo
-    schedule:
-      interval: daily
