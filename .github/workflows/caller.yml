@@ -22,7 +22,6 @@ jobs:
 
     secrets:
       env_vars: |
-        CONFIGURE_AWS_CREDENTIALS=true
         CONFIGURE_AWS_REGION=us-east-1
         CONFIGURE_AWS_ROLE=${{ secrets.AWS_ROLE }}
         TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
