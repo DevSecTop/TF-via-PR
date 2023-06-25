@@ -1,27 +1,34 @@
 version: 2
+
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: daily
 
-  # https://github.com/dependabot/dependabot-core/issues/2178
+  # Wildcard support: https://github.com/dependabot/dependabot-core/issues/2178
+
   - package-ecosystem: terraform
-    directory: environments/*
+    directory: stacks/sample_bucket
     schedule:
       interval: daily
 
-- package-ecosystem: terraform
+  - package-ecosystem: terraform
+    directory: stacks/sample_instance
+    schedule:
+      interval: daily
+
+  - package-ecosystem: terraform
     directory: environments/bravo
     schedule:
       interval: daily
 
-- package-ecosystem: terraform
+  - package-ecosystem: terraform
     directory: environments/connect
     schedule:
       interval: daily
 
-- package-ecosystem: terraform
+  - package-ecosystem: terraform
     directory: environments/demo
     schedule:
       interval: daily

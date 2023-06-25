@@ -1,0 +1,20 @@
+name: Terraform
+
+on: # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows.
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  terraform: # Parse terraform command(s) from comment body and run on PR branch.
+    permissions:
+      id-token: write # (Optional): https://github.blog/changelog/2023-06-15-github-actions-securing-openid-connect-oidc-token-permissions-in-reusable-workflows.
+
+    # uses: devsectop/tf-via-pr/.github/workflows/tf.yml@main
+    uses: ./.github/workflows/tf.yml
+
+    secrets:
+      env_vars: |
+        AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_ROLE=${{ secrets.AWS_ROLE }}
+        AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
