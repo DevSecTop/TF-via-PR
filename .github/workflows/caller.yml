@@ -4,6 +4,9 @@ on: # https://docs.github.com/en/actions/using-workflows/events-that-trigger-wor
   issue_comment:
     types: [created, edited]
 
+  pull_request:
+    types: [synchronize]
+
 permissions:
   contents: read # Required by actions/checkout.
   deployments: write # Required by bobheadxi/deployments.
