@@ -57,7 +57,7 @@ jobs:
       matrix:
         in: ${{ fromJSON(needs.parse.outputs.commands) }}
 
-    concurrency: # Queued workflow will be pending and any previously pending ones will be canceled.
+    concurrency: # Queued workflow will be pending and any previously pending ones will be cancelled.
       group: ${{ github.workflow_ref }}@${{ matrix.in['chdir'] }}-${{ matrix.in['workspace'] }}@${{ github.event.issue.number }}
 
     permissions:
@@ -69,6 +69,22 @@ jobs:
       statuses: write # Required by myrotvorets/set-commit-status-action.
 
     steps:
+      - name: Get branch from PR comment
+        id: get_branch
+        uses: xt0rted/pull-request-comment-branch@d97294d304604fa98a2600a6e2f916a84b596dc7 # v2.0.0
+
+      - name: Add commit status
+        uses: myrotvorets/set-commit-status-action@243b4f7e597f62335408d58001edf8a02cf3e1fd # v1.1.7
+        with:
+          sha: ${{ steps.get_branch.outputs.head_sha }}
+          status: pending
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout PR branch
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        with:
+          ref: ${{ steps.get_branch.outputs.head_ref }}
+
       - name: Set environment variables
         env:
           env_vars: ${{ secrets.env_vars }}
@@ -78,21 +94,12 @@ jobs:
             printf '%s\n' $i >> $GITHUB_ENV;
           done
 
-      - name: Get branch from PR comment
-        id: get_branch
-        uses: xt0rted/pull-request-comment-branch@d97294d304604fa98a2600a6e2f916a84b596dc7 # v2.0.0
-
-      - name: Checkout PR branch
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Authenticate AWS credentials
+        if: ${{ env.CONFIGURE_AWS_CREDENTIALS }}
+        uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # v2.2.0
         with:
-          ref: ${{ steps.get_branch.outputs.head_ref }}
-
-      - name: Add commit status
-        uses: myrotvorets/set-commit-status-action@243b4f7e597f62335408d58001edf8a02cf3e1fd # v1.1.7
-        with:
-          sha: ${{ steps.get_branch.outputs.head_sha }}
-          status: pending
-          token: ${{ secrets.GITHUB_TOKEN }}
+          aws-region: ${{ env.CONFIGURE_AWS_REGION }}
+          role-to-assume: ${{ env.CONFIGURE_AWS_ROLE_TO_ASSUME }}
 
       - name: Add PR label
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
@@ -106,13 +113,6 @@ jobs:
               repo: context.repo.repo,
             });
             // Apply Terraform's brand color to the PR label.
-
-      - name: Authenticate AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2 # v2.1.0
-        with:
-          aws-region: us-east-1
-          role-session-name: ${{ github.repository_owner }}@${{ github.event.repository.name }}@${{ github.event.issue.number }}
-          role-to-assume: ${{ env.AWS_ROLE }}
 
       - name: Terraform workspace
         if: ${{ matrix.in['workspace'] }}

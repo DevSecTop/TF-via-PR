@@ -1,6 +1,6 @@
 # Terraform (Multiple AWS) Via PR Comments — Reusable Workflow
 
-[Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Terraform](#terraform) · [AWS](#aws)· [Examples](#examples)] · [Security](#security) · [Roadmap](#roadmap) · [Contributions](#contributions) · [License](#license)
+[Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Terraform](#terraform) · [AWS](#aws) · [Examples](#examples)] · [Security](#security) · [Roadmap](#roadmap) · [Contributions](#contributions) · [License](#license)
 
 > **TL;DR**</br>
 > This reusable workflow enables you to plan and apply changes to Terraform configurations with pull request (PR) comments: for a CLI-like experience on the web. It's powered by GitHub Actions to maximize compatibility and minimize maintenance for DIY deployments. It's catered for AWS accounts as a functional example, but can be easily extended to support other cloud providers.
@@ -40,17 +40,43 @@ jobs:
 - The optional `env_vars` input lets you pass in environment variables as key-value pairs while masking sensitive values from logs.
   - Each entry must be on a new line and separated by an equals sign (`=`).
 
+### Examples
+
+Use-case scenario: Provision resources in multiple workspaces with different input variables, followed by targeted destruction.
+
+```bash
+#1 PR Comment: Plan configuration in a workspace with input variable file.
+-terraform=plan -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
+
+#2 PR Comment: Apply configuration in a workspace with input variable file.
+-terraform=apply -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
+
+#3 PR Comment: Plan destruction of a targeted resource in a workspace with input variable file.
+-terraform=plan -destroy -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars -target=aws_instance.sample
+
+#4 PR Comment: Apply destruction of a targeted resource in a workspace with input variable file.
+-terraform=apply -destroy -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars -target=aws_instance.sample
+```
+
+Use-case scenario: Provision resources with multiple different backends in bulk, simultaneously, followed by destruction without confirmation.
+
+```bash
+#1 PR Comment: Plan multiple configurations with different backends.
+-terraform=plan -chdir=stacks/sample_bucket -backend-config=backend/dev.tfvars
+-terraform=plan -chdir=stacks/sample_bucket -backend-config=backend/stg.tfvars
+
+#2 PR Comment: Apply multiple configurations with different backends.
+-terraform=apply -chdir=stacks/sample_bucket -backend-config=backend/dev.tfvars
+-terraform=apply -chdir=stacks/sample_bucket -backend-config=backend/stg.tfvars
+
+#3 PR Comment: Destroy multiple configurations with different backends without confirmation.
+-terraform=apply -destroy -auto-approve -chdir=stacks/sample_bucket -backend-config=backend/dev.tfvars
+-terraform=apply -destroy -auto-approve -chdir=stacks/sample_bucket -backend-config=backend/stg.tfvars
+```
+
 ### Terraform
 
-To run `terraform plan` in "stacks/sample_instance" directory, trigger the workflow by creating a PR comment in the following format. The workflow will add a PR comment with the planned output for review.
-
-> -terraform=plan -chdir=stacks/sample_instance
-
-To `terraform apply` these changes, edit/create a PR comment in the following format.
-
-> -terraform=apply -chdir=stacks/sample_instance
-
-The following arguments are supported simultaneously, in any order:
+The following CLI arguments are supported simultaneously, supplied in any order:
 
 - `auto-approve`: Flag to skip confirmation before applying the plan (e.g., `-auto-approve`).
 - `backend-config`: Path to backend configuration file(s) (e.g., `-backend-config=stacks/backend.tfvars`).
@@ -64,42 +90,16 @@ The following arguments are supported simultaneously, in any order:
 
 ### AWS
 
-### Examples
+Environment isolation is achieved by nesting folders within "stacks" directory, each with their own providers to enable management of multiple backends, input variables and workspaces from a single repository.
 
-[workflow.mp4](https://github.com/devsectop/tf-via-pr/assets/19497993/48de830a-1cfb-4278-9ca3-be39ad2f7cb8)
+Reusable, stateless components can be placed in the "stacks/modules" directory to be imported into each environment like so.
 
-- [View PR](https://github.com/devsectop/tf-via-pr/pull/22): Plan, apply and destroy multiple different Terraform configurations in bulk.
+```hcl
+module "sample_bucket" {
+  source = "../modules/s3_bucket"
+```
 
-  ```bash
-  # Plan multiple configurations
-  -terraform=plan -chdir=stacks/sample_bucket -var-file=prod.tfvars
-  -terraform=plan -chdir=stacks/sample_instance
-
-  # Apply multiple configurations
-  -terraform=apply -chdir=stacks/sample_bucket -var-file=prod.tfvars
-  -terraform=apply -chdir=stacks/sample_instance
-
-  # Plan destruction of multiple configurations
-  -terraform=plan -destroy -chdir=stacks/sample_bucket -var-file=prod.tfvars
-  -terraform=plan -destroy -chdir=stacks/sample_instance
-
-  # Destroy multiple configurations
-  -terraform=apply -destroy -chdir=stacks/sample_bucket -var-file=prod.tfvars
-  -terraform=apply -destroy -chdir=stacks/sample_instance
-  ```
-
-- [View PR](https://github.com/devsectop/tf-via-pr/pull/23): Plan and apply changes to a targeted resource, then destroy it without confirmation.
-
-  ```bash
-  # Plan changes to a targeted resource
-  -terraform=plan -chdir=stacks/sample_instance -target=aws_instance.sample
-
-  # Apply changes to a targeted resource
-  -terraform=apply -chdir=stacks/sample_instance -target=aws_instance.sample
-
-  # Destroy targeted resource without confirmation
-  -terraform=apply -destroy -chdir=stacks/sample_instance -target=aws_instance.sample -auto-approve
-  ```
+For [OIDC][configure_oidc] authentication, the [aws-actions/configure-aws-credentials][configure_aws_credentials] action is available for use by passing `CONFIGURE_AWS_CREDENTIALS=true` alongside the inputs of your choice for retrieving short-lived credentials. Additionally, the `id-token: write` permission is [explicitly required][oidc_token_permissions] to secure consumption of the generated token from the called workflow to the caller workflow only when intended.
 
 ## Security
 
@@ -137,15 +137,17 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 - Copyright 2023 [Rishav Dhar][rishav_dhar] — All wrongs reserved.
 
 [atlantis]: https://www.runatlantis.io "Atlantis Terraform pull request automation."
-[compare_reusable_workflow_with_composite_actions]: https://github.blog/2022-02-10-using-reusable-workflows-github-actions/ "Using reusable workflows vs. composite actions."
+[compare_reusable_workflow_with_composite_actions]: https://github.blog/2022-02-10-using-reusable-workflows-github-actions "Using reusable workflows vs. composite actions."
+[configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [configure_oidc]: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-cloud-providers "Configuring OpenID Connect in cloud providers."
 [deployment_rules]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules "Configuring environment deployment protection rules."
 [discussion]: https://github.com/devsectop/tf-via-pr/discussions "Open a discussion."
 [events_triggering_workflows]: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows "Events that trigger workflows."
 [github_actions]: https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions "Introduction to GitHub Actions."
-[github_codespaces]: https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers
+[github_codespaces]: https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers "Introduction to GitHub Codespaces."
 [issue]: https://github.com/devsectop/tf-via-pr/issues "Raise an issue."
 [license]: LICENSE "Apache License 2.0."
+[oidc_token_permissions]: https://github.blog/changelog/2023-06-15-github-actions-securing-openid-connect-oidc-token-permissions-in-reusable-workflows "Securing OpenID Connect (OIDC) token permissions in reusable workflows."
 [pull_request]: https://github.com/devsectop/tf-via-pr/pulls "Create a pull request."
 [rishav_dhar]: https://github.com/rdhar "Rishav Dhar's GitHub profile."
 [securing_github_actions]: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions "Security hardening for GitHub Actions."
