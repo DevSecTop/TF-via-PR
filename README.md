@@ -26,6 +26,8 @@ Copy the following snippet into ".github/workflows/terraform.yml" file in your r
 on:
   issue_comment:
     types: [created, edited]
+  pull_request:
+    types: [synchronize]
 
 jobs:
   terraform:
