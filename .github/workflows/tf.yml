@@ -69,7 +69,7 @@ jobs:
 
     concurrency: # Concurrent runs will be queued after any previously pending ones.
       cancel-in-progress: false
-      group: ${{ matrix.in['backend-config'] }}@${{ matrix.in['chdir'] }}@${{ matrix.in['workspace'] }}
+      group: ${{ matrix.in['backend-config'] }}@${{ matrix.in['chdir'] }}@${{ matrix.in['var-file'] }}@${{ matrix.in['workspace'] }}
 
     permissions:
       contents: read # Required by actions/checkout.
@@ -124,6 +124,12 @@ jobs:
               repo: context.repo.repo,
             });
             // Apply Terraform's brand color to the PR label.
+            github.rest.issues.updateLabel({
+              color: "7B42BC",
+              name: "tf:${{ matrix.in['chdir'] }}",
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
 
       - name: Terraform workspace
         if: matrix.in['workspace'] != ''
