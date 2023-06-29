@@ -133,7 +133,7 @@ jobs:
 
       - name: Terraform workspace
         if: matrix.in['workspace'] != ''
-        uses: dflook/terraform-new-workspace@aa68ab95588bb9a1c4bf7728331d0aa9b08a7dc0 # v1.35.0
+        uses: dflook/terraform-new-workspace@c1af0a44f74934141cffd07cde6e71851cd18dc2 # v1.36.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
