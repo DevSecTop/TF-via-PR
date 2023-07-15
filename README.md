@@ -2,8 +2,7 @@
 
 [Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Terraform](#terraform) · [AWS](#aws) · [Examples](#examples)] · [Security](#security) · [Roadmap](#roadmap) · [Contributions](#contributions) · [License](#license)
 
-> **TL;DR**</br>
-> This reusable workflow enables you to plan and apply changes to Terraform configurations with pull request (PR) comments: for a CLI-like experience on the web. It's powered by GitHub Actions to maximize compatibility and minimize maintenance for DIY deployments. It's catered for AWS accounts as a functional example, but can be easily extended to support other cloud providers.
+> **Note** this reusable workflow enables you to plan and apply changes to Terraform configurations with pull request (PR) comments: for a CLI-like experience on the web. It's powered by GitHub Actions to maximize compatibility and minimize maintenance for DIY deployments. It's catered for AWS accounts as a functional example, but can be easily extended to support other cloud providers.
 
 ## Overview
 
