@@ -153,7 +153,7 @@ jobs:
 
       - name: Terraform plan
         if: matrix.in['terraform'] == 'plan'
-        uses: dflook/terraform-plan@3b692f12329bd407fbd99d9a54e2e22e247fb742 # v1.36.0
+        uses: dflook/terraform-plan@a8d7e66e63aff79825a46e3374c4fd66ff9ce543 # v1.36.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
