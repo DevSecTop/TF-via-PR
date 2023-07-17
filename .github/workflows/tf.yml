@@ -142,7 +142,7 @@ jobs:
 
       - name: Terraform force-unlock
         if: matrix.in['terraform'] == 'force-unlock'
-        uses: dflook/terraform-unlock-state@ff38a8733f5b016e0a99f6e9c9df597220542602 # v1.36.0
+        uses: dflook/terraform-unlock-state@10779cfc6b9ef0f59fb54e3a4a5b50d516a20543 # v1.36.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
