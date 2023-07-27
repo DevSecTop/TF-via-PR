@@ -11,9 +11,9 @@ updates:
   - package-ecosystem: terraform
     directory: stacks/sample_bucket
     schedule:
-      interval: daily
+      interval: monthly
 
   - package-ecosystem: terraform
     directory: stacks/sample_instance
     schedule:
-      interval: daily
+      interval: monthly
