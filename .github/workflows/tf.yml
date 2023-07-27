@@ -167,14 +167,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          backend_config_file: ${{ matrix.in['backend-config'] != '' && format('{0}/{1}', matrix.in['chdir'], matrix.in['backend-config']) || '' }}
+          backend_config_file: ${{ matrix.in['backend-config'] != '' && format('{0}{1}/{2}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir'], matrix.in['backend-config']) || '' }}
           destroy: ${{ matrix.in['destroy'] }}
-          label: ${{ matrix.in['chdir'] }}
+          label: ${{ format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) }}
           parallelism: ${{ matrix.in['parallelism'] }}
-          path: ${{ matrix.in['chdir'] }}
+          path: ${{ format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) }}
           replace: ${{ matrix.in['replace'] }}
           target: ${{ matrix.in['target'] }}
-          var_file: ${{ matrix.in['var-file'] != '' && format('{0}/{1}', matrix.in['chdir'], matrix.in['var-file']) || '' }}
+          var_file: ${{ matrix.in['var-file'] != '' && format('{0}{1}/{2}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir'], matrix.in['var-file']) || '' }}
           workspace: ${{ matrix.in['workspace'] || 'default' }}
 
       - name: Terraform apply
@@ -185,14 +185,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           auto_approve: ${{ matrix.in['auto-approve'] }}
-          backend_config_file: ${{ matrix.in['backend-config'] != '' && format('{0}/{1}', matrix.in['chdir'], matrix.in['backend-config']) || '' }}
+          backend_config_file: ${{ matrix.in['backend-config'] != '' && format('{0}{1}/{2}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir'], matrix.in['backend-config']) || '' }}
           destroy: ${{ matrix.in['destroy'] }}
-          label: ${{ matrix.in['chdir'] }}
+          label: ${{ format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) }}
           parallelism: ${{ matrix.in['parallelism'] }}
-          path: ${{ matrix.in['chdir'] }}
+          path: ${{ format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) }}
           replace: ${{ matrix.in['replace'] }}
           target: ${{ matrix.in['target'] }}
-          var_file: ${{ matrix.in['var-file'] != '' && format('{0}/{1}', matrix.in['chdir'], matrix.in['var-file']) || '' }}
+          var_file: ${{ matrix.in['var-file'] != '' && format('{0}{1}/{2}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir'], matrix.in['var-file']) || '' }}
           workspace: ${{ matrix.in['workspace'] || 'default' }}
 
       - name: Terraform force-unlock
