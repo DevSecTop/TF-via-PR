@@ -69,7 +69,7 @@ jobs:
 
     concurrency: # Concurrent runs will be queued after any previously pending ones.
       cancel-in-progress: false
-      group: ${{ matrix.in['backend-config'] }}@${{ matrix.in['chdir'] }}@${{ matrix.in['var-file'] }}@${{ matrix.in['workspace'] }}
+      group: ${{ matrix.in['terraform'] == 'apply' && '${{ github.workflow }}@${{ matrix.in["chdir"] }}@${{ matrix.in["backend-config"] }}@${{ matrix.in["var-file"] }}@${{ matrix.in["workspace"]' || github.run_id }}
 
     permissions:
       contents: read # Required by actions/checkout.
@@ -78,8 +78,14 @@ jobs:
       pull-requests: write # Required by dflook/terraform-*.
       statuses: write # Required by myrotvorets/set-commit-status-action.
 
+    env:
+      TF_CLI_ARGS: -no-color
+      TF_CLI_CHDIR: ${{ matrix.in['chdir'] != '' && format('-chdir={0}', matrix.in['chdir']) || '' }}
+      TF_IN_AUTOMATION: true
+      TF_INPUT: false
+
     steps:
-      - name: Get branch from PR comment
+      - name: Get comment branch
         id: get_branch
         uses: xt0rted/pull-request-comment-branch@d97294d304604fa98a2600a6e2f916a84b596dc7 # v2.0.0
 
@@ -90,7 +96,7 @@ jobs:
           status: pending
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout PR branch
+      - name: Checkout branch
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
         with:
           ref: ${{ steps.get_branch.outputs.head_ref }}
@@ -109,6 +115,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # v2.2.0
         with:
           aws-region: ${{ env.CONFIGURE_AWS_REGION }}
+          role-session-name: ${{ env.CONFIGURE_AWS_SESSION_NAME }}
           role-to-assume: ${{ env.CONFIGURE_AWS_ROLE }}
 
       - name: Add PR label
@@ -122,6 +129,11 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
+
+      - name: Color PR label
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
+        with:
+          script: |
             // Apply Terraform's brand color to the PR label.
             github.rest.issues.updateLabel({
               color: "7B42BC",
@@ -130,26 +142,23 @@ jobs:
               repo: context.repo.repo,
             });
 
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # v2.0.3
+        with:
+          cli_config_credentials_hostname: ${{ env.CONFIGURE_TF_HOSTNAME }}
+          cli_config_credentials_token: ${{ env.CONFIGURE_TF_TOKEN }}
+          terraform_version: ${{ env.CONFIGURE_TF_VERSION }}
+
+      - name: Terraform init
+        run: terraform $TF_CLI_CHDIR init $TF_CLI_BACKEND_CONFIG
+        env:
+          TF_CLI_BACKEND_CONFIG: ${{ matrix.in['backend-config'] != '' && format('-backend-config={0}/{1}', matrix.in['chdir'], matrix.in['backend-config']) || '' }}
+
       - name: Terraform workspace
         if: matrix.in['workspace'] != ''
-        uses: dflook/terraform-new-workspace@98f6db1879b41e63b91455c27a15b4924ecc02d4 # v1.36.1
+        run: terraform $TF_CLI_CHDIR workspace select $TF_CLI_WORKSPACE || terraform $TF_CLI_CHDIR workspace new $TF_CLI_WORKSPACE
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          backend_config_file: ${{ matrix.in['backend-config'] != '' && format('{0}/{1}', matrix.in['chdir'], matrix.in['backend-config']) || '' }}
-          path: ${{ matrix.in['chdir'] }}
-          workspace: ${{ matrix.in['workspace'] }}
-
-      - name: Terraform force-unlock
-        if: matrix.in['terraform'] == 'force-unlock'
-        uses: dflook/terraform-unlock-state@10779cfc6b9ef0f59fb54e3a4a5b50d516a20543 # v1.36.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          backend_config_file: ${{ matrix.in['backend-config'] != '' && format('{0}/{1}', matrix.in['chdir'], matrix.in['backend-config']) || '' }}
-          lock_id: ${{ matrix.in['lock-id'] }}
-          path: ${{ matrix.in['chdir'] }}
-          workspace: ${{ matrix.in['workspace'] || 'default' }}
+          TF_CLI_WORKSPACE: ${{ matrix.in['workspace'] }}
 
       - name: Terraform plan
         if: matrix.in['terraform'] == 'plan'
@@ -184,6 +193,12 @@ jobs:
           target: ${{ matrix.in['target'] }}
           var_file: ${{ matrix.in['var-file'] != '' && format('{0}/{1}', matrix.in['chdir'], matrix.in['var-file']) || '' }}
           workspace: ${{ matrix.in['workspace'] || 'default' }}
+
+      - name: Terraform force-unlock
+        if: matrix.in['terraform'] == 'force-unlock'
+        run: terraform $TF_CLI_CHDIR force-unlock -force $TF_CLI_LOCK_ID
+        env:
+          TF_CLI_LOCK_ID: ${{ matrix.in['lock-id'] }}
 
       - name: Update commit status
         uses: myrotvorets/set-commit-status-action@243b4f7e597f62335408d58001edf8a02cf3e1fd # v1.1.7
