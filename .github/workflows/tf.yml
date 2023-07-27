@@ -80,7 +80,6 @@ jobs:
 
     env:
       TF_CLI_ARGS: -no-color
-      TF_CLI_CHDIR: ${{ matrix.in['chdir'] != '' && format('-chdir={0}', matrix.in['chdir']) || '' }}
       TF_IN_AUTOMATION: true
       TF_INPUT: false
 
@@ -152,12 +151,14 @@ jobs:
       - name: Terraform init
         run: terraform $TF_CLI_CHDIR init $TF_CLI_BACKEND_CONFIG
         env:
-          TF_CLI_BACKEND_CONFIG: ${{ matrix.in['backend-config'] != '' && format('-backend-config={0}/{1}', matrix.in['chdir'], matrix.in['backend-config']) || '' }}
+          TF_CLI_BACKEND_CONFIG: ${{ matrix.in['backend-config'] != '' && format('-backend-config={0}', matrix.in['backend-config']) || '' }}
+          TF_CLI_CHDIR: ${{ matrix.in['chdir'] != '' && format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || '' }}
 
       - name: Terraform workspace
         if: matrix.in['workspace'] != ''
         run: terraform $TF_CLI_CHDIR workspace select $TF_CLI_WORKSPACE || terraform $TF_CLI_CHDIR workspace new $TF_CLI_WORKSPACE
         env:
+          TF_CLI_CHDIR: ${{ matrix.in['chdir'] != '' && format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || '' }}
           TF_CLI_WORKSPACE: ${{ matrix.in['workspace'] }}
 
       - name: Terraform plan
@@ -198,6 +199,7 @@ jobs:
         if: matrix.in['terraform'] == 'force-unlock'
         run: terraform $TF_CLI_CHDIR force-unlock -force $TF_CLI_LOCK_ID
         env:
+          TF_CLI_CHDIR: ${{ matrix.in['chdir'] != '' && format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || '' }}
           TF_CLI_LOCK_ID: ${{ matrix.in['lock-id'] }}
 
       - name: Update commit status
