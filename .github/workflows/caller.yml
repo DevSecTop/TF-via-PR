@@ -6,6 +6,7 @@ on: # https://docs.github.com/en/actions/using-workflows/events-that-trigger-wor
 
   pull_request:
     types: [synchronize]
+    paths: ["**.tf*"]
 
 permissions:
   contents: read # Required by actions/checkout.
