@@ -135,7 +135,7 @@ jobs:
           script: |
             // Apply Terraform's brand color to the PR label.
             github.rest.issues.updateLabel({
-              color: "7B42BC",
+              color: "5C4EE5",
               name: "tf:${{ matrix.in['chdir'] }}",
               owner: context.repo.owner,
               repo: context.repo.repo,
