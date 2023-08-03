@@ -72,6 +72,7 @@ jobs:
       group: ${{ matrix.in['terraform'] == 'apply' && '${{ github.workflow }}@${{ matrix.in["chdir"] }}@${{ matrix.in["backend-config"] }}@${{ matrix.in["var-file"] }}@${{ matrix.in["workspace"]' || github.run_id }}
 
     permissions:
+      actions: read # Required for artifacts.
       contents: read # Required by actions/checkout.
       id-token: write # Required by aws-actions/configure-aws-credentials.
       issues: read # Required by xt0rted/pull-request-comment-branch.
@@ -95,12 +96,12 @@ jobs:
           status: pending
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Checkout branch
+      - name: Checkout repository
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
         with:
           ref: ${{ steps.get_branch.outputs.head_ref }}
 
-      - name: Set environment variables
+      - name: Populate input environment variables
         env:
           env_vars: ${{ secrets.env_vars }}
         run: |
@@ -121,22 +122,15 @@ jobs:
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
           script: |
-            // Add a PR label in the format of tf:name.
-            github.rest.issues.addLabels({
+            const label_add = await github.rest.issues.addLabels({
               issue_number: context.issue.number,
-              labels: ["tf:${{ matrix.in['chdir'] }}"],
+              labels: ["terraform:${{ matrix.in['terraform'] }}"],
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-
-      - name: Color PR label
-        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
-        with:
-          script: |
-            // Apply Terraform's brand color to the PR label.
-            github.rest.issues.updateLabel({
+            const label_color = await github.rest.issues.updateLabel({
               color: "5C4EE5",
-              name: "tf:${{ matrix.in['chdir'] }}",
+              name: "terraform:${{ matrix.in['terraform'] }}",
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
@@ -148,63 +142,139 @@ jobs:
           cli_config_credentials_token: ${{ env.CONFIGURE_TF_TOKEN }}
           terraform_version: ${{ env.CONFIGURE_TF_VERSION }}
 
+      - name: Populate input terraform variables
+        run: |
+          # Special
+          echo TF_CLI_AUTO_APPROVE=$(echo ${{ matrix.in['auto-approve'] != '' && '-auto-approve' || 'tfplan' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_PATH=$(echo ${{ matrix.in['chdir'] != '' && format('{0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || env.CONFIGURE_TF_CHDIR_PREFIX != '' && format('{0}', env.CONFIGURE_TF_CHDIR_PREFIX) || '' }}) >> $GITHUB_ENV
+          # Subcommands
+          echo TF_CLI_LOCK_ID=$(echo ${{ matrix.in['lock-id'] }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_WORKSPACE=$(echo ${{ matrix.in['workspace'] }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          # Standard
+          echo TF_CLI_BACKEND_CONFIG=$(echo ${{ matrix.in['backend-config'] != '' && format('-backend-config={0}', matrix.in['backend-config']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_BACKEND=$(echo ${{ matrix.in['backend'] != '' && format('-backend={0}', matrix.in['backend']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_CHDIR=$(echo ${{ matrix.in['chdir'] != '' && format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || env.CONFIGURE_TF_CHDIR_PREFIX != '' && format('-chdir={0}', env.CONFIGURE_TF_CHDIR_PREFIX) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_CLOUD=$(echo ${{ matrix.in['cloud'] != '' && format('-cloud={0}', matrix.in['cloud']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_FROM_MODULE=$(echo ${{ matrix.in['from-module'] != '' && format('-from-module={0}', matrix.in['from-module']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_GET=$(echo ${{ matrix.in['get'] != '' && format('-get={0}', matrix.in['get']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_LOCK_TIMEOUT=$(echo ${{ matrix.in['lock-timeout'] != '' && format('-lock-timeout={0}', matrix.in['lock-timeout']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_LOCK=$(echo ${{ matrix.in['lock'] != '' && format('-lock={0}', matrix.in['lock']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_LOCKFILE=$(echo ${{ matrix.in['lockfile'] != '' && format('-lockfile={0}', matrix.in['lockfile']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_PARALLELISM=$(echo ${{ matrix.in['parallelism'] != '' && format('-parallelism={0}', matrix.in['parallelism']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_PLUGIN_DIR=$(echo ${{ matrix.in['plugin-dir'] != '' && format('-plugin-dir={0}', matrix.in['plugin-dir']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_REFRESH=$(echo ${{ matrix.in['refresh'] != '' && format('-refresh={0}', matrix.in['refresh']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_REPLACE=$(echo ${{ matrix.in['replace'] != '' && format('-replace={0}', matrix.in['replace']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_TARGET=$(echo ${{ matrix.in['target'] != '' && format('-target={0}', matrix.in['target']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_VAR_FILE=$(echo ${{ matrix.in['var-file'] != '' && format('-var-file={0}', matrix.in['var-file']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          # Boolean
+          echo TF_CLI_COMPACT_WARNINGS=$(echo ${{ matrix.in['compact-warnings'] != '' && '-compact-warnings' || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_DESTROY=$(echo ${{ matrix.in['destroy'] != '' && '-destroy' || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_IGNORE_REMOTE_VERSION=$(echo ${{ matrix.in['ignore-remote-version'] != '' && '-ignore-remote-version' || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_REFRESH_ONLY=$(echo ${{ matrix.in['refresh-only'] != '' && '-refresh-only' || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_UPGRADE=$(echo ${{ matrix.in['upgrade'] != '' && '-upgrade' || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+
       - name: Terraform init
-        run: terraform $TF_CLI_CHDIR init $TF_CLI_BACKEND_CONFIG
-        env:
-          TF_CLI_BACKEND_CONFIG: ${{ matrix.in['backend-config'] != '' && format('-backend-config={0}', matrix.in['backend-config']) || '' }}
-          TF_CLI_CHDIR: ${{ matrix.in['chdir'] != '' && format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || '' }}
+        id: terraform_init
+        run: |
+          terraform ${{ env.TF_CLI_CHDIR }} init \
+          ${{ env.TF_CLI_BACKEND }} ${{ env.TF_CLI_BACKEND_CONFIG }} ${{ env.TF_CLI_CLOUD }} ${{ env.TF_CLI_FROM_MODULE }} ${{ env.TF_CLI_GET }} ${{ env.TF_CLI_IGNORE_REMOTE_VERSION }} ${{ env.TF_CLI_LOCK }} ${{ env.TF_CLI_LOCK_TIMEOUT }} ${{ env.TF_CLI_LOCKFILE }} ${{ env.TF_CLI_PLUGIN_DIR }} ${{ env.TF_CLI_UPGRADE }}
 
       - name: Terraform workspace
         if: matrix.in['workspace'] != ''
-        run: terraform $TF_CLI_CHDIR workspace select $TF_CLI_WORKSPACE || terraform $TF_CLI_CHDIR workspace new $TF_CLI_WORKSPACE
-        env:
-          TF_CLI_CHDIR: ${{ matrix.in['chdir'] != '' && format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || '' }}
-          TF_CLI_WORKSPACE: ${{ matrix.in['workspace'] }}
+        id: terraform_workspace
+        run: |
+          terraform ${{ env.TF_CLI_CHDIR }} workspace select ${{ env.TF_CLI_WORKSPACE }} \
+          || terraform ${{ env.TF_CLI_CHDIR }} workspace new ${{ env.TF_CLI_WORKSPACE }}
 
       - name: Terraform plan
         if: matrix.in['terraform'] == 'plan'
-        uses: dflook/terraform-plan@a8d7e66e63aff79825a46e3374c4fd66ff9ce543 # v1.36.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: terraform_plan
+        continue-on-error: true
+        run: |
+          terraform ${{ env.TF_CLI_CHDIR }} plan -out=tfplan \
+          ${{ env.TF_CLI_COMPACT_WARNINGS }} ${{ env.TF_CLI_DESTROY }} ${{ env.TF_CLI_LOCK }} ${{ env.TF_CLI_LOCK_TIMEOUT }} ${{ env.TF_CLI_PARALLELISM }} ${{ env.TF_CLI_REFRESH }} ${{ env.TF_CLI_REFRESH_ONLY }} ${{ env.TF_CLI_REPLACE }} ${{ env.TF_CLI_TARGET }} ${{ env.TF_CLI_VAR_FILE }} \
+          && terraform ${{ env.TF_CLI_CHDIR }} show tfplan
+
+      - name: Upload terraform plan
+        if: matrix.in['terraform'] == 'plan' && steps.terraform_plan.outputs.exitcode == 0
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
-          backend_config_file: ${{ matrix.in['backend-config'] != '' && format('{0}{1}/{2}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir'], matrix.in['backend-config']) || '' }}
-          destroy: ${{ matrix.in['destroy'] }}
-          label: ${{ format('{0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) }}
-          parallelism: ${{ matrix.in['parallelism'] }}
-          path: ${{ format('{0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) }}
-          replace: ${{ matrix.in['replace'] }}
-          target: ${{ matrix.in['target'] }}
-          var_file: ${{ matrix.in['var-file'] != '' && format('{0}{1}/{2}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir'], matrix.in['var-file']) || '' }}
-          workspace: ${{ matrix.in['workspace'] || 'default' }}
+          name: tfplan
+          path: ${{ env.TF_CLI_PATH }}/tfplan
+
+      - name: Download terraform plan
+        if: matrix.in['terraform'] == 'apply' && matrix.in['auto-approve'] == ''
+        id: artifact_url
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
+        with:
+          script: |
+            const { data: artifact_id } = await github.rest.actions.listArtifactsForRepo({
+              name: "tfplan",
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const artifact_download = await github.rest.actions.downloadArtifact({
+              archive_format: "zip",
+              artifact_id: artifact_id.artifacts[0].id,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            return artifact_download.url;
+
+      - name: Unzip terraform plan
+        if: matrix.in['terraform'] == 'apply' && matrix.in['auto-approve'] == ''
+        run: |
+          wget -O tfplan ${{ steps.artifact_url.outputs.result }}
+          unzip tfplan -d "${{ env.TF_CLI_PATH }}"
 
       - name: Terraform apply
-        id: terraform_apply
         if: matrix.in['terraform'] == 'apply'
-        uses: dflook/terraform-apply@5430d6b38e3bfbda62eb96b11a85b08536688d49 # v1.36.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          auto_approve: ${{ matrix.in['auto-approve'] }}
-          backend_config_file: ${{ matrix.in['backend-config'] != '' && format('{0}{1}/{2}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir'], matrix.in['backend-config']) || '' }}
-          destroy: ${{ matrix.in['destroy'] }}
-          label: ${{ format('{0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) }}
-          parallelism: ${{ matrix.in['parallelism'] }}
-          path: ${{ format('{0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) }}
-          replace: ${{ matrix.in['replace'] }}
-          target: ${{ matrix.in['target'] }}
-          var_file: ${{ matrix.in['var-file'] != '' && format('{0}{1}/{2}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir'], matrix.in['var-file']) || '' }}
-          workspace: ${{ matrix.in['workspace'] || 'default' }}
+        id: terraform_apply
+        continue-on-error: true
+        run: |
+          terraform ${{ env.TF_CLI_CHDIR }} apply \
+          ${{ env.TF_CLI_COMPACT_WARNINGS }} ${{ env.TF_CLI_DESTROY }} ${{ env.TF_CLI_LOCK }} ${{ env.TF_CLI_LOCK_TIMEOUT }} ${{ env.TF_CLI_PARALLELISM }} ${{ env.TF_CLI_REFRESH }} ${{ env.TF_CLI_REFRESH_ONLY }} ${{ env.TF_CLI_REPLACE }} ${{ env.TF_CLI_TARGET }} ${{ env.TF_CLI_VAR_FILE }} ${{ env.TF_CLI_AUTO_APPROVE }}
 
       - name: Terraform force-unlock
         if: matrix.in['terraform'] == 'force-unlock'
-        run: terraform $TF_CLI_CHDIR force-unlock -force $TF_CLI_LOCK_ID
+        id: terraform_force_unlock
+        run: terraform ${{ env.TF_CLI_CHDIR }} force-unlock -force ${{ env.TF_CLI_LOCK_ID }}
+
+      - name: Comment terraform output
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
-          TF_CLI_CHDIR: ${{ matrix.in['chdir'] != '' && format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || '' }}
-          TF_CLI_LOCK_ID: ${{ matrix.in['lock-id'] }}
+          terraform_output: ${{ steps.terraform_apply.outputs.stdout || steps.terraform_apply.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_workspace.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stdout || steps.terraform_init.outputs.stderr }}
+        with:
+          script: |
+            const comment_summary =
+              process.env.terraform_output
+                .split("\n")
+                .find(
+                  (line) =>
+                    line.startsWith("Apply") ||
+                    line.startsWith("Plan") ||
+                    line.startsWith("No changes")
+                ) || "Terraform output";
+
+            const comment_body = `
+            <details><summary>${comment_summary}</summary>
+
+            \`\`\`hcl
+            ${process.env.terraform_output}
+            \`\`\`
+            </details>
+            `;
+
+            github.rest.issues.createComment({
+              body: comment_body,
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
 
       - name: Update commit status
-        uses: myrotvorets/set-commit-status-action@243b4f7e597f62335408d58001edf8a02cf3e1fd # v1.1.7
         if: always()
+        uses: myrotvorets/set-commit-status-action@243b4f7e597f62335408d58001edf8a02cf3e1fd # v1.1.7
         with:
           sha: ${{ steps.get_branch.outputs.head_sha }}
           status: ${{ job.status }}
