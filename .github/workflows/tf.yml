@@ -1,29 +1,38 @@
 name: Terraform (Multiple AWS) Via PR Comments — Reusable Workflow
 
-# This is a reusable workflow to run terraform commands on 'issue_comment'
-# events using a matrix strategy with AWS authentication. Learn more:
-# https://github.com/devsectop/tf-via-pr/#readme.
+# This reusable workflow parses PR comments for terraform commands and then
+# run them on the branch in parallel with AWS authentication. Learn more:
+# https://github.com/devsectop/tf-via-pr/#readme
 
-on: # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows.
+on:
   workflow_call:
     secrets:
       env_vars:
         description: Environment variables passed into this workflow.
         required: false
 
+permissions:
+  actions: read # Required for (up/down)loading artifacts
+  contents: read # Required for actions/checkout
+  id-token: write # Required for aws-actions/configure-aws-credentials
+  issues: read # Required for forxt0rted/pull-request-comment-branch
+  pull-requests: write # Required for comments and labels
+  statuses: write # Required for myrotvorets/set-commit-status-action
+
 jobs:
-  parse: # Parse terraform command(s) from comment to run in subsequent job.
-    if: startsWith(github.event.comment.body, '-terraform=') || contains(join(github.event.pull_request.labels.*.name), 'tf:')
+  pre: # Parse the comment for terraform commands.
+    if: startsWith(github.event.comment.body, '-terraform=') || contains(join(github.event.pull_request.labels.*.name), 'terraform:')
     runs-on: ubuntu-latest
 
     outputs:
       commands: ${{ steps.parse_comment.outputs.result }}
+      comment: ${{ steps.get_branch.outputs.head_sha }}
 
     steps:
       - name: Find comment
+        id: find_comment
         if: github.event_name == 'pull_request'
         uses: peter-evans/find-comment@a54c31d7fa095754bfef525c0c8e5e5674c4b4b1 # v2.4.0
-        id: find_comment
         with:
           body-regex: ^-terraform=plan.*
           direction: last
@@ -37,47 +46,49 @@ jobs:
           comment: ${{ github.event.comment.body || steps.find_comment.outputs.comment-body }}
         with:
           script: |
-            // Trim whitespace and split comment on newlines.
-            return process.env.comment.trim().split("\n").flatMap((command) => {
-              // Split string on spaces but ignore spaces inside quotes.
-              const args = command.match(/("[^"]+"|[^"\s]+)+/g);
-              // Get key/value pairs from args split on "=".
-              const result = {};
-              args.forEach((arg) => {
-                const [key, value] = arg.split("=");
-                const parsedKey = key.slice(1);
-                if (value) {
-                  // Remove double quotes from values.
-                  result[parsedKey] = value.replace(/"/g, "");
-                } else {
-                  // If no value is given for a key, treat as a flag.
-                  result[parsedKey] = true;
-                }
+            // Trim whitespace, split the comment on newlines and remove empty lines.
+            return process.env.comment
+              .trim()
+              .split("\n")
+              .filter((line) => line.trim() !== "")
+              .map((command) => {
+                // Split string on spaces but ignore spaces inside quotation marks.
+                const args = command.match(/("[^"]+"|'[^']+'|[^'"\s]+)+/g);
+                // Get key/value pairs from args split on "=".
+                const result = {};
+                args.forEach((arg) => {
+                  const [key, value] = arg.split("=");
+                  const parsedKey = key.slice(1);
+                  if (value) {
+                    // Remove quotation marks from values.
+                    result[parsedKey] = value.replace(/['"]+/g, "");
+                  } else {
+                    // If a key's value is absent, treat as a flag.
+                    result[parsedKey] = true;
+                  }
+                });
+                return result;
               });
-              return result;
-            });
 
-  run: # Run parsed terraform command(s) on the PR branch associated with the comment.
-    needs: [parse]
+      - name: Get comment branch
+        id: get_branch
+        if: github.event.issue.pull_request
+        uses: xt0rted/pull-request-comment-branch@d97294d304604fa98a2600a6e2f916a84b596dc7 # v2.0.0
+
+      - name: Add commit status
+        if: github.event.issue.pull_request
+        uses: myrotvorets/set-commit-status-action@243b4f7e597f62335408d58001edf8a02cf3e1fd # v1.1.7
+        with:
+          sha: ${{ steps.get_branch.outputs.head_sha }}
+
+  run: # Run terraform commands on the branch associated with the comment.
+    needs: [pre]
     runs-on: ubuntu-latest
 
-    strategy: # Run for each terraform command completely to release state lock.
+    strategy: # Run each terraform command in parallel to completion to release state lock.
       fail-fast: false
-      max-parallel: 1
       matrix:
-        in: ${{ fromJSON(needs.parse.outputs.commands) }}
-
-    concurrency: # Concurrent runs will be queued after any previously pending ones.
-      cancel-in-progress: false
-      group: ${{ matrix.in['terraform'] == 'apply' && '${{ github.workflow }}@${{ matrix.in["chdir"] }}@${{ matrix.in["backend-config"] }}@${{ matrix.in["var-file"] }}@${{ matrix.in["workspace"]' || github.run_id }}
-
-    permissions:
-      actions: read # Required for artifacts.
-      contents: read # Required by actions/checkout.
-      id-token: write # Required by aws-actions/configure-aws-credentials.
-      issues: read # Required by xt0rted/pull-request-comment-branch.
-      pull-requests: write # Required by dflook/terraform-*.
-      statuses: write # Required by myrotvorets/set-commit-status-action.
+        in: ${{ fromJSON(needs.pre.outputs.commands) }}
 
     env:
       TF_CLI_ARGS: -no-color
@@ -85,30 +96,18 @@ jobs:
       TF_INPUT: false
 
     steps:
-      - name: Get comment branch
-        id: get_branch
-        uses: xt0rted/pull-request-comment-branch@d97294d304604fa98a2600a6e2f916a84b596dc7 # v2.0.0
-
-      - name: Add commit status
-        uses: myrotvorets/set-commit-status-action@243b4f7e597f62335408d58001edf8a02cf3e1fd # v1.1.7
-        with:
-          sha: ${{ steps.get_branch.outputs.head_sha }}
-          status: pending
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Checkout repository
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
         with:
-          ref: ${{ steps.get_branch.outputs.head_ref }}
+          ref: ${{ github.head_ref || format('refs/pull/{0}/merge', github.event.issue.number) }}
 
-      - name: Populate input environment variables
+      - name: Populate environment variables
         env:
           env_vars: ${{ secrets.env_vars }}
+          matrix: ${{ toJSON(matrix.in) }}
         run: |
-          for i in $env_vars; do
-            echo ::add-mask::${i/*=/};
-            printf '%s\n' $i >> $GITHUB_ENV;
-          done
+          for i in $env_vars; do echo ::add-mask::${i/*=/}; printf '%s\n' $i >> $GITHUB_ENV; done
+          echo TF_CLI_PROMPT=$matrix >> $GITHUB_ENV
 
       - name: Authenticate AWS credentials
         if: env.CONFIGURE_AWS_REGION
@@ -130,6 +129,7 @@ jobs:
             });
             const label_color = await github.rest.issues.updateLabel({
               color: "5C4EE5",
+              description: "Pull requests that ${{ matrix.in['terraform'] }} Terraform code",
               name: "terraform:${{ matrix.in['terraform'] }}",
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -142,18 +142,19 @@ jobs:
           cli_config_credentials_token: ${{ env.CONFIGURE_TF_TOKEN }}
           terraform_version: ${{ env.CONFIGURE_TF_VERSION }}
 
-      - name: Populate input terraform variables
+      - name: Populate terraform variables
         run: |
           # Special
           echo TF_CLI_AUTO_APPROVE=$(echo ${{ matrix.in['auto-approve'] != '' && '-auto-approve' || 'tfplan' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
+          echo TF_CLI_CHDIR=$(echo ${{ matrix.in['chdir'] != '' && format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || env.CONFIGURE_TF_CHDIR_PREFIX != '' && format('-chdir={0}', env.CONFIGURE_TF_CHDIR_PREFIX) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_PATH=$(echo ${{ matrix.in['chdir'] != '' && format('{0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || env.CONFIGURE_TF_CHDIR_PREFIX != '' && format('{0}', env.CONFIGURE_TF_CHDIR_PREFIX) || '' }}) >> $GITHUB_ENV
+          echo TF_CLI_TFPLAN=$(echo ${{ format('{0} {1} {2} {3} {4} {5} {6} {7} tfplan', github.event.number || github.event.issue.number, matrix.in['backend-config'], matrix.in['chdir'], matrix.in['destroy'], matrix.in['replace'], matrix.in['target'], matrix.in['var-file'], matrix.in['workspace']) }} | sed 's/[[:space:][:punct:]]/-/g') >> $GITHUB_ENV
           # Subcommands
           echo TF_CLI_LOCK_ID=$(echo ${{ matrix.in['lock-id'] }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_WORKSPACE=$(echo ${{ matrix.in['workspace'] }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           # Standard
           echo TF_CLI_BACKEND_CONFIG=$(echo ${{ matrix.in['backend-config'] != '' && format('-backend-config={0}', matrix.in['backend-config']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_BACKEND=$(echo ${{ matrix.in['backend'] != '' && format('-backend={0}', matrix.in['backend']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
-          echo TF_CLI_CHDIR=$(echo ${{ matrix.in['chdir'] != '' && format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || env.CONFIGURE_TF_CHDIR_PREFIX != '' && format('-chdir={0}', env.CONFIGURE_TF_CHDIR_PREFIX) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_CLOUD=$(echo ${{ matrix.in['cloud'] != '' && format('-cloud={0}', matrix.in['cloud']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_FROM_MODULE=$(echo ${{ matrix.in['from-module'] != '' && format('-from-module={0}', matrix.in['from-module']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_GET=$(echo ${{ matrix.in['get'] != '' && format('-get={0}', matrix.in['get']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
@@ -175,42 +176,35 @@ jobs:
 
       - name: Terraform init
         id: terraform_init
-        run: |
-          terraform ${{ env.TF_CLI_CHDIR }} init \
-          ${{ env.TF_CLI_BACKEND }} ${{ env.TF_CLI_BACKEND_CONFIG }} ${{ env.TF_CLI_CLOUD }} ${{ env.TF_CLI_FROM_MODULE }} ${{ env.TF_CLI_GET }} ${{ env.TF_CLI_IGNORE_REMOTE_VERSION }} ${{ env.TF_CLI_LOCK }} ${{ env.TF_CLI_LOCK_TIMEOUT }} ${{ env.TF_CLI_LOCKFILE }} ${{ env.TF_CLI_PLUGIN_DIR }} ${{ env.TF_CLI_UPGRADE }}
+        run: terraform ${{ env.TF_CLI_CHDIR }} init ${{ env.TF_CLI_BACKEND }} ${{ env.TF_CLI_BACKEND_CONFIG }} ${{ env.TF_CLI_CLOUD }} ${{ env.TF_CLI_FROM_MODULE }} ${{ env.TF_CLI_GET }} ${{ env.TF_CLI_IGNORE_REMOTE_VERSION }} ${{ env.TF_CLI_LOCK }} ${{ env.TF_CLI_LOCK_TIMEOUT }} ${{ env.TF_CLI_LOCKFILE }} ${{ env.TF_CLI_PLUGIN_DIR }} ${{ env.TF_CLI_UPGRADE }}
 
       - name: Terraform workspace
-        if: matrix.in['workspace'] != ''
         id: terraform_workspace
-        run: |
-          terraform ${{ env.TF_CLI_CHDIR }} workspace select ${{ env.TF_CLI_WORKSPACE }} \
-          || terraform ${{ env.TF_CLI_CHDIR }} workspace new ${{ env.TF_CLI_WORKSPACE }}
+        if: matrix.in['workspace'] != ''
+        run: terraform ${{ env.TF_CLI_CHDIR }} workspace select ${{ env.TF_CLI_WORKSPACE }} || terraform ${{ env.TF_CLI_CHDIR }} workspace new ${{ env.TF_CLI_WORKSPACE }}
 
       - name: Terraform plan
-        if: matrix.in['terraform'] == 'plan'
         id: terraform_plan
-        continue-on-error: true
-        run: |
-          terraform ${{ env.TF_CLI_CHDIR }} plan -out=tfplan \
-          ${{ env.TF_CLI_COMPACT_WARNINGS }} ${{ env.TF_CLI_DESTROY }} ${{ env.TF_CLI_LOCK }} ${{ env.TF_CLI_LOCK_TIMEOUT }} ${{ env.TF_CLI_PARALLELISM }} ${{ env.TF_CLI_REFRESH }} ${{ env.TF_CLI_REFRESH_ONLY }} ${{ env.TF_CLI_REPLACE }} ${{ env.TF_CLI_TARGET }} ${{ env.TF_CLI_VAR_FILE }} \
-          && terraform ${{ env.TF_CLI_CHDIR }} show tfplan
+        if: matrix.in['terraform'] == 'plan'
+        run: terraform ${{ env.TF_CLI_CHDIR }} plan -out=tfplan ${{ env.TF_CLI_COMPACT_WARNINGS }} ${{ env.TF_CLI_DESTROY }} ${{ env.TF_CLI_LOCK }} ${{ env.TF_CLI_LOCK_TIMEOUT }} ${{ env.TF_CLI_PARALLELISM }} ${{ env.TF_CLI_REFRESH }} ${{ env.TF_CLI_REFRESH_ONLY }} ${{ env.TF_CLI_REPLACE }} ${{ env.TF_CLI_TARGET }} ${{ env.TF_CLI_VAR_FILE }} && terraform ${{ env.TF_CLI_CHDIR }} show tfplan
 
       - name: Upload terraform plan
         if: matrix.in['terraform'] == 'plan' && steps.terraform_plan.outputs.exitcode == 0
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
-          name: tfplan
+          name: ${{ env.TF_CLI_TFPLAN }}
           path: ${{ env.TF_CLI_PATH }}/tfplan
 
       - name: Download terraform plan
-        if: matrix.in['terraform'] == 'apply' && matrix.in['auto-approve'] == ''
         id: artifact_url
+        if: matrix.in['terraform'] == 'apply' && matrix.in['auto-approve'] == ''
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
           script: |
             const { data: artifact_id } = await github.rest.actions.listArtifactsForRepo({
-              name: "tfplan",
+              name: "${{ env.TF_CLI_TFPLAN }}",
               owner: context.repo.owner,
+              per_page: 100,
               repo: context.repo.repo,
             });
             const artifact_download = await github.rest.actions.downloadArtifact({
@@ -223,59 +217,88 @@ jobs:
 
       - name: Unzip terraform plan
         if: matrix.in['terraform'] == 'apply' && matrix.in['auto-approve'] == ''
-        run: |
-          wget -O tfplan ${{ steps.artifact_url.outputs.result }}
-          unzip tfplan -d "${{ env.TF_CLI_PATH }}"
+        run: wget -O ${{ env.TF_CLI_TFPLAN }} ${{ steps.artifact_url.outputs.result }} && unzip ${{ env.TF_CLI_TFPLAN }} -d "${{ env.TF_CLI_PATH }}"
 
       - name: Terraform apply
-        if: matrix.in['terraform'] == 'apply'
         id: terraform_apply
-        continue-on-error: true
-        run: |
-          terraform ${{ env.TF_CLI_CHDIR }} apply \
-          ${{ env.TF_CLI_COMPACT_WARNINGS }} ${{ env.TF_CLI_DESTROY }} ${{ env.TF_CLI_LOCK }} ${{ env.TF_CLI_LOCK_TIMEOUT }} ${{ env.TF_CLI_PARALLELISM }} ${{ env.TF_CLI_REFRESH }} ${{ env.TF_CLI_REFRESH_ONLY }} ${{ env.TF_CLI_REPLACE }} ${{ env.TF_CLI_TARGET }} ${{ env.TF_CLI_VAR_FILE }} ${{ env.TF_CLI_AUTO_APPROVE }}
+        if: matrix.in['terraform'] == 'apply'
+        run: terraform ${{ env.TF_CLI_CHDIR }} apply ${{ env.TF_CLI_COMPACT_WARNINGS }} ${{ env.TF_CLI_DESTROY }} ${{ env.TF_CLI_LOCK }} ${{ env.TF_CLI_LOCK_TIMEOUT }} ${{ env.TF_CLI_PARALLELISM }} ${{ env.TF_CLI_REFRESH }} ${{ env.TF_CLI_REFRESH_ONLY }} ${{ env.TF_CLI_REPLACE }} ${{ env.TF_CLI_TARGET }} ${{ env.TF_CLI_VAR_FILE }} ${{ env.TF_CLI_AUTO_APPROVE }}
 
       - name: Terraform force-unlock
-        if: matrix.in['terraform'] == 'force-unlock'
         id: terraform_force_unlock
+        if: matrix.in['terraform'] == 'force-unlock'
         run: terraform ${{ env.TF_CLI_CHDIR }} force-unlock -force ${{ env.TF_CLI_LOCK_ID }}
 
+      # If any terraform commands are run, then add a PR comment with the latest output.
       - name: Comment terraform output
+        if: ${{ (success() || failure()) && (steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_workspace.outputs.stdout || steps.terraform_init.outputs.stderr || steps.terraform_init.outputs.stdout) }}
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
-          terraform_output: ${{ steps.terraform_apply.outputs.stdout || steps.terraform_apply.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_workspace.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stdout || steps.terraform_init.outputs.stderr }}
+          terraform_output: ${{ steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_workspace.outputs.stdout || steps.terraform_init.outputs.stderr || steps.terraform_init.outputs.stdout }}
         with:
           script: |
+            // Store only the first 64800 characters of the terraform output due to GitHub comment's character limit of 65536.
+            const terraform_output = process.env.terraform_output.substring(0, 64800);
+
+            // Display the terraform output change summary as the collapsible content's title.
             const comment_summary =
-              process.env.terraform_output
+              terraform_output
                 .split("\n")
                 .find(
                   (line) =>
                     line.startsWith("Apply") ||
                     line.startsWith("Plan") ||
+                    line.startsWith("Error") ||
                     line.startsWith("No changes")
-                ) || "Terraform output";
+                ) || "Terraform output.";
 
+            // Display the terraform command authorship before the terraform output as the collapsible content's body.
+            // Include the TFPLAN name in the hidden footer as a unique identifier for comment updates.
             const comment_body = `
-            <details><summary>${comment_summary}</summary>
+            \`${process.env.TF_CLI_PROMPT}\`
+            <details><summary>${comment_summary}</br>
 
-            \`\`\`hcl
-            ${process.env.terraform_output}
-            \`\`\`
+            ###### ${{ github.workflow }} by @${{ github.actor }} via [${{ github.event_name }}](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}) at ${{ github.event.pull_request.updated_at || github.event.comment.updated_at }}.</summary>
+
+            \`\`\`hcl${terraform_output}\`\`\`
             </details>
-            `;
+            <!-- ${process.env.TF_CLI_TFPLAN} -->`;
 
-            github.rest.issues.createComment({
-              body: comment_body,
+            // Check if the bot has commented on the PR using the TFPLAN identifier.
+            const { data: comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
+              per_page: 100,
               repo: context.repo.repo,
             });
+            const botComment = comments.find((comment) => {
+              return (
+                comment.user.type === "Bot" &&
+                comment.body.includes(`<!-- ${process.env.TF_CLI_TFPLAN} -->`)
+              );
+            });
 
+            // Update the bot's comment if it exists, otherwise create a new comment.
+            if (botComment) {
+              github.rest.issues.updateComment({
+                body: comment_body,
+                comment_id: botComment.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+            } else {
+              github.rest.issues.createComment({
+                body: comment_body,
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+            }
+
+      # If the workflow is triggered by issue_comment, then update the job's commit status.
       - name: Update commit status
-        if: always()
+        if: ${{ (success() || failure()) && github.event.issue.pull_request }}
         uses: myrotvorets/set-commit-status-action@243b4f7e597f62335408d58001edf8a02cf3e1fd # v1.1.7
         with:
-          sha: ${{ steps.get_branch.outputs.head_sha }}
+          sha: ${{ needs.pre.outputs.comment }}
           status: ${{ job.status }}
-          token: ${{ secrets.GITHUB_TOKEN }}
