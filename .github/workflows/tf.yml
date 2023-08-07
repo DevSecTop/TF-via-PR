@@ -149,7 +149,7 @@ jobs:
           echo TF_CLI_CHDIR=$(echo ${{ matrix.in['chdir'] != '' && format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || env.CONFIGURE_TF_CHDIR_PREFIX != '' && format('-chdir={0}', env.CONFIGURE_TF_CHDIR_PREFIX) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_PATH=$(echo ${{ matrix.in['chdir'] != '' && format('{0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || env.CONFIGURE_TF_CHDIR_PREFIX != '' && format('{0}', env.CONFIGURE_TF_CHDIR_PREFIX) || '' }}) >> $GITHUB_ENV
           echo TF_CLI_TFPLAN=$(echo ${{ format('{0} {1} {2} {3} {4} {5} {6} {7} tfplan', github.event.number || github.event.issue.number, matrix.in['backend-config'], matrix.in['chdir'], matrix.in['destroy'], matrix.in['replace'], matrix.in['target'], matrix.in['var-file'], matrix.in['workspace']) }} | sed 's/[[:space:][:punct:]]/-/g') >> $GITHUB_ENV
-          # Subcommands
+          # Commands
           echo TF_CLI_LOCK_ID=$(echo ${{ matrix.in['lock-id'] }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_WORKSPACE=$(echo ${{ matrix.in['workspace'] }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           # Standard
