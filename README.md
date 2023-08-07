@@ -1,25 +1,35 @@
 # Terraform (Multiple AWS) Via PR Comments — Reusable Workflow
 
-[Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Terraform](#terraform) · [AWS](#aws) · [Examples](#examples)] · [Security](#security) · [Roadmap](#roadmap) · [Contributions](#contributions) · [License](#license)
+> [!IMPORTANT]
+>
+> This reusable workflow enables you to plan and apply changes to Terraform configurations in bulk with pull request (PR) comments: for a CLI-like experience on the web. It's powered by GitHub Actions to maximize compatibility and minimize maintenance for DIY deployments. It's tailored for AWS as a functional example, but can be easily extended to support other cloud providers.
 
-> **Note** this reusable workflow enables you to plan and apply changes to Terraform configurations with pull request (PR) comments: for a CLI-like experience on the web. It's powered by GitHub Actions to maximize compatibility and minimize maintenance for DIY deployments. It's catered for AWS accounts as a functional example, but can be easily extended to support other cloud providers.
+[Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Examples](#examples) · [AWS](#aws)] · [Security](#security) · [Roadmap](#roadmap) · [Contributions](#contributions) · [License](#license)
 
 ## Overview
 
-- [Terraform][terraform] is a platform-agnostic tool for managing cloud and on-prem resources by provisioning infrastructure as code (IaC).
-  - It enables you to define resources in human-readable configuration files that can be version controlled and shared for consistent state management.
-- [GitHub Actions][github_actions] is a continuous integration and continuous deployment (CI/CD) platform that enables you to automate your project's pipelines with custom workflows.
-  - This repository hosts a reusable workflow that parses PR comments and runs Terraform commands in a remote environment.
-  - Also supports [GitHub Codespaces][github_codespaces] dev container, which offers a tailored Terraform development environment, complete with tools and runtimes to lower the barrier to entry for contributors.
-- Best suited for DevOps and Platform engineers who want to empower their teams to self-service Terraform without the overhead of self-hosting runners, containers or VMs like [Atlantis][atlantis].
-  - [Environment deployment protection rules][deployment_rules] mitigate the risk of erroneous changes along with standardized approval requirements.
-  - Each PR and associated workflow run holds a complete log of infrastructure changes for ease of collaborative debugging as well as audit compliance.
+<details><summary><a href="https://developer.hashicorp.com/terraform/intro" title="Introduction to Terraform.">Terraform</a> is a platform-agnostic tool for managing cloud and on-prem resources by provisioning infrastructure as code (IaC).</summary>
+
+- It enables you to define resources in human-readable configuration files that can be version controlled and shared for consistent state management.
+</details>
+
+<details><summary><a href="https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions" title="Introduction to GitHub Actions.">GitHub Actions</a> is a continuous integration and continuous deployment (CI/CD) platform that enables you to automate your project's pipelines with custom workflows.</summary>
+
+- This repository hosts a reusable workflow that parses PR comments for Terraform commands and runs them in a remote environment.
+- Also supports [GitHub Codespaces][github_codespaces] dev container, which offers a tailored Terraform development environment, complete with tools and runtimes to lower the barrier to entry for contributors.
+</details>
+
+<details><summary>Best suited for DevOps and Platform engineers who want to empower their teams to self-service Terraform without the overhead of self-hosting runners, containers or VMs like <a href="https://www.runatlantis.io" title="Atlantis Terraform pull request automation.">Atlantis</a>.</summary>
+
+- [Environment deployment protection rules][deployment_rules] mitigate the risk of erroneous changes along with standardized approval requirements.
+- Each PR and associated workflow run holds a complete log of infrastructure changes for ease of collaborative debugging as well as audit compliance.
+</details>
 
 ## Usage
 
 ### Workflow
 
-Copy the following snippet into ".github/workflows/terraform.yml" file in your repository. Replace the contents of `env_vars` with environment variables required by your Terraform configuration (e.g., `AWS` credentials or `TF_VAR` variables).
+Copy the following snippet into ".github/workflows/terraform.yml" file in your repository. Replace the contents of `env_vars` with environment variables required by your Terraform configuration.
 
 ```yml
 on:
@@ -30,16 +40,18 @@ on:
 
 jobs:
   terraform:
-    uses: devsectop/tf-via-pr/.github/workflows/tf.yml@main
+    uses: devsectop/tf-via-pr/.github/workflows/tf.yml@v5
     secrets:
       env_vars: |
         AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
 ```
 
-- The `@main` suffix can be replaced with a specific release tag/SHA to pin your workflow to that version: hardening your CI/CD pipeline security against supply chain attacks.
-- The optional `env_vars` input lets you pass in environment variables as key-value pairs while masking sensitive values from logs.
-  - Each entry must be on a new line and separated by an equals sign (`=`).
+> [!NOTE]
+>
+> - Pin your workflow version to a specific release tag or SHA to harden your CI/CD pipeline security against supply chain attacks.
+> - The optional `env_vars` input lets you pass in environment variables as key-value pairs while masking sensitive values from logs.
+>   - Each entry must be on a new line and separated by an equals sign (`=`).
 
 ### Examples
 
@@ -75,23 +87,9 @@ Use-case scenario: Provision resources with multiple different backends in bulk,
 -terraform=apply -destroy -auto-approve -chdir=stacks/sample_bucket -backend-config=backend/stg.tfvars
 ```
 
-### Terraform
-
-The following CLI arguments are supported simultaneously, supplied in any order:
-
-- `auto-approve`: Flag to skip confirmation before applying the plan (e.g., `-auto-approve`).
-- `backend-config`: Path to backend configuration file(s) (e.g., `-backend-config=backend/dev.tfvars`).
-- `chdir`: Path to a directory containing Terraform configuration files (e.g., `-chdir=stacks/sample_instance`).
-- `destroy`: Flag to destroy resources managed by Terraform (e.g., `-destroy`).
-- `parallelism`: Number of concurrent operations to run (e.g., `-parallelism=10`).
-- `replace`: List of resource addresses to replace (e.g., `-replace=aws_instance.this,aws_instance.that`).
-- `target`: List of resource addresses to target (e.g., `-target=aws_instance.this,aws_instance.that`).
-- `var-file`: Path to variable file(s) (e.g., `-var-file=env/dev.tfvars`).
-- `workspace`: Name of Terraform workspace to select (e.g., `-workspace=dev`).
-
 ### AWS
 
-Environment isolation is achieved by nesting folders within "stacks" directory, each with their own providers to enable management of multiple backends, input variables and workspaces from a single repository.
+Environment isolation is achieved by nesting folders within "stacks" directory, each with their own providers, to enable management of multiple: backends, workspaces and variable files from a single repository.
 
 Reusable, stateless components can be placed in the "stacks/modules" directory to be imported into each environment like so.
 
@@ -100,7 +98,10 @@ module "sample_bucket" {
   source = "../modules/s3_bucket"
 ```
 
-For [OIDC][configure_oidc] authentication, the [aws-actions/configure-aws-credentials][configure_aws_credentials] action is available for use by passing `CONFIGURE_AWS_REGION=us-east-1` (or another region) alongside the inputs of your choice for retrieving short-lived credentials. Additionally, the `id-token: write` permission is [explicitly required][oidc_token_permissions] to secure consumption of the generated token from the called workflow to the caller workflow only when intended.
+> [!NOTE]
+>
+> - For [OIDC][configure_oidc] authentication, the [aws-actions/configure-aws-credentials][configure_aws_credentials] action is available for use by passing `CONFIGURE_AWS_REGION=us-east-1` (or another region) alongside your inputs of choice for retrieving short-lived credentials.
+> - Additionally, the `id-token: write` permission is [explicitly required][oidc_token_permissions] to secure consumption of the generated token from the called workflow to the caller workflow only when intended.
 
 ## Security
 
@@ -137,14 +138,12 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 - All works herein are my own and shared of my own volition.
 - Copyright 2023 [Rishav Dhar][rishav_dhar] — All wrongs reserved.
 
-[atlantis]: https://www.runatlantis.io "Atlantis Terraform pull request automation."
 [compare_reusable_workflow_with_composite_actions]: https://github.blog/2022-02-10-using-reusable-workflows-github-actions "Using reusable workflows vs. composite actions."
 [configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [configure_oidc]: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-cloud-providers "Configuring OpenID Connect in cloud providers."
 [deployment_rules]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules "Configuring environment deployment protection rules."
 [discussion]: https://github.com/devsectop/tf-via-pr/discussions "Open a discussion."
 [events_triggering_workflows]: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows "Events that trigger workflows."
-[github_actions]: https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions "Introduction to GitHub Actions."
 [github_codespaces]: https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers "Introduction to GitHub Codespaces."
 [issue]: https://github.com/devsectop/tf-via-pr/issues "Raise an issue."
 [license]: LICENSE "Apache License 2.0."
@@ -153,4 +152,3 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 [rishav_dhar]: https://github.com/rdhar "Rishav Dhar's GitHub profile."
 [securing_github_actions]: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions "Security hardening for GitHub Actions."
 [stargazer]: https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer."
-[terraform]: https://developer.hashicorp.com/terraform/intro "Introduction to Terraform."
