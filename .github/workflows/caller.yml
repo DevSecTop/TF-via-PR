@@ -1,26 +1,24 @@
 name: Terraform
 
-on: # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows.
+on:
   issue_comment:
     types: [created, edited]
 
   pull_request:
     types: [synchronize]
-    paths: ["**.tf*"]
 
 permissions:
-  contents: read # Required by actions/checkout.
-  deployments: write # Required by bobheadxi/deployments.
-  id-token: write # Required by aws-actions/configure-aws-credentials.
-  issues: read # Required by xt0rted/pull-request-comment-branch.
-  pull-requests: write # Required by dflook/terraform-*.
-  statuses: write # Required by myrotvorets/set-commit-status-action.
+  actions: read # Required for (up/down)loading artifacts
+  contents: read # Required for actions/checkout
+  id-token: write # Required for aws-actions/configure-aws-credentials
+  issues: read # Required for forxt0rted/pull-request-comment-branch
+  pull-requests: write # Required for comments and labels
+  statuses: write # Required for myrotvorets/set-commit-status-action
 
 jobs:
   terraform:
     uses: ./.github/workflows/tf.yml
-    # uses: devsectop/tf-via-pr/.github/workflows/tf.yml@main
-
+  # uses: devsectop/tf-via-pr/.github/workflows/tf.yml@v5
     secrets:
       env_vars: |
         CONFIGURE_AWS_REGION=us-east-1
