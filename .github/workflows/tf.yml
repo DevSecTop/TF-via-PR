@@ -118,6 +118,7 @@ jobs:
           role-to-assume: ${{ env.CONFIGURE_AWS_ROLE }}
 
       - name: Add PR label
+        if: (!contains(join(github.event.pull_request.labels.*.name), format('terraform:{0}', matrix.in['terraform'])))
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
           script: |
@@ -149,6 +150,7 @@ jobs:
           echo TF_CLI_CHDIR=$(echo ${{ matrix.in['chdir'] != '' && format('-chdir={0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || env.CONFIGURE_TF_CHDIR_PREFIX != '' && format('-chdir={0}', env.CONFIGURE_TF_CHDIR_PREFIX) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_PATH=$(echo ${{ matrix.in['chdir'] != '' && format('{0}{1}', env.CONFIGURE_TF_CHDIR_PREFIX, matrix.in['chdir']) || env.CONFIGURE_TF_CHDIR_PREFIX != '' && format('{0}', env.CONFIGURE_TF_CHDIR_PREFIX) || '' }}) >> $GITHUB_ENV
           echo TF_CLI_TFPLAN=$(echo ${{ format('{0} {1} {2} {3} {4} {5} {6} {7} tfplan', github.event.number || github.event.issue.number, matrix.in['backend-config'], matrix.in['chdir'], matrix.in['destroy'], matrix.in['replace'], matrix.in['target'], matrix.in['var-file'], matrix.in['workspace']) }} | sed 's/[[:space:][:punct:]]/-/g') >> $GITHUB_ENV
+          echo TF_CLI_VAR_FILE=$(echo ${{ matrix.in['var-file'] != '' && matrix.in['terraform'] == 'plan' && format('-var-file={0}', matrix.in['var-file']) || matrix.in['var-file'] != '' && matrix.in['terraform'] == 'apply' && matrix.in['auto-approve'] != '' && format('-var-file={0}', matrix.in['var-file']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           # Commands
           echo TF_CLI_LOCK_ID=$(echo ${{ matrix.in['lock-id'] }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_WORKSPACE=$(echo ${{ matrix.in['workspace'] }} | sed 's/ /\\ /g') >> $GITHUB_ENV
@@ -166,7 +168,6 @@ jobs:
           echo TF_CLI_REFRESH=$(echo ${{ matrix.in['refresh'] != '' && format('-refresh={0}', matrix.in['refresh']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_REPLACE=$(echo ${{ matrix.in['replace'] != '' && format('-replace={0}', matrix.in['replace']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_TARGET=$(echo ${{ matrix.in['target'] != '' && format('-target={0}', matrix.in['target']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
-          echo TF_CLI_VAR_FILE=$(echo ${{ matrix.in['var-file'] != '' && format('-var-file={0}', matrix.in['var-file']) || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           # Boolean
           echo TF_CLI_COMPACT_WARNINGS=$(echo ${{ matrix.in['compact-warnings'] != '' && '-compact-warnings' || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
           echo TF_CLI_DESTROY=$(echo ${{ matrix.in['destroy'] != '' && '-destroy' || '' }} | sed 's/ /\\ /g') >> $GITHUB_ENV
@@ -237,20 +238,31 @@ jobs:
           terraform_output: ${{ steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_workspace.outputs.stdout || steps.terraform_init.outputs.stderr || steps.terraform_init.outputs.stdout }}
         with:
           script: |
-            // Store only the first 64800 characters of the terraform output due to GitHub comment's character limit of 65536.
-            const terraform_output = process.env.terraform_output.substring(0, 64800);
+            // From the terraform output, remove any lines which are related to reading or refreshing state, and then
+            // store only the first 64800 characters of the output due to GitHub comment's character limit of 65536.
+            const terraform_output = process.env.terraform_output
+              .split("\n")
+              .filter(
+                (line) =>
+                  !(
+                    line.includes(": Reading...") ||
+                    line.includes(": Read complete after") ||
+                    line.includes(": Refreshing state...")
+                  )
+              )
+              .join("\n")
+              .substring(0, 64800);
 
             // Display the terraform output change summary as the collapsible content's title.
-            const comment_summary =
-              terraform_output
-                .split("\n")
-                .find(
-                  (line) =>
-                    line.startsWith("Apply") ||
-                    line.startsWith("Plan") ||
-                    line.startsWith("Error") ||
-                    line.startsWith("No changes")
-                ) || "Terraform output.";
+            const comment_summary = terraform_output
+              .split("\n")
+              .find(
+                (line) =>
+                  line.startsWith("Plan") ||
+                  line.startsWith("Apply") ||
+                  line.startsWith("Error") ||
+                  line.startsWith("No changes")
+              ) || "Terraform output.";
 
             // Display the terraform command authorship before the terraform output as the collapsible content's body.
             // Include the TFPLAN name in the hidden footer as a unique identifier for comment updates.
@@ -260,7 +272,9 @@ jobs:
 
             ###### ${{ github.workflow }} by @${{ github.actor }} via [${{ github.event_name }}](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}) at ${{ github.event.pull_request.updated_at || github.event.comment.updated_at }}.</summary>
 
-            \`\`\`hcl${terraform_output}\`\`\`
+            \`\`\`hcl
+            ${terraform_output}
+            \`\`\`
             </details>
             <!-- ${process.env.TF_CLI_TFPLAN} -->`;
 
