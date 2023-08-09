@@ -256,13 +256,9 @@ jobs:
             // Display the terraform output change summary as the collapsible content's title.
             const comment_summary = terraform_output
               .split("\n")
-              .find(
-                (line) =>
-                  line.startsWith("Plan") ||
-                  line.startsWith("Apply") ||
-                  line.startsWith("Error") ||
-                  line.startsWith("No changes")
-              ) || "Terraform output.";
+              .reverse()
+              .find((line) => /^(Plan|Apply|Error|No changes)/.test(line)) ||
+            "Terraform output.";
 
             // Display the terraform command authorship before the terraform output as the collapsible content's body.
             // Include the TFPLAN name in the hidden footer as a unique identifier for comment updates.
