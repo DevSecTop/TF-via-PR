@@ -55,7 +55,7 @@ jobs:
 
 ### Examples
 
-Use-case scenario: Provision resources in multiple workspaces with different input variables, followed by targeted destruction.
+Use-case scenario: Provision resources in multiple workspaces with different input variables, followed by targeted destruction of multiple resources.
 
 ```bash
 #1 PR Comment: Plan configuration in a workspace with input variable file.
@@ -65,10 +65,10 @@ Use-case scenario: Provision resources in multiple workspaces with different inp
 -terraform=apply -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 
 #3 PR Comment: Plan destruction of a targeted resource in a workspace with input variable file.
--terraform=plan -destroy -target=aws_instance.sample -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
+-terraform=plan -destroy -target=aws_instance.sample,aws_ami.ubuntu -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 
 #4 PR Comment: Apply destruction of a targeted resource in a workspace with input variable file.
--terraform=apply -destroy -target=aws_instance.sample -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
+-terraform=apply -destroy -target=aws_instance.sample,aws_ami.ubuntu -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 ```
 
 Use-case scenario: Provision resources with multiple different backends in bulk, simultaneously, followed by destruction without confirmation.
