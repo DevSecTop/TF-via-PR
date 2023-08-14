@@ -40,7 +40,7 @@ on:
 
 jobs:
   terraform:
-    uses: devsectop/tf-via-pr/.github/workflows/tf.yml@v5
+    uses: devsectop/tf-via-pr/.github/workflows/tf.yml@v6
     secrets:
       env_vars: |
         AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
