@@ -1,10 +1,6 @@
 # Environment variables
 *.env
 
-# Ignore CLI configuration files
-.terraformrc
-terraform.rc
-
 # Local .terraform directories
 **/.terraform/*
 
@@ -16,8 +12,11 @@ terraform.rc
 crash.log
 crash.*.log
 
-# Ignore override files as they are usually used to override resources locally and so
-# are not checked in
+# Exclude .tfvars files, which are likely to contain sensitive data
+# *.tfvars
+# *.tfvars.json
+
+# Exclude override files as they are usually used to override resources locally only
 override.tf
 override.tf.json
 *_override.tf
