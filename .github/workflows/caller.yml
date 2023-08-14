@@ -18,7 +18,7 @@ permissions:
 jobs:
   terraform:
     uses: ./.github/workflows/tf.yml
-  # uses: devsectop/tf-via-pr/.github/workflows/tf.yml@v5
+  # uses: devsectop/tf-via-pr/.github/workflows/tf.yml@v6
     secrets:
       env_vars: |
         CONFIGURE_AWS_REGION=us-east-1
