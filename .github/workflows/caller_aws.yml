@@ -1,0 +1,41 @@
+name: Terraform via AWS
+
+on:
+  issue_comment:
+    types: [created, edited]
+  pull_request:
+    types: [synchronize]
+
+jobs:
+  credentials:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    outputs:
+      AWS_ACCESS_KEY_ID: ${{ steps.credentials.outputs.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ steps.credentials.outputs.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ steps.credentials.outputs.AWS_SESSION_TOKEN }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@5fd3084fc36e372ff1fff382a39b10d03659f355 # v2.2.0
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+      - name: Output credentials
+        id: credentials
+        run: |
+          echo "AWS_ACCESS_KEY_ID=$(echo $AWS_ACCESS_KEY_ID | base64 -w 0)" >> $GITHUB_OUTPUT
+          echo "AWS_SECRET_ACCESS_KEY=$(echo $AWS_SECRET_ACCESS_KEY | base64 -w 0)" >> $GITHUB_OUTPUT
+          echo "AWS_SESSION_TOKEN=$(echo $AWS_SESSION_TOKEN | base64 -w 0)" >> $GITHUB_OUTPUT
+
+  terraform:
+    needs: credentials
+    uses: ./.github/workflows/tf.yml
+  # uses: devsectop/tf-via-pr/.github/workflows/tf.yml@main
+    secrets:
+      env_vars: |
+        BASE64_AWS_ACCESS_KEY_ID=${{ needs.credentials.outputs.AWS_ACCESS_KEY_ID }}
+        BASE64_AWS_SECRET_ACCESS_KEY=${{ needs.credentials.outputs.AWS_SECRET_ACCESS_KEY }}
+        BASE64_AWS_SESSION_TOKEN=${{ needs.credentials.outputs.AWS_SESSION_TOKEN }}
+        CONFIG_TF_CHDIR_PREFIX=stacks/
+        TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
