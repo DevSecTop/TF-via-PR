@@ -3,24 +3,16 @@ name: Terraform
 on:
   issue_comment:
     types: [created, edited]
-
   pull_request:
     types: [synchronize]
-
-permissions:
-  actions: read # Required for (up/down)loading artifacts
-  contents: read # Required for actions/checkout
-  id-token: write # Required for aws-actions/configure-aws-credentials
-  issues: read # Required for forxt0rted/pull-request-comment-branch
-  pull-requests: write # Required for comments and labels
-  statuses: write # Required for myrotvorets/set-commit-status-action
 
 jobs:
   terraform:
     uses: ./.github/workflows/tf.yml
-  # uses: devsectop/tf-via-pr/.github/workflows/tf.yml@v6
+  # uses: devsectop/tf-via-pr/.github/workflows/tf.yml@main
     secrets:
       env_vars: |
-        CONFIGURE_AWS_REGION=us-east-1
-        CONFIGURE_AWS_ROLE=${{ secrets.AWS_ROLE }}
+        AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        CONFIG_TF_CHDIR_PREFIX=stacks/
         TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
