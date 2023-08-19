@@ -2,9 +2,9 @@
 
 > [!IMPORTANT]
 >
-> This [reusable workflow][tf] enables you to plan and apply changes to Terraform configurations in bulk with pull request (PR) comments: for a CLI-like experience on the web UI. It's powered by GitHub Actions to maximize compatibility and minimize maintenance for DIY deployments. It's ready-made for AWS as a functional example, and can easily be extended to support other cloud providers.
+> This [reusable workflow][tf_yml] enables you to plan and apply changes to Terraform configurations in bulk with pull request (PR) comments: for a CLI-like experience on the web UI. It's powered by GitHub Actions to maximize compatibility and minimize maintenance for DIY deployments. It's ready-made for AWS as a functional example, and can easily be extended to support other cloud providers.
 
-[Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Examples](#examples) · [Options](#options) · [AWS](#aws)] · [Security](#security) · [Roadmap](#roadmap) · [Contributions](#contributions) · [License](#license)
+[Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Examples](#examples) · [Parameters](#parameters) · [AWS](#aws)] · [Security](#security) · [Roadmap](#roadmap) · [Contributions](#contributions) · [License](#license)
 
 ## Overview
 
@@ -15,7 +15,7 @@
 
 <details><summary><a href="https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions" title="Introduction to GitHub Actions.">GitHub Actions</a> is a continuous integration and continuous deployment (CI/CD) platform that enables you to automate your project's pipelines with custom workflows.</summary>
 
-- This repository hosts a [reusable workflow][tf] that parses PR comments for Terraform commands and runs them in a remote environment.
+- This repository hosts a [reusable workflow][tf_yml] that parses PR comments for Terraform commands and runs them in a remote environment.
 - Also supports [GitHub Codespaces][github_codespaces] dev container, which offers a tailored Terraform development environment, complete with tools and runtimes to lower the barrier to entry for contributors.
 </details>
 
@@ -65,11 +65,11 @@ Use-case scenario: Provision resources in multiple workspaces with different inp
 #2 PR Comment: Apply configuration in a workspace with input variable file.
 -terraform=apply -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 
-#3 PR Comment: Plan destruction of a targeted resource in a workspace with input variable file.
--terraform=plan -destroy -target=aws_instance.sample -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
+#3 PR Comment: Plan destruction of targeted resources in a workspace with input variable file.
+-terraform=plan -destroy -target=aws_instance.sample,data.aws_ami.ubuntu -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 
-#4 PR Comment: Apply destruction of a targeted resource in a workspace with input variable file.
--terraform=apply -destroy -target=aws_instance.sample -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
+#4 PR Comment: Apply destruction of targeted resources in a workspace with input variable file.
+-terraform=apply -destroy -target=aws_instance.sample,data.aws_ami.ubuntu -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 ```
 
 Use-case scenario: Provision resources with multiple different backends in bulk, simultaneously, followed by destruction without confirmation.
@@ -88,17 +88,31 @@ Use-case scenario: Provision resources with multiple different backends in bulk,
 -terraform=apply -destroy -auto-approve -chdir=stacks/sample_bucket -backend-config=backend/stg.tfvars
 ```
 
-### Options
+### Parameters
+
+#### Inputs
 
 | Name                              | Description                                                                                                                           | Default            | Example       |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------- |
-| `CONFIG_TF_CHDIR_PREFIX`          | String prefix for Terraform `-chdir` argument. This is a global option which switches to a different directory.                       | ""                 | "stacks/"     |
-| `CONFIG_TF_HOSTNAME`              | Hostname of Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.                 | "app.terraform.io" | "tf.acme.com" |
-| `CONFIG_TF_TOKEN`                 | API token for Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.               | ""                 | "**\*\***"    |
+| `CONFIG_TF_CHDIR_PREFIX`          | String prefix for Terraform `-chdir` argument. This is a global option that switches to a different directory.                        | ""                 | "stacks/"     |
 | `CONFIG_TF_VAR_FILE_PREFIX`       | String prefix for Terraform `-var-file` argument, if `-var-file` (or `-workspace` and `CONFIG_TF_WORKSPACE_AS_VAR_FILE`) is supplied. | ""                 | "../vars/"    |
 | `CONFIG_TF_VAR_FILE_SUFFIX`       | String suffix for Terraform `-var-file` argument, if `-var-file` (or `-workspace` and `CONFIG_TF_WORKSPACE_AS_VAR_FILE`) is supplied. | ""                 | ".tfvars"     |
-| `CONFIG_TF_VERSION`               | Version of Terraform CLI to install, supporting [semver ranges][terraform_action_inputs].                                             | "latest"           | ">=1.5.1"     |
 | `CONFIG_TF_WORKSPACE_AS_VAR_FILE` | Boolean flag to re-use Terraform `-workspace` as `-var-file` argument, if either of them are supplied.                                | false              | true          |
+| `TF_CLI_HOSTNAME`                 | Hostname of Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.                 | "app.terraform.io" | "tf.acme.com" |
+| `TF_CLI_TOKEN`                    | API token for Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.               | ""                 | "**\*\***"    |
+| `TF_CLI_VERSION`                  | Version of Terraform CLI to install, supporting [semver ranges][terraform_action_inputs].                                             | "latest"           | ">=1.5.1"     |
+
+#### Outputs
+
+| Name                | Description                                                                                             | Example                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `COMMENT_SHA`       | SHA of the PR comment that triggered the workflow.                                                      | "1234567"                                                |
+| `PARSED_COMMENT`    | JSON object of the parsed PR comment.                                                                   | `[{"terraform":"plan", "chdir":"stacks/sample_bucket"}]` |
+| `PROMPT_MATRIX`     | Matrix strategy of the [last successfully completed job][reusable_workflow_outputs].                    | `{"terraform":"plan", "chdir":"stacks/sample_bucket"}`   |
+| `TF_PLAN_ID`        | Unique identifier of the Terraform plan file, used for artifact upload/download and bot comment update. | "42stacks-sample-bucket-tfplan"                          |
+| `TF_RESULT_RAW`     | Output result from the most recent Terraform command, if any.                                           | "data.aws_ami.ubuntu": Reading…"                         |
+| `TF_RESULT`         | Output result from the most recent Terraform command, if any, with reduced verbosity for legibility.    | "Terraform used the selected providers…"                 |
+| `WORKING_DIRECTORY` | Working directory of the Terraform configuration, used in `-chdir` argument.                            | "stacks/sample_bucket"                                   |
 
 ### AWS
 
@@ -114,11 +128,11 @@ module "sample_bucket" {
 > [!NOTE]
 >
 > - For [OIDC][configure_oidc] authentication, the [aws-actions/configure-aws-credentials][configure_aws_credentials] action can be used to pass short-lived credentials.
-> - An example of such a workflow is given in [caller_aws.yml][caller_aws].
+> - An example of such a workflow is given in [caller_aws.yml][caller_aws_yml].
 
 ## Security
 
-Integrating security in your CI/CD pipeline is critical to practicing DevSecOps. This [reusable workflow][tf] is designed to be secure by default, and it should be complemented with your own review to ensure it meets your (organization's) security requirements.
+Integrating security in your CI/CD pipeline is critical to practicing DevSecOps. This [reusable workflow][tf_yml] is designed to be secure by default, and it should be complemented with your own review to ensure it meets your (organization's) security requirements.
 
 - All associated GitHub Actions used in this workflow are [pinned to a specific SHA][securing_github_actions] to prevent supply chain attacks from third-party upstream dependencies.
 - Restrict changes to certain environments with [deployment protection rules][deployment_rules] so that approval is required from authorized users/teams before changes to the infrastructure can be applied.
@@ -151,7 +165,7 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 - All works herein are my own and shared of my own volition.
 - Copyright 2023 [Rishav Dhar][rishav_dhar] — All wrongs reserved.
 
-[caller_aws]: .github/workflows/caller_aws.yml "Example workflow for running Terraform commands with AWS credentials."
+[caller_aws_yml]: .github/workflows/caller_aws.yml "Example workflow for running Terraform commands with AWS credentials."
 [compare_reusable_workflow_with_composite_actions]: https://github.blog/2022-02-10-using-reusable-workflows-github-actions "Using reusable workflows vs. composite actions."
 [configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [configure_oidc]: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-cloud-providers "Configuring OpenID Connect in cloud providers."
@@ -168,4 +182,4 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 [stargazer]: https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer."
 [ternary_operator]: https://docs.github.com/en/actions/learn-github-actions/expressions#example "Example of ternary operator-like behavior in GitHub Actions expressions."
 [terraform_action_inputs]: https://github.com/hashicorp/setup-terraform#inputs "Inputs for hashicorp/setup-terraform."
-[tf]: .github/workflows/tf.yml "Reusable workflow for running Terraform commands."
+[tf_yml]: .github/workflows/tf.yml "Reusable workflow for running Terraform commands."
