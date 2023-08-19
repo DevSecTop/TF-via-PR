@@ -10,6 +10,28 @@ on:
       env_vars:
         description: Environment variables passed into this workflow.
         required: false
+    outputs:
+      COMMENT_SHA:
+        value: ${{ jobs.pre.outputs.COMMENT_SHA }}
+        description: "SHA of the PR comment that triggered the workflow."
+      PARSED_COMMENT:
+        value: ${{ jobs.pre.outputs.PARSED_COMMENT }}
+        description: "JSON object of the parsed PR comment."
+      PROMPT_MATRIX:
+        value: ${{ jobs.run.outputs.PROMPT_MATRIX }}
+        description: "Matrix strategy of the last successfully completed job."
+      TF_PLAN_ID:
+        value: ${{ jobs.run.outputs.TF_PLAN_ID }}
+        description: "Unique identifier of the Terraform plan file, used for artifact upload/download and bot comment update."
+      TF_RESULT_RAW:
+        value: ${{ jobs.run.outputs.TF_RESULT_RAW }}
+        description: "Output result from the most recent Terraform command, if any."
+      TF_RESULT:
+        value: ${{ jobs.run.outputs.TF_RESULT }}
+        description: "Output result from the most recent Terraform command, if any, with reduced verbosity for legibility."
+      WORKING_DIRECTORY:
+        value: ${{ jobs.run.outputs.WORKING_DIRECTORY }}
+        description: "Working directory of the Terraform configuration, used in `-chdir` argument."
 
 permissions:
   actions: read # Required for downloading artifacts.
@@ -26,10 +48,9 @@ jobs:
     # has already been run on the PR and may be run again).
     if: startsWith(github.event.comment.body, '-terraform=') || contains(join(github.event.pull_request.labels.*.name), 'terraform:')
     runs-on: ubuntu-latest
-
     outputs:
-      commands: ${{ steps.parse_comment.outputs.result }}
-      comment: ${{ steps.get_branch.outputs.head_sha }}
+      COMMENT_SHA: ${{ steps.get_branch.outputs.head_sha }}
+      PARSED_COMMENT: ${{ steps.parse_comment.outputs.result }}
 
     steps:
       # For subsequent commits on the PR branch, automatically re-run the most
@@ -90,12 +111,18 @@ jobs:
     # environment variables passed into this workflow. E.g., for authentication.
     needs: [pre]
     runs-on: ubuntu-latest
+    outputs:
+      PROMPT_MATRIX: ${{ steps.environment_variables.outputs.PROMPT_MATRIX }}
+      TF_PLAN_ID: ${{ steps.terraform_variables.outputs.TF_PLAN_ID }}
+      TF_RESULT_RAW: ${{ steps.terraform_result.outputs.TF_RESULT_RAW }}
+      TF_RESULT: ${{ steps.terraform_result.outputs.TF_RESULT }}
+      WORKING_DIRECTORY: ${{ steps.terraform_variables.outputs.WORKING_DIRECTORY }}
 
     # Run each terraform command to completion.
     strategy:
       fail-fast: false
       matrix:
-        in: ${{ fromJSON(needs.pre.outputs.commands) }}
+        in: ${{ fromJSON(needs.pre.outputs.PARSED_COMMENT) }}
 
     env:
       TF_CLI_ARGS: -no-color
@@ -112,16 +139,21 @@ jobs:
       # If the key is prefixed with "BASE64_", then decode the value from base64.
       # E.g., for passing in temporary/OIDC credentials output from a previous job.
       - name: Populate environment variables
+        id: environment_variables
         env:
           env_vars: ${{ secrets.env_vars }}
           matrix: ${{ toJSON(matrix.in) }}
         run: |
-          for i in $env_vars; do
-            if [[ $i == BASE64_* ]]; then i=$(echo $i | sed 's/^BASE64_//g' | sed 's/=.*//g')=$(echo ${i#*=} | base64 -d); fi
-            echo ::add-mask::${i#*=}
-            printf '%s\n' $i >> $GITHUB_ENV
-          done
-          echo INPUT_PROMPT=$matrix >> $GITHUB_ENV
+          echo PROMPT_MATRIX=$matrix >> $GITHUB_OUTPUT
+          if [ -z "$env_vars" ]; then
+            exit 0
+          else
+            for i in $env_vars; do
+              if [[ $i == BASE64_* ]]; then i=$(echo $i | sed 's/^BASE64_//g' | sed 's/=.*//g')=$(echo ${i#*=} | base64 -d); fi
+              if [[ $i != CONFIG_TF_* ]]; then echo ::add-mask::${i#*=}; fi
+              printf '%s\n' $i >> $GITHUB_ENV
+            done
+          fi
 
       # If the PR doesn't have one already, add a colored PR label to indicate
       # which terraform commands have attempted to run on the PR branch.
@@ -130,7 +162,7 @@ jobs:
         if: (!contains(join(github.event.pull_request.labels.*.name), format('terraform:{0}', matrix.in['terraform'])))
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
-          retries: 2
+          retries: 3
           script: |
             await github.rest.issues.addLabels({
               issue_number: context.issue.number,
@@ -149,13 +181,14 @@ jobs:
       - name: Setup terraform
         uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # v2.0.3
         with:
-          cli_config_credentials_hostname: ${{ env.CONFIG_TF_HOSTNAME }}
-          cli_config_credentials_token: ${{ env.CONFIG_TF_TOKEN }}
-          terraform_version: ${{ env.CONFIG_TF_VERSION }}
+          cli_config_credentials_hostname: ${{ env.TF_CLI_HOSTNAME }}
+          cli_config_credentials_token: ${{ env.TF_CLI_TOKEN }}
+          terraform_version: ${{ env.TF_CLI_VERSION }}
 
       # For each possible terraform command argument, process then pass them into
       # environment variables. E.g., "-chdir=path/to/dir", "-auto-approve", etc.
       - name: Populate terraform variables
+        id: terraform_variables
         env:
           TF_COM_AUTO_APPROVE: ${{ matrix.in['auto-approve'] }}
           TF_COM_BACKEND_CONFIG: ${{ matrix.in['backend-config'] }}
@@ -214,10 +247,12 @@ jobs:
           done
 
           # Store the path to the terraform plan file for artifact upload/download.
-          echo "INPUT_PATH=$TF_COM_CHDIR" >> $GITHUB_ENV
+          echo "WORKING_DIRECTORY=$TF_COM_CHDIR" >> $GITHUB_ENV
+          echo "WORKING_DIRECTORY=$TF_COM_CHDIR" >> $GITHUB_OUTPUT
           # Store a combination of the PR number and terraform command arguments
           # for use as a unique identifier to reference the terraform plan file.
-          echo "INPUT_TFPLAN=$(echo ${{ github.event.number || github.event.issue.number }}$TF_COM_BACKEND_CONFIG$TF_COM_CHDIR$TF_COM_VAR_FILE$TF_COM_WORKSPACE$TF_COM_DESTROY-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_ENV
+          echo "TF_PLAN_ID=$(echo ${{ github.event.number || github.event.issue.number }}$TF_COM_BACKEND_CONFIG$TF_COM_CHDIR$TF_COM_VAR_FILE$TF_COM_WORKSPACE$TF_COM_DESTROY-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_ENV
+          echo "TF_PLAN_ID=$(echo ${{ github.event.number || github.event.issue.number }}$TF_COM_BACKEND_CONFIG$TF_COM_CHDIR$TF_COM_VAR_FILE$TF_COM_WORKSPACE$TF_COM_DESTROY-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_OUTPUT
           # If "-var-file" argument is present, then include any prefix and suffix.
           if [ -n "$TF_COM_VAR_FILE" ]; then echo "TF_COM_VAR_FILE=-var-file=$CONFIG_TF_VAR_FILE_PREFIX$TF_COM_VAR_FILE$CONFIG_TF_VAR_FILE_SUFFIX" >> $GITHUB_ENV; fi
           # If "-terraform=apply" is run without "-auto-approve", then ignore
@@ -248,8 +283,8 @@ jobs:
         if: matrix.in['terraform'] == 'plan' && steps.terraform_plan.outputs.exitcode == 0
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
         with:
-          name: ${{ env.INPUT_TFPLAN }}
-          path: ${{ env.INPUT_PATH }}/tfplan
+          name: ${{ env.TF_PLAN_ID }}
+          path: ${{ env.WORKING_DIRECTORY }}/tfplan
 
       # If "-terraform=apply" is run without "-auto-approve", then get the download
       # link for the most recently uploaded terraform plan file artifact which
@@ -259,10 +294,10 @@ jobs:
         if: matrix.in['terraform'] == 'apply' && matrix.in['auto-approve'] == ''
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
-          retries: 2
+          retries: 3
           script: |
             const { data: artifact_id } = await github.rest.actions.listArtifactsForRepo({
-              name: "${{ env.INPUT_TFPLAN }}",
+              name: "${{ env.TF_PLAN_ID }}",
               owner: context.repo.owner,
               per_page: 100,
               repo: context.repo.repo,
@@ -279,7 +314,7 @@ jobs:
       # plan file output to the specified path.
       - name: Unzip terraform plan
         if: matrix.in['terraform'] == 'apply' && matrix.in['auto-approve'] == ''
-        run: wget -O ${{ env.INPUT_TFPLAN }} ${{ steps.artifact_url.outputs.result }} && unzip ${{ env.INPUT_TFPLAN }} -d "${{ env.INPUT_PATH }}"
+        run: wget -O ${{ env.TF_PLAN_ID }} ${{ steps.artifact_url.outputs.result }} && unzip ${{ env.TF_PLAN_ID }} -d "${{ env.WORKING_DIRECTORY }}"
 
       - name: Terraform apply
         id: terraform_apply
@@ -293,31 +328,38 @@ jobs:
 
       # Reduce terraform output verbosity for ease of legibility.
       - name: Filter terraform output
-        id: terraform_output
+        id: terraform_result
         if: ${{ (success() || failure()) && (steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr) }}
         run: |
           # Reduce comment output verbosity by removing lines related to fetching
           # the state of resources. Due to GitHub's stack size limit of 128K - 16
-          # bytes, truncate above the last 131055 characters to capture the final
+          # bytes, truncate above the last 131056 characters to capture the final
           # summary of the output while leaving room for other boilerplate text.
-          { echo "comment_output<<EOF"
-            echo "$(echo "${{ steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr }}" | \
-              grep -vE ': Creating...|: Creation complete after|: Destroying...|: Destruction complete after|: Modifications complete after|: Modifying...|: Provisioning with|: Read complete after|: Reading...|: Refreshing state...|: Still creating...|: Still destroying...|: Still modifying...|: Still reading...|. This may take a few moments...' | \
-              tail -c 131055)"
+          { echo "TF_RESULT<<EOF"
+            echo "$(echo "${{ steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr }}" |
+              grep -vE ': Creating...|: Creation complete after|: Destroying...|: Destruction complete after|: Modifications complete after|: Modifying...|: Provisioning with|: Read complete after|: Reading...|: Refreshing state...|: Still creating...|: Still destroying...|: Still modifying...|: Still reading...|. This may take a few moments...' |
+              tail -c 131056)"
             echo "EOF"
-          } >> $GITHUB_ENV
+          } >> $GITHUB_OUTPUT
+          { echo "TF_RESULT_RAW<<EOF"
+            echo "${{ steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr }}"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       # If any terraform commands are run, successfully or not, log the most
       # recent output in a PR comment for review and debugging purposes.
       - name: Comment terraform output
-        if: ${{ (success() || failure()) && steps.terraform_output.outcome == 'success' }}
+        if: ${{ (success() || failure()) && steps.terraform_result.outcome == 'success' }}
+        env:
+          PROMPT_MATRIX: ${{ steps.environment_variables.outputs.PROMPT_MATRIX }}
+          TF_RESULT: ${{ steps.terraform_result.outputs.TF_RESULT }}
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
-          retries: 2
+          retries: 3
           script: |
             // Display the most recent terraform output change summary as the
             // header/title of the collapsible content.
-            const comment_summary = process.env.comment_output
+            const comment_summary = process.env.TF_RESULT
               .split("\n")
               .reverse()
               .find((line) => /^(Apply|Plan|Error|No changes)/.test(line)) ||
@@ -327,16 +369,16 @@ jobs:
             // output as the body of the collapsible content. Include the TFPLAN
             // name in a hidden footer as the unique identifier for comment updates.
             const comment_body = `
-            \`${process.env.INPUT_PROMPT}\`
+            \`${process.env.PROMPT_MATRIX}\`
             <details><summary>${comment_summary}</br>
 
             ###### ${{ github.workflow }} by @${{ github.actor }} via [${{ github.event_name }}](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}) at ${{ github.event.pull_request.updated_at || github.event.comment.updated_at }}.</summary>
 
             \`\`\`hcl
-            ${process.env.comment_output}
+            ${process.env.TF_RESULT}
             \`\`\`
             </details>
-            <!-- ${process.env.INPUT_TFPLAN} -->`;
+            <!-- ${process.env.TF_PLAN_ID} -->`;
 
             // Check if the bot has commented on the PR using the TFPLAN identifier.
             const { data: comments } = await github.rest.issues.listComments({
@@ -348,7 +390,7 @@ jobs:
             const bot_comment = comments.find((comment) => {
               return (
                 comment.user.type === "Bot" &&
-                comment.body.includes(`<!-- ${process.env.INPUT_TFPLAN} -->`)
+                comment.body.includes(`<!-- ${process.env.TF_PLAN_ID} -->`)
               );
             });
 
@@ -375,5 +417,5 @@ jobs:
         if: ${{ (success() || failure()) && github.event.issue.pull_request }}
         uses: myrotvorets/set-commit-status-action@243b4f7e597f62335408d58001edf8a02cf3e1fd # v1.1.7
         with:
-          sha: ${{ needs.pre.outputs.comment }}
+          sha: ${{ needs.pre.outputs.COMMENT_SHA }}
           status: ${{ job.status }}

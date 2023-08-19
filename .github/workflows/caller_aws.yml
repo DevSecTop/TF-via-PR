@@ -1,4 +1,4 @@
-name: Terraform via AWS
+name: Terraform with AWS
 
 on:
   issue_comment:
@@ -39,3 +39,15 @@ jobs:
         BASE64_AWS_SESSION_TOKEN=${{ needs.credentials.outputs.AWS_SESSION_TOKEN }}
         CONFIG_TF_CHDIR_PREFIX=stacks/
         TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
+
+  results:
+    needs: terraform
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display terraform results
+        run: |
+          echo "COMMENT_SHA=${{ needs.terraform.outputs.COMMENT_SHA }}"
+          echo "PARSED_COMMENT=${{ needs.terraform.outputs.PARSED_COMMENT }}"
+          echo "PROMPT_MATRIX=${{ needs.terraform.outputs.PROMPT_MATRIX }}"
+          echo "TF_PLAN_ID=${{ needs.terraform.outputs.TF_PLAN_ID }}"
+          echo "WORKING_DIRECTORY=${{ needs.terraform.outputs.WORKING_DIRECTORY }}"
