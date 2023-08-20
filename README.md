@@ -110,8 +110,6 @@ Use-case scenario: Provision resources with multiple different backends in bulk,
 | `PARSED_COMMENT`    | JSON object of the parsed PR comment.                                                                   | `[{"terraform":"plan", "chdir":"stacks/sample_bucket"}]` |
 | `PROMPT_MATRIX`     | Matrix strategy of the [last successfully completed job][reusable_workflow_outputs].                    | `{"terraform":"plan", "chdir":"stacks/sample_bucket"}`   |
 | `TF_PLAN_ID`        | Unique identifier of the Terraform plan file, used for artifact upload/download and bot comment update. | "42stacks-sample-bucket-tfplan"                          |
-| `TF_RESULT_RAW`     | Output result from the most recent Terraform command, if any.                                           | "data.aws_ami.ubuntu": Reading…"                         |
-| `TF_RESULT`         | Output result from the most recent Terraform command, if any, with reduced verbosity for legibility.    | "Terraform used the selected providers…"                 |
 | `WORKING_DIRECTORY` | Working directory of the Terraform configuration, used in `-chdir` argument.                            | "stacks/sample_bucket"                                   |
 
 ### AWS

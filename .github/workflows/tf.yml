@@ -23,12 +23,6 @@ on:
       TF_PLAN_ID:
         value: ${{ jobs.run.outputs.TF_PLAN_ID }}
         description: "Unique identifier of the Terraform plan file, used for artifact upload/download and bot comment update."
-      TF_RESULT_RAW:
-        value: ${{ jobs.run.outputs.TF_RESULT_RAW }}
-        description: "Output result from the most recent Terraform command, if any."
-      TF_RESULT:
-        value: ${{ jobs.run.outputs.TF_RESULT }}
-        description: "Output result from the most recent Terraform command, if any, with reduced verbosity for legibility."
       WORKING_DIRECTORY:
         value: ${{ jobs.run.outputs.WORKING_DIRECTORY }}
         description: "Working directory of the Terraform configuration, used in `-chdir` argument."
@@ -114,8 +108,6 @@ jobs:
     outputs:
       PROMPT_MATRIX: ${{ steps.environment_variables.outputs.PROMPT_MATRIX }}
       TF_PLAN_ID: ${{ steps.terraform_variables.outputs.TF_PLAN_ID }}
-      TF_RESULT_RAW: ${{ steps.terraform_result.outputs.TF_RESULT_RAW }}
-      TF_RESULT: ${{ steps.terraform_result.outputs.TF_RESULT }}
       WORKING_DIRECTORY: ${{ steps.terraform_variables.outputs.WORKING_DIRECTORY }}
 
     # Run each terraform command to completion.
@@ -164,13 +156,13 @@ jobs:
         with:
           retries: 3
           script: |
-            await github.rest.issues.addLabels({
+            const add_label = await github.rest.issues.addLabels({
               issue_number: context.issue.number,
               labels: ["terraform:${{ matrix.in['terraform'] }}"],
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            await github.rest.issues.updateLabel({
+            const update_label = await github.rest.issues.updateLabel({
               color: "5C4EE5",
               description: "Pull requests that ${{ matrix.in['terraform'] }} Terraform code",
               name: "terraform:${{ matrix.in['terraform'] }}",
@@ -232,7 +224,7 @@ jobs:
             if [ "$value" == "true" ]; then
               echo "$name=-$key" >> $GITHUB_ENV
             # If the argument value is non-empty, then pass it as-is.
-            E.g., "TF_COM_CHDIR=path/to/dir" becomes "-chdir=path/to/dir".
+            # E.g., "TF_COM_CHDIR=path/to/dir" becomes "-chdir=path/to/dir".
             elif [ -n "$value" ]; then
               # If it contains one or more commas, then split on commas and
               # pass each value as a separate argument with the same key.
@@ -296,19 +288,19 @@ jobs:
         with:
           retries: 3
           script: |
-            const { data: artifact_id } = await github.rest.actions.listArtifactsForRepo({
+            const { data: list_artifacts } = await github.rest.actions.listArtifactsForRepo({
               name: "${{ env.TF_PLAN_ID }}",
               owner: context.repo.owner,
               per_page: 100,
               repo: context.repo.repo,
             });
-            await github.rest.actions.downloadArtifact({
+            const download_artifact = await github.rest.actions.downloadArtifact({
               archive_format: "zip",
-              artifact_id: artifact_id.artifacts[0].id,
+              artifact_id: list_artifacts.artifacts[0].id,
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
-            return artifact_download.url;
+            return download_artifact.url;
 
       # Download the zipped repository artifact then unzip/inflate the terraform
       # plan file output to the specified path.
@@ -339,10 +331,6 @@ jobs:
             echo "$(echo "${{ steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr }}" |
               grep -vE ': Creating...|: Creation complete after|: Destroying...|: Destruction complete after|: Modifications complete after|: Modifying...|: Provisioning with|: Read complete after|: Reading...|: Refreshing state...|: Still creating...|: Still destroying...|: Still modifying...|: Still reading...|. This may take a few moments...' |
               tail -c 131056)"
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
-          { echo "TF_RESULT_RAW<<EOF"
-            echo "${{ steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr }}"
             echo "EOF"
           } >> $GITHUB_OUTPUT
 
