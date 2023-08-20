@@ -163,7 +163,7 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 - All works herein are my own and shared of my own volition.
 - Copyright 2023 [Rishav Dhar][rishav_dhar] — All wrongs reserved.
 
-[caller_aws_yml]: /.github/workflows/caller_aws.yml "Example workflow for running Terraform commands with AWS credentials."
+[caller_aws_yml]: https://github.com/devsectop/tf-via-pr/blob/main/.github/workflows/caller_aws.yml "Example workflow for running Terraform commands with AWS credentials."
 [compare_reusable_workflow_with_composite_actions]: https://github.blog/2022-02-10-using-reusable-workflows-github-actions "Using reusable workflows vs. composite actions."
 [configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [configure_oidc]: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-cloud-providers "Configuring OpenID Connect in cloud providers."
@@ -172,7 +172,7 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 [events_triggering_workflows]: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows "Events that trigger workflows."
 [github_codespaces]: https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers "Introduction to GitHub Codespaces."
 [issue]: https://github.com/devsectop/tf-via-pr/issues "Raise an issue."
-[license]: /LICENSE "Apache License 2.0."
+[license]: LICENSE "Apache License 2.0."
 [pull_request]: https://github.com/devsectop/tf-via-pr/pulls "Create a pull request."
 [reusable_workflow_outputs]: https://docs.github.com/en/actions/using-workflows/reusing-workflows#using-outputs-from-a-reusable-workflow "Using outputs from a reusable workflow."
 [rishav_dhar]: https://github.com/rdhar "Rishav Dhar's GitHub profile."
@@ -180,4 +180,4 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 [stargazer]: https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer."
 [ternary_operator]: https://docs.github.com/en/actions/learn-github-actions/expressions#example "Example of ternary operator-like behavior in GitHub Actions expressions."
 [terraform_action_inputs]: https://github.com/hashicorp/setup-terraform#inputs "Inputs for hashicorp/setup-terraform."
-[tf_yml]: /.github/workflows/tf.yml "Reusable workflow for running Terraform commands."
+[tf_yml]: https://github.com/devsectop/tf-via-pr/blob/main/.github/workflows/tf.yml "Reusable workflow for running Terraform commands."
