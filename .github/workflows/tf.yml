@@ -140,6 +140,12 @@ jobs:
           if [ -z "$env_vars" ]; then
             exit 0
           else
+            # Iterate over all key-value pairs passed into this workflow and
+            # add them as environment variables for use in subsequent steps.
+            # Keys prefixed with "BASE64_" will be decoded from base64 and the
+            # prefix will be removed. E.g., "BASE64_KEY=value" becomes "KEY=value".
+            # Keys prefixed with "CONFIG_TF_" will not be masked from logs to
+            # avoid masking non-sensitive configuration variables of this workflow.
             for i in $env_vars; do
               if [[ $i == BASE64_* ]]; then i=$(echo $i | sed 's/^BASE64_//g' | sed 's/=.*//g')=$(echo ${i#*=} | base64 -d); fi
               if [[ $i != CONFIG_TF_* ]]; then echo ::add-mask::${i#*=}; fi
@@ -303,7 +309,7 @@ jobs:
             return download_artifact.url;
 
       # Download the zipped repository artifact then unzip/inflate the terraform
-      # plan file output to the specified path.
+      # plan file to the specified working directory.
       - name: Unzip terraform plan
         if: matrix.in['terraform'] == 'apply' && matrix.in['auto-approve'] == ''
         run: wget -O ${{ env.TF_PLAN_ID }} ${{ steps.artifact_url.outputs.result }} && unzip ${{ env.TF_PLAN_ID }} -d "${{ env.WORKING_DIRECTORY }}"
@@ -318,15 +324,15 @@ jobs:
         if: matrix.in['terraform'] == 'force-unlock'
         run: terraform $TF_COM_CHDIR force-unlock -force "${{ matrix.in['lock-id'] }}"
 
-      # Reduce terraform output verbosity for ease of legibility.
-      - name: Filter terraform output
+      # Reduce terraform result verbosity for ease of legibility.
+      - name: Filter terraform result
         id: terraform_result
         if: ${{ (success() || failure()) && (steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr) }}
         run: |
-          # Reduce comment output verbosity by removing lines related to fetching
-          # the state of resources. Due to GitHub's stack size limit of 128K - 16
-          # bytes, truncate above the last 131056 characters to capture the final
-          # summary of the output while leaving room for other boilerplate text.
+          # Reduce comment's verbosity by removing lines related to fetching
+          # the state of resources. Due to GitHub's stack size limitation of
+          # 128K - 16 bytes, truncate above the last 131056 characters to
+          # capture the final change summary of the terraform command.
           { echo "TF_RESULT<<EOF"
             echo "$(echo "${{ steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr }}" |
               grep -vE ': Creating...|: Creation complete after|: Destroying...|: Destruction complete after|: Modifications complete after|: Modifying...|: Provisioning with|: Read complete after|: Reading...|: Refreshing state...|: Still creating...|: Still destroying...|: Still modifying...|: Still reading...|. This may take a few moments...' |
@@ -335,8 +341,8 @@ jobs:
           } >> $GITHUB_OUTPUT
 
       # If any terraform commands are run, successfully or not, log the most
-      # recent output in a PR comment for review and debugging purposes.
-      - name: Comment terraform output
+      # recent result in a PR comment for review and debugging purposes.
+      - name: Comment terraform result
         if: ${{ (success() || failure()) && steps.terraform_result.outcome == 'success' }}
         env:
           PROMPT_MATRIX: ${{ steps.environment_variables.outputs.PROMPT_MATRIX }}
@@ -345,17 +351,17 @@ jobs:
         with:
           retries: 3
           script: |
-            // Display the most recent terraform output change summary as the
-            // header/title of the collapsible content.
+            // Display the most recent terraform change summary as the header/
+            // title of the collapsible content.
             const comment_summary = process.env.TF_RESULT
               .split("\n")
               .reverse()
               .find((line) => /^(Apply|Plan|Error|No changes)/.test(line)) ||
-            "View terraform output…";
+            "View terraform result…";
 
             // Display the terraform command authorship before the terraform
-            // output as the body of the collapsible content. Include the TFPLAN
-            // name in a hidden footer as the unique identifier for comment updates.
+            // result as the body of the collapsible content. Include the TFPLAN
+            // name in a hidden footer as a unique identifier for comment updates.
             const comment_body = `
             \`${process.env.PROMPT_MATRIX}\`
             <details><summary>${comment_summary}</br>
