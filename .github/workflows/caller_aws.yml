@@ -24,9 +24,9 @@ jobs:
       - name: Output credentials
         id: credentials
         run: |
-          echo "AWS_ACCESS_KEY_ID=$(printf '%s\n' $AWS_ACCESS_KEY_ID | base64 -w 0 | base64 -w 0)" >> $GITHUB_OUTPUT
-          echo "AWS_SECRET_ACCESS_KEY=$(printf '%s\n' $AWS_SECRET_ACCESS_KEY | base64 -w 0 | base64 -w 0)" >> $GITHUB_OUTPUT
-          echo "AWS_SESSION_TOKEN=$(printf '%s\n' $AWS_SESSION_TOKEN | base64 -w 0 | base64 -w 0)" >> $GITHUB_OUTPUT
+          echo "AWS_ACCESS_KEY_ID=$(echo $AWS_ACCESS_KEY_ID | base64 -w0 | base64 -w0)" >> $GITHUB_OUTPUT
+          echo "AWS_SECRET_ACCESS_KEY=$(echo $AWS_SECRET_ACCESS_KEY | base64 -w0 | base64 -w0)" >> $GITHUB_OUTPUT
+          echo "AWS_SESSION_TOKEN=$(echo $AWS_SESSION_TOKEN | base64 -w0 | base64 -w0)" >> $GITHUB_OUTPUT
       - env:
           BASE64_AWS_ACCESS_KEY_ID: ${{ steps.credentials.outputs.AWS_ACCESS_KEY_ID }}
           BASE64_AWS_SECRET_ACCESS_KEY: ${{ steps.credentials.outputs.AWS_SECRET_ACCESS_KEY }}

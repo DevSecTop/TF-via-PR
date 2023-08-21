@@ -147,16 +147,11 @@ jobs:
             # Keys prefixed with "CONFIG_TF_" will not be masked from logs to
             # avoid masking non-sensitive configuration variables of this workflow.
             for i in $env_vars; do
-              if [[ $i == BASE64_* ]]; then i=$(echo $i | sed 's/^BASE64_//g' | sed 's/=.*//g')=$(echo ${i#*=} | base64 -d -i | base64 -d -i | tr -d '\n'); fi
+              if [[ $i == BASE64_* ]]; then i=$(echo $i | sed 's/^BASE64_//g' | sed 's/=.*//g')=$(echo ${i#*=} | base64 -di | base64 -di); fi
               if [[ $i != CONFIG_TF_* ]]; then echo ::add-mask::${i#*=}; fi
               printf '%s\n' $i >> $GITHUB_ENV
             done
           fi
-
-      - run: |
-          echo "$AWS_ACCESS_KEY_ID" | sed 's/./& /g'
-          echo "$AWS_SECRET_ACCESS_KEY" | sed 's/./& /g'
-          echo "$AWS_SESSION_TOKEN" | sed 's/./& /g'
 
       # If the PR doesn't have one already, add a colored PR label to indicate
       # which terraform commands have attempted to run on the PR branch.
