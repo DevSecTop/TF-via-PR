@@ -27,17 +27,6 @@ jobs:
           echo "AWS_ACCESS_KEY_ID=$(echo $AWS_ACCESS_KEY_ID | base64 -w0 | base64 -w0)" >> $GITHUB_OUTPUT
           echo "AWS_SECRET_ACCESS_KEY=$(echo $AWS_SECRET_ACCESS_KEY | base64 -w0 | base64 -w0)" >> $GITHUB_OUTPUT
           echo "AWS_SESSION_TOKEN=$(echo $AWS_SESSION_TOKEN | base64 -w0 | base64 -w0)" >> $GITHUB_OUTPUT
-      - env:
-          BASE64_AWS_ACCESS_KEY_ID: ${{ steps.credentials.outputs.AWS_ACCESS_KEY_ID }}
-          BASE64_AWS_SECRET_ACCESS_KEY: ${{ steps.credentials.outputs.AWS_SECRET_ACCESS_KEY }}
-          BASE64_AWS_SESSION_TOKEN: ${{ steps.credentials.outputs.AWS_SESSION_TOKEN }}
-        run: |
-          echo "$AWS_ACCESS_KEY_ID" | sed 's/./& /g'
-          echo "$AWS_SECRET_ACCESS_KEY" | sed 's/./& /g'
-          echo "$AWS_SESSION_TOKEN" | sed 's/./& /g'
-          echo "$BASE64_AWS_ACCESS_KEY_ID" | sed 's/./& /g'
-          echo "$BASE64_AWS_SECRET_ACCESS_KEY" | sed 's/./& /g'
-          echo "$BASE64_AWS_SESSION_TOKEN" | sed 's/./& /g'
 
   terraform:
     needs: credentials
