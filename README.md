@@ -56,7 +56,7 @@ jobs:
 
 ### Examples
 
-Use-case scenario: Provision resources in multiple workspaces with different input variables, followed by targeted destruction.
+Use-case scenario: Provision resources in multiple workspaces with different input variables, followed by targeted destruction. [View PR in situ][pr_example_1].
 
 ```bash
 #1 PR Comment: Plan configuration in a workspace with input variable file.
@@ -72,7 +72,7 @@ Use-case scenario: Provision resources in multiple workspaces with different inp
 -terraform=apply -destroy -target=aws_instance.sample,data.aws_ami.ubuntu -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 ```
 
-Use-case scenario: Provision resources with multiple different backends in bulk, simultaneously, followed by destruction without confirmation.
+Use-case scenario: Provision resources with multiple different backends in bulk, simultaneously, followed by destruction without confirmation. [View PR in situ][pr_example_2].
 
 ```bash
 #1 PR Comment: Plan multiple configurations with different backends.
@@ -173,6 +173,8 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 [github_codespaces]: https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers "Introduction to GitHub Codespaces."
 [issue]: https://github.com/devsectop/tf-via-pr/issues "Raise an issue."
 [license]: LICENSE "Apache License 2.0."
+[pr_example_1]: https://github.com/devsectop/tf-via-pr/pull/121 "Example PR for this use-case scenario."
+[pr_example_2]: https://github.com/devsectop/tf-via-pr/pull/122 "Example PR for this use-case scenario."
 [pull_request]: https://github.com/devsectop/tf-via-pr/pulls "Create a pull request."
 [reusable_workflow_outputs]: https://docs.github.com/en/actions/using-workflows/reusing-workflows#using-outputs-from-a-reusable-workflow "Using outputs from a reusable workflow."
 [rishav_dhar]: https://github.com/rdhar "Rishav Dhar's GitHub profile."
