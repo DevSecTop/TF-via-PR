@@ -52,7 +52,7 @@ jobs:
 > - Pin your workflow version to a specific release tag or SHA to harden your CI/CD pipeline security against supply chain attacks.
 > - The optional `env_vars` input lets you pass in environment variables as key-value pairs while masking sensitive values from logs.
 >   - Each entry must be on a new line and separated by an equals sign (`=`).
->   - Entries prefixed with "BASE64\_" will be decoded from base64. E.g., for passing in temporary/[OIDC][configure_oidc] credentials output from a previous job.
+>   - Entries prefixed with `BASE64_` will be decoded from Base64 twice. E.g., for passing in temporary/[OIDC][configure_oidc] credentials output from a previous job.
 
 ### Examples
 
