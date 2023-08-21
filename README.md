@@ -92,25 +92,25 @@ Use-case scenario: Provision resources with multiple different backends in bulk,
 
 #### Inputs
 
-| Name                              | Description                                                                                                                           | Default            | Example       |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------- |
-| `CONFIG_TF_CHDIR_PREFIX`          | String prefix for Terraform `-chdir` argument. This is a global option that switches to a different directory.                        | ""                 | "stacks/"     |
-| `CONFIG_TF_VAR_FILE_PREFIX`       | String prefix for Terraform `-var-file` argument, if `-var-file` (or `-workspace` and `CONFIG_TF_WORKSPACE_AS_VAR_FILE`) is supplied. | ""                 | "../vars/"    |
-| `CONFIG_TF_VAR_FILE_SUFFIX`       | String suffix for Terraform `-var-file` argument, if `-var-file` (or `-workspace` and `CONFIG_TF_WORKSPACE_AS_VAR_FILE`) is supplied. | ""                 | ".tfvars"     |
-| `CONFIG_TF_WORKSPACE_AS_VAR_FILE` | Boolean flag to re-use Terraform `-workspace` as `-var-file` argument, if either of them are supplied.                                | false              | true          |
-| `TF_CLI_HOSTNAME`                 | Hostname of Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.                 | "app.terraform.io" | "tf.acme.com" |
-| `TF_CLI_TOKEN`                    | API token for Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.               | ""                 | "**\*\***"    |
-| `TF_CLI_VERSION`                  | Version of Terraform CLI to install, supporting [semver ranges][terraform_action_inputs].                                             | "latest"           | ">=1.5.1"     |
+| Name                              | Description                                                                                                                           | Default          | Example     |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ----------- |
+| `CONFIG_TF_CHDIR_PREFIX`          | String prefix for Terraform `-chdir` argument. This is a global option that switches to a different directory.                        |                  | stacks/     |
+| `CONFIG_TF_VAR_FILE_PREFIX`       | String prefix for Terraform `-var-file` argument, if `-var-file` (or `-workspace` and `CONFIG_TF_WORKSPACE_AS_VAR_FILE`) is supplied. |                  | ../vars/    |
+| `CONFIG_TF_VAR_FILE_SUFFIX`       | String suffix for Terraform `-var-file` argument, if `-var-file` (or `-workspace` and `CONFIG_TF_WORKSPACE_AS_VAR_FILE`) is supplied. |                  | .tfvars     |
+| `CONFIG_TF_WORKSPACE_AS_VAR_FILE` | Boolean flag to re-use Terraform `-workspace` as `-var-file` argument, if either of them are supplied.                                | false            | true        |
+| `TF_CLI_HOSTNAME`                 | Hostname of Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.                 | app.terraform.io | tf.acme.com |
+| `TF_CLI_TOKEN`                    | API token for Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.               |                  |             |
+| `TF_CLI_VERSION`                  | Version of Terraform CLI to install, supporting [semver ranges][terraform_action_inputs].                                             | latest           | >=1.5.1     |
 
 #### Outputs
 
 | Name                | Description                                                                                             | Example                                                  |
 | ------------------- | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| `COMMENT_SHA`       | SHA of the PR comment that triggered the workflow.                                                      | "1234567"                                                |
+| `COMMENT_SHA`       | SHA of the PR comment that triggered the workflow.                                                      | 1234567…                                                 |
 | `PARSED_COMMENT`    | JSON object of the parsed PR comment.                                                                   | `[{"terraform":"plan", "chdir":"stacks/sample_bucket"}]` |
 | `PROMPT_MATRIX`     | Matrix strategy of the [last successfully completed job][reusable_workflow_outputs].                    | `{"terraform":"plan", "chdir":"stacks/sample_bucket"}`   |
-| `TF_PLAN_ID`        | Unique identifier of the Terraform plan file, used for artifact upload/download and bot comment update. | "42stacks-sample-bucket-tfplan"                          |
-| `WORKING_DIRECTORY` | Working directory of the Terraform configuration, used in `-chdir` argument.                            | "stacks/sample_bucket"                                   |
+| `TF_PLAN_ID`        | Unique identifier of the Terraform plan file, used for artifact upload/download and bot comment update. | 42stacks-sample-bucket-tfplan                            |
+| `WORKING_DIRECTORY` | Working directory of the Terraform configuration, used in `-chdir` argument.                            | stacks/sample_bucket                                     |
 
 ### AWS
 
