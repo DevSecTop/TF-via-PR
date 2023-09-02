@@ -176,6 +176,23 @@ jobs:
               repo: context.repo.repo,
             });
 
+      # If CONFIG_TF_REQUIRE_APPROVAL is set to "true", then verify that the PR
+      # review state is approved. If not, then exit the workflow with a failure.
+      - name: Check PR approval
+        if: matrix.in['terraform'] == 'apply' && env.CONFIG_TF_REQUIRE_APPROVAL == 'true'
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
+        with:
+          retries: 3
+          script: |
+            const { data: list_reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              pull_number: context.issue.number,
+              repo: context.repo.repo,
+            });
+            if (list_reviews.at(-1)?.state !== "APPROVED") {
+              core.setFailed("PR review approval is required when CONFIG_TF_REQUIRE_APPROVAL is set to true.");
+            }
+
       - name: Setup terraform
         uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # v2.0.3
         with:
@@ -329,16 +346,20 @@ jobs:
         id: terraform_result
         if: ${{ (success() || failure()) && (steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr) }}
         run: |
-          # Reduce comment's verbosity by removing lines related to fetching
-          # the state of resources. Due to GitHub's stack size limitation of
-          # 128K - 16 bytes, truncate above the last 131056 characters to
-          # capture the final change summary of the terraform command.
-          { echo "TF_RESULT<<EOF"
-            echo "$(echo "${{ steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr }}" |
-              grep -vE ': Creating...|: Creation complete after|: Destroying...|: Destruction complete after|: Modifications complete after|: Modifying...|: Provisioning with|: Read complete after|: Reading...|: Refreshing state...|: Still creating...|: Still destroying...|: Still modifying...|: Still reading...|. This may take a few moments...' |
-              tail -c 131056)"
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+          # Reduce the comment's verbosity by removing lines related to fetching
+          # the state of resources. Due to GitHub's comment size limitation of
+          # 64KB or a count of 65536, truncate above the last 64800 characters
+          # to capture the final change summary of the terraform command while
+          # leaving room for the comment's header and footer.
+          TF_RESULT_RAW=$(cat <<'EOTERRAFORM'
+          ${{ steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr }}
+          EOTERRAFORM
+          )
+          echo 'TF_RESULT<<EOTERRAFORM' >> $GITHUB_OUTPUT
+          echo "$TF_RESULT_RAW" |
+            grep -vE ': Creating...|: Creation complete after|: Destroying...|: Destruction complete after|: Modifications complete after|: Modifying...|: Provisioning with|: Read complete after|: Reading...|: Refreshing state...|: Still creating...|: Still destroying...|: Still modifying...|: Still reading...|. This may take a few moments...' |
+            tail -c 64800 >> $GITHUB_OUTPUT
+          echo 'EOTERRAFORM' >> $GITHUB_OUTPUT
 
       # If any terraform commands are run, successfully or not, log the most
       # recent result in a PR comment for review and debugging purposes.

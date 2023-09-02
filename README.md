@@ -21,7 +21,7 @@
 
 <details><summary>Best suited for DevOps and Platform engineers who want to empower their teams to self-service Terraform without the overhead of self-hosting runners, containers or VMs like <a href="https://www.runatlantis.io" title="Atlantis Terraform pull request automation.">Atlantis</a>.</summary>
 
-- [Environment deployment protection rules][deployment_rules] mitigate the risk of erroneous changes along with standardized approval requirements.
+- [Environment deployment protection rules][deployment_protection] mitigate the risk of erroneous changes along with standardized approval requirements.
 - Each PR and associated workflow run holds a complete log of infrastructure changes for ease of collaborative debugging as well as audit compliance.
 </details>
 
@@ -92,15 +92,16 @@ Use-case scenario: Provision resources with multiple different backends in bulk,
 
 #### Inputs
 
-| Name                              | Description                                                                                                                           | Default          | Example     |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ----------- |
-| `CONFIG_TF_CHDIR_PREFIX`          | String prefix for Terraform `-chdir` argument. This is a global option that switches to a different directory.                        |                  | stacks/     |
-| `CONFIG_TF_VAR_FILE_PREFIX`       | String prefix for Terraform `-var-file` argument, if `-var-file` (or `-workspace` and `CONFIG_TF_WORKSPACE_AS_VAR_FILE`) is supplied. |                  | ../vars/    |
-| `CONFIG_TF_VAR_FILE_SUFFIX`       | String suffix for Terraform `-var-file` argument, if `-var-file` (or `-workspace` and `CONFIG_TF_WORKSPACE_AS_VAR_FILE`) is supplied. |                  | .tfvars     |
-| `CONFIG_TF_WORKSPACE_AS_VAR_FILE` | Boolean flag to re-use Terraform `-workspace` as `-var-file` argument, if either of them are supplied.                                | false            | true        |
-| `TF_CLI_HOSTNAME`                 | Hostname of Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.                 | app.terraform.io | tf.acme.com |
-| `TF_CLI_TOKEN`                    | API token for Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.               |                  |             |
-| `TF_CLI_VERSION`                  | Version of Terraform CLI to install, supporting [semver ranges][terraform_action_inputs].                                             | latest           | >=1.5.1     |
+| Name                              | Description                                                                                                                                                       | Default          | Example     |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ----------- |
+| `CONFIG_TF_CHDIR_PREFIX`          | String prefix for Terraform `-chdir` argument. This is a global option that switches to a different directory.                                                    |                  | stacks/     |
+| `CONFIG_TF_REQUIRE_APPROVAL`      | Boolean flag to require PR review approval for Terraform apply commands. Consider [deployment protection rules][deployment_protection] for specific environments. | false            | true        |
+| `CONFIG_TF_VAR_FILE_PREFIX`       | String prefix for Terraform `-var-file` argument, if `-var-file` (or `-workspace` and `CONFIG_TF_WORKSPACE_AS_VAR_FILE`) is supplied.                             |                  | ../vars/    |
+| `CONFIG_TF_VAR_FILE_SUFFIX`       | String suffix for Terraform `-var-file` argument, if `-var-file` (or `-workspace` and `CONFIG_TF_WORKSPACE_AS_VAR_FILE`) is supplied.                             |                  | .tfvars     |
+| `CONFIG_TF_WORKSPACE_AS_VAR_FILE` | Boolean flag to re-use Terraform `-workspace` as `-var-file` argument, if either of them are supplied.                                                            | false            | true        |
+| `TF_CLI_HOSTNAME`                 | Hostname of Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.                                             | app.terraform.io | tf.acme.com |
+| `TF_CLI_TOKEN`                    | API token for Terraform cloud/enterprise instance to place within the credentials block of Terraform CLI configuration.                                           |                  |             |
+| `TF_CLI_VERSION`                  | Version of Terraform CLI to install, supporting [semver ranges][terraform_action_inputs].                                                                         | latest           | >=1.5.1     |
 
 #### Outputs
 
@@ -133,7 +134,7 @@ module "sample_bucket" {
 Integrating security in your CI/CD pipeline is critical to practicing DevSecOps. This [reusable workflow][tf_yml] is designed to be secure by default, and it should be complemented with your own review to ensure it meets your (organization's) security requirements.
 
 - All associated GitHub Actions used in this workflow are [pinned to a specific SHA][securing_github_actions] to prevent supply chain attacks from third-party upstream dependencies.
-- Restrict changes to certain environments with [deployment protection rules][deployment_rules] so that approval is required from authorized users/teams before changes to the infrastructure can be applied.
+- Restrict changes to certain environments with [deployment protection rules][deployment_protection] so that approval is required from authorized users/teams before changes to the infrastructure can be applied.
 
 ## Roadmap
 
@@ -168,7 +169,7 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 [compare_reusable_workflow_with_composite_actions]: https://github.blog/2022-02-10-using-reusable-workflows-github-actions "Using reusable workflows vs. composite actions."
 [configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [configure_oidc]: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-cloud-providers "Configuring OpenID Connect in cloud providers."
-[deployment_rules]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules "Configuring environment deployment protection rules."
+[deployment_protection]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules "Configuring environment deployment protection rules."
 [discussion]: https://github.com/devsectop/tf-via-pr/discussions "Open a discussion."
 [events_triggering_workflows]: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows "Events that trigger workflows."
 [github_codespaces]: https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers "Introduction to GitHub Codespaces."
