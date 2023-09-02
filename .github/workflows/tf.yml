@@ -176,6 +176,23 @@ jobs:
               repo: context.repo.repo,
             });
 
+      # If CONFIG_TF_REQUIRE_APPROVAL is set to "true", then verify that the PR
+      # review state is approved. If not, then exit the workflow with a failure.
+      - name: Check PR approval
+        if: matrix.in['terraform'] == 'apply' && env.CONFIG_TF_REQUIRE_APPROVAL == 'true'
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
+        with:
+          retries: 3
+          script: |
+            const { data: list_reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              pull_number: context.issue.number,
+              repo: context.repo.repo,
+            });
+            if (list_reviews.at(-1)?.state !== "APPROVED") {
+              core.setFailed("PR review approval is required when CONFIG_TF_REQUIRE_APPROVAL is set to true.");
+            }
+
       - name: Setup terraform
         uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # v2.0.3
         with:
