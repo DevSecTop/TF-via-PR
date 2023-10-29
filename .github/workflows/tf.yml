@@ -116,21 +116,30 @@ jobs:
 
       - name: Add commit status
         if: github.event.issue.pull_request
-        uses: myrotvorets/set-commit-status-action@38f3f27c7d52fb381273e95542f07f0fba301307 # v2.0.0
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
-          sha: ${{ steps.get_branch.outputs.head_sha }}
+          retries: 3
+          script: |
+            const add_pending_status = await github.rest.repos.createCommitStatus({
+              context: "${{ github.workflow }}",
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: "${{ steps.get_branch.outputs.result }}",
+              state: "pending",
+              target_url: "${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}",
+            });
 
   run:
-    # Run terraform commands in parallel on the PR branch after populating any
+    # Run TF commands in parallel on the PR branch after populating any
     # environment variables passed into this workflow. E.g., for authentication.
     needs: [pre]
     runs-on: ubuntu-latest
     outputs:
       PROMPT_MATRIX: ${{ steps.environment_variables.outputs.PROMPT_MATRIX }}
-      TF_PLAN_ID: ${{ steps.terraform_variables.outputs.TF_PLAN_ID }}
-      WORKING_DIRECTORY: ${{ steps.terraform_variables.outputs.WORKING_DIRECTORY }}
+      TF_PLAN_ID: ${{ steps.tf_variables.outputs.TF_PLAN_ID }}
+      WORKING_DIRECTORY: ${{ steps.tf_variables.outputs.WORKING_DIRECTORY }}
 
-    # Run each terraform command to completion.
+    # Run each TF command to completion.
     strategy:
       fail-fast: false
       matrix:
@@ -164,11 +173,11 @@ jobs:
             # add them as environment variables for use in subsequent steps.
             # Keys prefixed with "BASE64_" will be decoded from base64 and the
             # prefix will be removed. E.g., "BASE64_KEY=value" becomes "KEY=value".
-            # Keys prefixed with "CONFIG_TF_" will not be masked from logs to
-            # avoid masking non-sensitive configuration variables of this workflow.
+            # Keys prefixed with "TVP_" will not be masked from logs to avoid
+            # masking non-sensitive configuration variables of this workflow.
             for i in $env_vars; do
               if [[ $i == BASE64_* ]]; then i=$(echo $i | sed 's/^BASE64_//g' | sed 's/=.*//g')=$(echo ${i#*=} | base64 -di | base64 -di); fi
-              if [[ $i != CONFIG_TF_* ]]; then echo ::add-mask::${i#*=}; fi
+              if [[ $i != TVP_* ]]; then echo ::add-mask::${i#*=}; fi
               printf '%s\n' $i >> $GITHUB_ENV
             done
           fi
@@ -450,7 +459,15 @@ jobs:
 
       - name: Update commit status
         if: ${{ (success() || failure()) && github.event.issue.pull_request }}
-        uses: myrotvorets/set-commit-status-action@38f3f27c7d52fb381273e95542f07f0fba301307 # v2.0.0
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
-          sha: ${{ needs.pre.outputs.COMMENT_SHA }}
-          status: ${{ job.status }}
+          retries: 3
+          script: |
+            const add_pending_status = await github.rest.repos.createCommitStatus({
+              context: "${{ github.workflow }}",
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: "${{ needs.pre.outputs.COMMENT_SHA }}",
+              state: "${{ job.status }}",
+              target_url: "${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}",
+            });
