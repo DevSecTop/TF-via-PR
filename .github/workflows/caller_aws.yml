@@ -1,13 +1,15 @@
-name: Terraform with AWS
+name: TF Caller with AWS
 
 on:
   issue_comment:
     types: [created, edited]
   pull_request:
     types: [synchronize]
+    paths: ['**/*.tf*']
 
 jobs:
   credentials:
+    if: startsWith(github.event.comment.body, '-tf=') || contains(join(github.event.pull_request.labels.*.name), 'tf:')
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -28,7 +30,7 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=$(echo $AWS_SECRET_ACCESS_KEY | base64 -w0 | base64 -w0)" >> $GITHUB_OUTPUT
           echo "AWS_SESSION_TOKEN=$(echo $AWS_SESSION_TOKEN | base64 -w0 | base64 -w0)" >> $GITHUB_OUTPUT
 
-  terraform:
+  tf:
     needs: credentials
     uses: ./.github/workflows/tf.yml
   # uses: devsectop/tf-via-pr/.github/workflows/tf.yml@main
@@ -37,17 +39,18 @@ jobs:
         BASE64_AWS_ACCESS_KEY_ID=${{ needs.credentials.outputs.AWS_ACCESS_KEY_ID }}
         BASE64_AWS_SECRET_ACCESS_KEY=${{ needs.credentials.outputs.AWS_SECRET_ACCESS_KEY }}
         BASE64_AWS_SESSION_TOKEN=${{ needs.credentials.outputs.AWS_SESSION_TOKEN }}
-        CONFIG_TF_CHDIR_PREFIX=stacks/
         TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
+        TVP_CHDIR_PREFIX=stacks/
+        TVP_CLI_VERSION=~1.6
 
   results:
-    needs: terraform
+    needs: tf
     runs-on: ubuntu-latest
     steps:
-      - name: Display terraform results
+      - name: Display TF results
         run: |
-          echo "COMMENT_SHA=${{ needs.terraform.outputs.COMMENT_SHA }}"
-          echo "PARSED_COMMENT=${{ needs.terraform.outputs.PARSED_COMMENT }}"
-          echo "PROMPT_MATRIX=${{ needs.terraform.outputs.PROMPT_MATRIX }}"
-          echo "TF_PLAN_ID=${{ needs.terraform.outputs.TF_PLAN_ID }}"
-          echo "WORKING_DIRECTORY=${{ needs.terraform.outputs.WORKING_DIRECTORY }}"
+          echo "COMMENT_SHA=${{ needs.tf.outputs.COMMENT_SHA }}"
+          echo "PARSED_COMMENT=${{ needs.tf.outputs.PARSED_COMMENT }}"
+          echo "PROMPT_MATRIX=${{ needs.tf.outputs.PROMPT_MATRIX }}"
+          echo "TF_PLAN_ID=${{ needs.tf.outputs.TF_PLAN_ID }}"
+          echo "WORKING_DIRECTORY=${{ needs.tf.outputs.WORKING_DIRECTORY }}"
