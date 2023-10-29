@@ -99,10 +99,20 @@ jobs:
                 return obj;
               });
 
-      - name: Get comment branch
+      - name: Get comment branch using github-script
         id: get_branch
         if: github.event.issue.pull_request
-        uses: xt0rted/pull-request-comment-branch@d97294d304604fa98a2600a6e2f916a84b596dc7 # v2.0.0
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
+        with:
+          result-encoding: string
+          retries: 3
+          script: |
+            const { data: get_pull_request } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              pull_number: context.issue.number,
+              repo: context.repo.repo,
+            });
+            return get_pull_request.head.sha;
 
       - name: Add commit status
         if: github.event.issue.pull_request
