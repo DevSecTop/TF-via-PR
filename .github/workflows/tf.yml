@@ -183,32 +183,32 @@ jobs:
           fi
 
       # If the PR doesn't have one already, add a colored PR label to indicate
-      # which terraform commands have attempted to run on the PR branch.
-      # E.g., "terraform:plan", "terraform:apply", "terraform:force-unlock", etc.
+      # which TF commands have attempted to run on the PR branch.
+      # E.g., "tf:plan", "tf:apply", "tf:force-unlock", etc.
       - name: Add PR label
-        if: (!contains(join(github.event.pull_request.labels.*.name), format('terraform:{0}', matrix.in['terraform'])))
+        if: (!contains(join(github.event.pull_request.labels.*.name), format('tf:{0}', matrix.in['tf'])))
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
           retries: 3
           script: |
             const add_label = await github.rest.issues.addLabels({
               issue_number: context.issue.number,
-              labels: ["terraform:${{ matrix.in['terraform'] }}"],
+              labels: ["tf:${{ matrix.in['tf'] }}"],
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
             const update_label = await github.rest.issues.updateLabel({
-              color: "5C4EE5",
-              description: "Pull requests that ${{ matrix.in['terraform'] }} Terraform code",
-              name: "terraform:${{ matrix.in['terraform'] }}",
+              color: "${{ env.TVP_CLI_USES == 'tofu' && 'FFDA18' || '5C4EE5' }}",
+              description: "Pull requests that ${{ matrix.in['tf'] }} TF code",
+              name: "tf:${{ matrix.in['tf'] }}",
               owner: context.repo.owner,
               repo: context.repo.repo,
             });
 
-      # If CONFIG_TF_REQUIRE_APPROVAL is set to "true", then verify that the PR
+      # If TVP_APPLY_REQUIRE_APPROVAL is set to "true", then verify that the PR
       # review state is approved. If not, then exit the workflow with a failure.
       - name: Check PR approval
-        if: matrix.in['terraform'] == 'apply' && env.CONFIG_TF_REQUIRE_APPROVAL == 'true'
+        if: matrix.in['tf'] == 'apply' && env.TVP_APPLY_REQUIRE_APPROVAL == 'true'
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
           retries: 3
@@ -219,68 +219,81 @@ jobs:
               repo: context.repo.repo,
             });
             if (list_reviews.at(-1)?.state !== "APPROVED") {
-              core.setFailed("PR review approval is required when CONFIG_TF_REQUIRE_APPROVAL is set to true.");
+              core.setFailed("PR review approval is required when TVP_APPLY_REQUIRE_APPROVAL is set to true.");
             }
 
-      - name: Setup terraform
+      - name: Setup Terraform
+        if: env.TVP_CLI_USES == 'terraform' || env.TVP_CLI_USES == ''
         uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # v2.0.3
         with:
-          cli_config_credentials_hostname: ${{ env.TF_CLI_HOSTNAME }}
-          cli_config_credentials_token: ${{ env.TF_CLI_TOKEN }}
-          terraform_version: ${{ env.TF_CLI_VERSION }}
+          cli_config_credentials_hostname: ${{ env.TVP_CLI_HOSTNAME }}
+          cli_config_credentials_token: ${{ env.TVP_CLI_TOKEN }}
+          terraform_version: ${{ env.TVP_CLI_VERSION || 'latest' }}
+          terraform_wrapper: true
 
-      # For each possible terraform command argument, process then pass them into
+      - name: Setup OpenTofu
+        if: env.TVP_CLI_USES == 'tofu'
+        uses: opentofu/setup-opentofu@b06654f7ba51088e987c0a454d042360df3ebe86 # v1.0.1
+        with:
+          cli_config_credentials_hostname: ${{ env.TVP_CLI_HOSTNAME }}
+          cli_config_credentials_token: ${{ env.TVP_CLI_TOKEN }}
+          tofu_version: ${{ env.TVP_CLI_VERSION || 'latest' }}
+          tofu_wrapper: true
+
+      # For each possible TF command argument, process then pass them into
       # environment variables. E.g., "-chdir=path/to/dir", "-auto-approve", etc.
-      - name: Populate terraform variables
-        id: terraform_variables
+      - name: Populate TF variables
+        id: tf_variables
         env:
-          TF_COM_AUTO_APPROVE: ${{ matrix.in['auto-approve'] }}
-          TF_COM_BACKEND_CONFIG: ${{ matrix.in['backend-config'] }}
-          TF_COM_BACKEND: ${{ matrix.in['backend'] }}
-          TF_COM_CHDIR: ${{ format('{0}{1}', env.CONFIG_TF_CHDIR_PREFIX, matrix.in['chdir']) }}
-          TF_COM_CLOUD: ${{ matrix.in['cloud'] }}
-          TF_COM_COMPACT_WARNINGS: ${{ matrix.in['compact-warnings'] }}
-          TF_COM_DESTROY: ${{ matrix.in['destroy'] }}
-          TF_COM_FROM_MODULE: ${{ matrix.in['from-module'] }}
-          TF_COM_GET: ${{ matrix.in['get'] }}
-          TF_COM_IGNORE_REMOTE_VERSION: ${{ matrix.in['ignore-remote-version'] }}
-          TF_COM_LOCK_TIMEOUT: ${{ matrix.in['lock-timeout'] }}
-          TF_COM_LOCK: ${{ matrix.in['lock'] }}
-          TF_COM_LOCKFILE: ${{ matrix.in['lockfile'] }}
-          TF_COM_PARALLELISM: ${{ matrix.in['parallelism'] }}
-          TF_COM_PLUGIN_DIR: ${{ matrix.in['plugin-dir'] }}
-          TF_COM_REFRESH_ONLY: ${{ matrix.in['refresh-only'] }}
-          TF_COM_REFRESH: ${{ matrix.in['refresh'] }}
-          TF_COM_REPLACE: ${{ matrix.in['replace'] }}
-          TF_COM_TARGET: ${{ matrix.in['target'] }}
-          TF_COM_TERRAFORM: ${{ matrix.in['terraform'] }}
-          TF_COM_UPGRADE: ${{ matrix.in['upgrade'] }}
-          TF_COM_VAR_FILE: ${{ env.CONFIG_TF_WORKSPACE_AS_VAR_FILE == 'true' && matrix.in['workspace'] || matrix.in['var-file'] }}
-          TF_COM_WORKSPACE: ${{ matrix.in['workspace'] }}
+          TVP__AUTO_APPROVE: ${{ matrix.in['auto-approve'] }}
+          TVP__BACKEND_CONFIG: ${{ env.TVP_BACKEND_CONFIG_FROM_WORKSPACE && matrix.in['workspace'] || matrix.in['backend-config'] }}
+          TVP__BACKEND: ${{ matrix.in['backend'] }}
+          TVP__CHDIR: ${{ format('{0}{1}', env.TVP_CHDIR_PREFIX, matrix.in['chdir']) }}
+          TVP__CLOUD: ${{ matrix.in['cloud'] }}
+          TVP__COMPACT_WARNINGS: ${{ matrix.in['compact-warnings'] }}
+          TVP__DESTROY: ${{ matrix.in['destroy'] }}
+          TVP__FROM_MODULE: ${{ matrix.in['from-module'] }}
+          TVP__GET: ${{ matrix.in['get'] }}
+          TVP__IGNORE_REMOTE_VERSION: ${{ matrix.in['ignore-remote-version'] }}
+          TVP__LOCK_TIMEOUT: ${{ matrix.in['lock-timeout'] }}
+          TVP__LOCK: ${{ matrix.in['lock'] }}
+          TVP__LOCKFILE: ${{ matrix.in['lockfile'] }}
+          TVP__NO_TESTS: ${{ matrix.in['no-tests'] }}
+          TVP__PARALLELISM: ${{ matrix.in['parallelism'] }}
+          TVP__PLUGIN_DIR: ${{ matrix.in['plugin-dir'] }}
+          TVP__REFRESH_ONLY: ${{ matrix.in['refresh-only'] }}
+          TVP__REFRESH: ${{ matrix.in['refresh'] }}
+          TVP__REPLACE: ${{ matrix.in['replace'] }}
+          TVP__TARGET: ${{ matrix.in['target'] }}
+          TVP__TEST_DIRECTORY: ${{ matrix.in['test-directory'] }}
+          TVP__TF: ${{ matrix.in['tf'] }}
+          TVP__UPGRADE: ${{ matrix.in['upgrade'] }}
+          TVP__VAR_FILE: ${{ env.TVP_VAR_FILE_FROM_WORKSPACE && matrix.in['workspace'] || matrix.in['var-file'] }}
+          TVP__WORKSPACE: ${{ matrix.in['workspace'] }}
         run: |
-          # Iterate over all environment variables prefixed with "TF_COM_".
-          env | grep TF_COM_ | while read -r line; do
+          # Iterate over all environment variables prefixed with "TVP__".
+          env | grep TVP__ | while read -r line; do
             # Set the variable name from the string before the first equals sign.
             name=$(echo "$line" | cut -d= -f1)
-            # Set the argument key from the variable after removing the "TF_COM_"
+            # Set the argument key from the variable after removing the "TVP__"
             # prefix, converting it to lowercase, and replacing underscores with dashes.
-            # E.g., "TF_COM_CHDIR=path/to/dir" becomes "var-file".
-            key=$(echo "$name" | sed 's/^TF_COM_//' | sed 's/_/-/g' | tr '[:upper:]' '[:lower:]')
+            # E.g., "TVP__CHDIR=path/to/dir" becomes "var-file".
+            key=$(echo "$name" | sed 's/^TVP__//' | sed 's/_/-/g' | tr '[:upper:]' '[:lower:]')
             # Set the argument value from the variable after the first equals sign
             # and replacing spaces with escaped spaces to prevent splitting.
-            # E.g., "TF_COM_VAR_FILE=path/to/dir name" becomes "path/to/dir\ name".
+            # E.g., "TVP__VAR_FILE=path/to/dir name" becomes "path/to/dir\ name".
             value=$(echo "$line" | cut -d= -f2- | sed 's/ /\\ /g')
 
             # If the argument value is "true", then treat its key as a flag.
-            # E.g., "TF_COM_AUTO_APPROVE=true" becomes "-auto-approve".
+            # E.g., "TVP__AUTO_APPROVE=true" becomes "-auto-approve".
             if [ "$value" == "true" ]; then
               echo "$name=-$key" >> $GITHUB_ENV
             # If the argument value is non-empty, then pass it as-is.
-            # E.g., "TF_COM_CHDIR=path/to/dir" becomes "-chdir=path/to/dir".
+            # E.g., "TVP__CHDIR=path/to/dir" becomes "-chdir=path/to/dir".
             elif [ -n "$value" ]; then
               # If it contains one or more commas, then split on commas and
               # pass each value as a separate argument with the same key.
-              # E.g., "TF_COM_TARGET=resource.address1,resource.address2" becomes
+              # E.g., "TVP__TARGET=resource.address1,resource.address2" becomes
               # "-target=resource.address1 -target=resource.address2".
               if [ "$value" == "${value/,/}" ]; then
                 echo "$name=-$key=$value" >> $GITHUB_ENV
@@ -290,54 +303,70 @@ jobs:
             fi
           done
 
-          # Store the path to the terraform plan file for artifact upload/download.
-          echo "WORKING_DIRECTORY=$TF_COM_CHDIR" >> $GITHUB_ENV
-          echo "WORKING_DIRECTORY=$TF_COM_CHDIR" >> $GITHUB_OUTPUT
-          # Store a combination of the PR number and terraform command arguments
-          # for use as a unique identifier to reference the terraform plan file.
-          echo "TF_PLAN_ID=$(echo ${{ github.event.number || github.event.issue.number }}$TF_COM_BACKEND_CONFIG$TF_COM_CHDIR$TF_COM_VAR_FILE$TF_COM_WORKSPACE$TF_COM_DESTROY-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_ENV
-          echo "TF_PLAN_ID=$(echo ${{ github.event.number || github.event.issue.number }}$TF_COM_BACKEND_CONFIG$TF_COM_CHDIR$TF_COM_VAR_FILE$TF_COM_WORKSPACE$TF_COM_DESTROY-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_OUTPUT
+          # Store the path to the TF plan file for artifact upload/download.
+          echo "WORKING_DIRECTORY=$TVP__CHDIR" >> $GITHUB_ENV
+          echo "WORKING_DIRECTORY=$TVP__CHDIR" >> $GITHUB_OUTPUT
+          # Store a combination of the PR number and TF command arguments
+          # for use as a unique identifier to reference the TF plan file.
+          echo "TF_PLAN_ID=$(echo ${{ github.event.number || github.event.issue.number }}$TVP__BACKEND_CONFIG$TVP__CHDIR$TVP__VAR_FILE$TVP__WORKSPACE$TVP__DESTROY-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_ENV
+          echo "TF_PLAN_ID=$(echo ${{ github.event.number || github.event.issue.number }}$TVP__BACKEND_CONFIG$TVP__CHDIR$TVP__VAR_FILE$TVP__WORKSPACE$TVP__DESTROY-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_OUTPUT
+          # If "-backend-config" argument is present, then include any prefix and suffix.
+          if [ -n "$TVP__BACKEND_CONFIG" ]; then echo "TVP__BACKEND_CONFIG=-backend-config=$TVP_BACKEND_CONFIG_PREFIX$TVP__BACKEND_CONFIG$TVP_BACKEND_CONFIG_SUFFIX" >> $GITHUB_ENV; fi
           # If "-var-file" argument is present, then include any prefix and suffix.
-          if [ -n "$TF_COM_VAR_FILE" ]; then echo "TF_COM_VAR_FILE=-var-file=$CONFIG_TF_VAR_FILE_PREFIX$TF_COM_VAR_FILE$CONFIG_TF_VAR_FILE_SUFFIX" >> $GITHUB_ENV; fi
-          # If "-terraform=apply" is run without "-auto-approve", then ignore
-          # the "-var-file" argument so the that the terraform plan file is used.
-          if [ -z "$TF_COM_AUTO_APPROVE" ] && [ "$TF_COM_TERRAFORM" == "apply" ]; then echo "TF_COM_VAR_FILE=" >> $GITHUB_ENV; fi
+          if [ -n "$TVP__VAR_FILE" ]; then echo "TVP__VAR_FILE=-var-file=$TVP_VAR_FILE_PREFIX$TVP__VAR_FILE$TVP_VAR_FILE_SUFFIX" >> $GITHUB_ENV; fi
+          # If "-tf=apply" is run without "-auto-approve", then ignore
+          # the "-var-file" argument so the that the TF plan file is used.
+          if [ -z "$TVP__AUTO_APPROVE" ] && [ "$TVP__TF" == "apply" ]; then echo "TVP__VAR_FILE=" >> $GITHUB_ENV; fi
           # If "-auto-approve" is not supplied, then set it to read from "tfplan".
-          if [ -z "$TF_COM_AUTO_APPROVE" ]; then echo "TF_COM_AUTO_APPROVE=tfplan" >> $GITHUB_ENV; fi
+          if [ -z "$TVP__AUTO_APPROVE" ]; then echo "TVP__AUTO_APPROVE=tfplan" >> $GITHUB_ENV; fi
+          # If $TVP_CLI_USES is not set, then set it to "terraform".
+          if [ -z "$TVP_CLI_USES" ]; then echo "TVP_CLI_USES=terraform" >> $GITHUB_ENV; fi
 
-      - name: Terraform init
-        id: terraform_init
-        run: terraform $TF_COM_CHDIR init $TF_COM_BACKEND $TF_COM_BACKEND_CONFIG $TF_COM_CLOUD $TF_COM_FROM_MODULE $TF_COM_GET $TF_COM_IGNORE_REMOTE_VERSION $TF_COM_LOCK $TF_COM_LOCK_TIMEOUT $TF_COM_LOCKFILE $TF_COM_PLUGIN_DIR $TF_COM_UPGRADE
+      - name: TF init
+        id: tf_init
+        run: $TVP_CLI_USES $TVP__CHDIR init $TVP__BACKEND $TVP__BACKEND_CONFIG $TVP__CLOUD $TVP__FROM_MODULE $TVP__GET $TVP__IGNORE_REMOTE_VERSION $TVP__LOCK $TVP__LOCK_TIMEOUT $TVP__LOCKFILE $TVP__PLUGIN_DIR $TVP__UPGRADE
 
-      # If a terraform workspace is specified, then select it if it exists,
+      - name: TF validate
+        if: env.TVP_VALIDATE_ENABLE == 'true' || env.TVP_VALIDATE_ENABLE == ''
+        id: tf_validate
+        run: $TVP_CLI_USES $TVP__CHDIR validate $TVP__NO_TESTS $TVP__TEST_DIRECTORY
+
+      - name: TF fmt
+        id: tf_fmt
+        if: env.TVP_FMT_ENABLE == 'true' || env.TVP_FMT_ENABLE == ''
+        run: $TVP_CLI_USES $TVP__CHDIR fmt -check -diff -recursive
+        continue-on-error: true
+
+      # If a TF workspace is specified, then select it if it exists,
       # otherwise create a new one.
-      - name: Terraform workspace
-        id: terraform_workspace
+      - name: TF workspace
+        id: tf_workspace
         if: matrix.in['workspace'] != ''
-        run: terraform $TF_COM_CHDIR workspace select "${{ matrix.in['workspace'] }}" || terraform $TF_COM_CHDIR workspace new "${{ matrix.in['workspace'] }}"
+        run: $TVP_CLI_USES $TVP__CHDIR workspace select "${{ matrix.in['workspace'] }}" || $TVP_CLI_USES $TVP__CHDIR workspace new "${{ matrix.in['workspace'] }}"
 
-      - name: Terraform plan
-        id: terraform_plan
-        if: matrix.in['terraform'] == 'plan'
-        run: terraform $TF_COM_CHDIR plan -out=tfplan $TF_COM_COMPACT_WARNINGS $TF_COM_DESTROY $TF_COM_LOCK $TF_COM_LOCK_TIMEOUT $TF_COM_PARALLELISM $TF_COM_REFRESH $TF_COM_REFRESH_ONLY $TF_COM_REPLACE $TF_COM_TARGET $TF_COM_VAR_FILE
+      - name: TF plan
+        id: tf_plan
+        if: matrix.in['tf'] == 'plan'
+        run: $TVP_CLI_USES $TVP__CHDIR plan -out=tfplan $TVP__COMPACT_WARNINGS $TVP__DESTROY $TVP__LOCK $TVP__LOCK_TIMEOUT $TVP__PARALLELISM $TVP__REFRESH $TVP__REFRESH_ONLY $TVP__REPLACE $TVP__TARGET $TVP__VAR_FILE
 
-      # If "-terraform=plan" is successful, then upload the terraform plan file
+      # If "-tf=plan" is successful, then upload the TF plan file
       # as a zipped repository artifact with a unique identifier for later download.
-      - name: Upload terraform plan
-        if: matrix.in['terraform'] == 'plan' && steps.terraform_plan.outputs.exitcode == 0
+      - name: Upload TF plan
+        if: matrix.in['tf'] == 'plan' && steps.tf_plan.outputs.exitcode == 0
         uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         with:
           name: ${{ env.TF_PLAN_ID }}
           path: ${{ env.WORKING_DIRECTORY }}/tfplan
 
-      # If "-terraform=apply" is run without "-auto-approve", then get the download
-      # link for the most recently uploaded terraform plan file artifact which
+      # If "-tf=apply" is run without "-auto-approve", then get the download
+      # link for the most recently uploaded TF plan file artifact which
       # matches the unique identifier.
-      - name: Download terraform plan
+      - name: Download TF plan
         id: artifact_url
-        if: matrix.in['terraform'] == 'apply' && matrix.in['auto-approve'] == ''
+        if: matrix.in['tf'] == 'apply' && matrix.in['auto-approve'] == ''
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
+          result-encoding: string
           retries: 3
           script: |
             const { data: list_artifacts } = await github.rest.actions.listArtifactsForRepo({
@@ -354,66 +383,88 @@ jobs:
             });
             return download_artifact.url;
 
-      # Download the zipped repository artifact then unzip/inflate the terraform
+      # Download the zipped repository artifact then unzip/inflate the TF
       # plan file to the specified working directory.
-      - name: Unzip terraform plan
-        if: matrix.in['terraform'] == 'apply' && matrix.in['auto-approve'] == ''
-        run: wget -O ${{ env.TF_PLAN_ID }} ${{ steps.artifact_url.outputs.result }} && unzip ${{ env.TF_PLAN_ID }} -d "${{ env.WORKING_DIRECTORY }}"
+      - name: Unzip TF plan
+        if: matrix.in['tf'] == 'apply' && matrix.in['auto-approve'] == ''
+        run: wget -O "${{ env.TF_PLAN_ID }}" "${{ steps.artifact_url.outputs.result }}" && unzip "${{ env.TF_PLAN_ID }}" -d "${{ env.WORKING_DIRECTORY }}"
 
-      - name: Terraform apply
-        id: terraform_apply
-        if: matrix.in['terraform'] == 'apply'
-        run: terraform $TF_COM_CHDIR apply $TF_COM_COMPACT_WARNINGS $TF_COM_DESTROY $TF_COM_LOCK $TF_COM_LOCK_TIMEOUT $TF_COM_PARALLELISM $TF_COM_REFRESH $TF_COM_REFRESH_ONLY $TF_COM_REPLACE $TF_COM_TARGET $TF_COM_VAR_FILE $TF_COM_AUTO_APPROVE
+      - name: TF apply
+        id: tf_apply
+        if: matrix.in['tf'] == 'apply'
+        run: $TVP_CLI_USES $TVP__CHDIR apply $TVP__COMPACT_WARNINGS $TVP__DESTROY $TVP__LOCK $TVP__LOCK_TIMEOUT $TVP__PARALLELISM $TVP__REFRESH $TVP__REFRESH_ONLY $TVP__REPLACE $TVP__TARGET $TVP__VAR_FILE $TVP__AUTO_APPROVE
 
-      - name: Terraform force-unlock
-        id: terraform_force_unlock
-        if: matrix.in['terraform'] == 'force-unlock'
-        run: terraform $TF_COM_CHDIR force-unlock -force "${{ matrix.in['lock-id'] }}"
+      - name: TF force-unlock
+        id: tf_force_unlock
+        if: matrix.in['tf'] == 'force-unlock'
+        run: $TVP_CLI_USES $TVP__CHDIR force-unlock -force "${{ matrix.in['lock-id'] }}"
 
-      # Reduce terraform result verbosity for ease of legibility.
-      - name: Filter terraform result
-        id: terraform_result
-        if: ${{ (success() || failure()) && (steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr) }}
+      # Reduce TF result verbosity for ease of legibility.
+      - name: Filter TF result
+        id: tf_result
+        if: ${{ (success() || failure()) && (steps.tf_apply.outputs.stderr || steps.tf_apply.outputs.stdout || steps.tf_plan.outputs.stderr || steps.tf_plan.outputs.stdout || steps.tf_force_unlock.outputs.stderr || steps.tf_force_unlock.outputs.stdout || steps.tf_workspace.outputs.stderr || steps.tf_fmt.outputs.stdout || steps.tf_validate.outputs.stderr || steps.tf_init.outputs.stderr) }}
         run: |
           # Reduce the comment's verbosity by removing lines related to fetching
           # the state of resources. Due to GitHub's comment size limitation of
           # 64KB or a count of 65536, truncate above the last 64800 characters
-          # to capture the final change summary of the terraform command while
-          # leaving room for the comment's header and footer.
-          TF_RESULT_RAW=$(cat <<'EOTERRAFORM'
-          ${{ steps.terraform_apply.outputs.stderr || steps.terraform_apply.outputs.stdout || steps.terraform_plan.outputs.stderr || steps.terraform_plan.outputs.stdout || steps.terraform_force_unlock.outputs.stderr || steps.terraform_force_unlock.outputs.stdout || steps.terraform_workspace.outputs.stderr || steps.terraform_init.outputs.stderr }}
-          EOTERRAFORM
+          # to capture the final change summary of the TF command while leaving
+          # room for the comment's header and footer.
+          TF_RESULT_RAW=$(cat <<'EOTF'
+          ${{ steps.tf_apply.outputs.stderr || steps.tf_apply.outputs.stdout || steps.tf_plan.outputs.stderr || steps.tf_plan.outputs.stdout || steps.tf_force_unlock.outputs.stderr || steps.tf_force_unlock.outputs.stdout || steps.tf_workspace.outputs.stderr || steps.tf_validate.outputs.stderr || steps.tf_init.outputs.stderr }}
+          EOTF
           )
-          echo 'TF_RESULT<<EOTERRAFORM' >> $GITHUB_OUTPUT
+          echo 'TF_RESULT<<EOTF' >> $GITHUB_OUTPUT
           echo "$TF_RESULT_RAW" |
             grep -vE ': Creating...|: Creation complete after|: Destroying...|: Destruction complete after|: Modifications complete after|: Modifying...|: Provisioning with|: Read complete after|: Reading...|: Refreshing state...|: Still creating...|: Still destroying...|: Still modifying...|: Still reading...|. This may take a few moments...' |
             tail -c 64800 >> $GITHUB_OUTPUT
-          echo 'EOTERRAFORM' >> $GITHUB_OUTPUT
+          echo 'EOTF' >> $GITHUB_OUTPUT
 
-      # If any terraform commands are run, successfully or not, log the most
+          # As above, truncate after the first 7200 characters to capture the
+          # diff summary of the TF fmt.
+          TF_FMT_RAW=$(cat <<'EOTF'
+          ${{ steps.tf_fmt.outputs.stdout }}
+          EOTF
+          )
+          echo 'TF_FMT<<EOTF' >> $GITHUB_OUTPUT
+          echo "$TF_FMT_RAW" | head -c 7200 >> $GITHUB_OUTPUT
+          echo 'EOTF' >> $GITHUB_OUTPUT
+
+      # If any TF commands are run, successfully or not, log the most
       # recent result in a PR comment for review and debugging purposes.
-      - name: Comment terraform result
-        if: ${{ (success() || failure()) && steps.terraform_result.outcome == 'success' }}
+      - name: Comment TF result
+        if: ${{ (success() || failure()) && steps.tf_result.outcome == 'success' }}
         env:
           PROMPT_MATRIX: ${{ steps.environment_variables.outputs.PROMPT_MATRIX }}
-          TF_RESULT: ${{ steps.terraform_result.outputs.TF_RESULT }}
+          TF_RESULT: ${{ steps.tf_result.outputs.TF_RESULT }}
+          TF_FMT: ${{ steps.tf_result.outputs.TF_FMT }}
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
           retries: 3
           script: |
-            // Display the most recent terraform change summary as the header/
-            // title of the collapsible content.
+            // Display the most recent TF change summary as the header/title of
+            // the collapsible content.
             const comment_summary = process.env.TF_RESULT
               .split("\n")
               .reverse()
               .find((line) => /^(Apply|Plan|Error|No changes)/.test(line)) ||
-            "View terraform result…";
+            "View TF result…";
 
-            // Display the terraform command authorship before the terraform
-            // result as the body of the collapsible content. Include the TFPLAN
-            // name in a hidden footer as a unique identifier for comment updates.
+            // Display the truncated TF fmt enclosed in diff syntax, if present.
+            const comment_fmt = process.env.TF_FMT
+              ? `<details><summary>Diff of format changes.</summary>
+
+              \`\`\`diff
+              ${process.env.TF_FMT}
+              \`\`\`
+              </details>`
+              : "";
+
+            // Display the TF command authorship before the TF result as the
+            // body of the collapsible content. Include the TFPLAN name in a
+            // hidden footer as a unique identifier for comment updates.
             const comment_body = `
             \`${process.env.PROMPT_MATRIX}\`
+            ${comment_fmt}
             <details><summary>${comment_summary}</br>
 
             ###### ${{ github.workflow }} by @${{ github.actor }} via [${{ github.event_name }}](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}) at ${{ github.event.pull_request.updated_at || github.event.comment.updated_at }}.</summary>
@@ -425,13 +476,13 @@ jobs:
             <!-- ${process.env.TF_PLAN_ID} -->`;
 
             // Check if the bot has commented on the PR using the TFPLAN identifier.
-            const { data: comments } = await github.rest.issues.listComments({
+            const { data: list_comments } = await github.rest.issues.listComments({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               per_page: 100,
               repo: context.repo.repo,
             });
-            const bot_comment = comments.find((comment) => {
+            const bot_comment = list_comments.find((comment) => {
               return (
                 comment.user.type === "Bot" &&
                 comment.body.includes(`<!-- ${process.env.TF_PLAN_ID} -->`)
