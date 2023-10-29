@@ -1,6 +1,6 @@
-name: Terraform Via PR Comments — Reusable Workflow
+name: TF Via PR Comments — Reusable Workflow
 
-# This reusable workflow parses PR comments for terraform commands to run them
+# This reusable workflow parses PR comments for TF commands to run them
 # in parallel on the PR branch along with any environment variables passed:
 # https://github.com/devsectop/tf-via-pr/#readme.
 
@@ -22,51 +22,61 @@ on:
         description: "Matrix strategy of the last successfully completed job."
       TF_PLAN_ID:
         value: ${{ jobs.run.outputs.TF_PLAN_ID }}
-        description: "Unique identifier of the Terraform plan file, used for artifact upload/download and bot comment update."
+        description: "Unique identifier of the TF plan file, used for artifact upload/download and bot comment update."
       WORKING_DIRECTORY:
         value: ${{ jobs.run.outputs.WORKING_DIRECTORY }}
-        description: "Working directory of the Terraform configuration, used in `-chdir` argument."
+        description: "Working directory of the TF configuration, used in `-chdir` argument."
 
 permissions:
   actions: read # Required for downloading artifacts.
-  contents: read # Required by actions/checkout.
-  issues: read # Required by forxt0rted/pull-request-comment-branch.
-  pull-requests: write # Required for adding comments.
-  statuses: write # Required by myrotvorets/set-commit-status-action.
+  contents: read # Required for checking out repository.
+  issues: read # Required for getting PR branch.
+  pull-requests: write # Required for commenting on PR.
+  statuses: write # Required for setting commit status.
 
 jobs:
   pre:
-    # Parse the PR comment to output terraform commands to run on the PR branch.
-    # Run if the PR comment starts with "-terraform=" (standard command prefix)
-    # of if the PR has a label starting with "terraform:" (indicating this workflow
+    # Parse the PR comment to output TF commands to run on the PR branch.
+    # Run if the PR comment starts with "-tf=" (standard command prefix)
+    # of if the PR has a label starting with "tf:" (indicating this workflow
     # has already been run on the PR and may be run again).
-    if: startsWith(github.event.comment.body, '-terraform=') || contains(join(github.event.pull_request.labels.*.name), 'terraform:')
+    if: startsWith(github.event.comment.body, '-tf=') || contains(join(github.event.pull_request.labels.*.name), 'tf:')
     runs-on: ubuntu-latest
     outputs:
-      COMMENT_SHA: ${{ steps.get_branch.outputs.head_sha }}
+      COMMENT_SHA: ${{ steps.get_branch.outputs.result }}
       PARSED_COMMENT: ${{ steps.parse_comment.outputs.result }}
 
     steps:
       # For subsequent commits on the PR branch, automatically re-run the most
-      # recently added "-terraform=plan" comment instead of manually re-triggering.
+      # recently added "-tf=plan" comment instead of manually re-triggering.
       - name: Find comment
         id: find_comment
         if: github.event_name == 'pull_request'
-        uses: peter-evans/find-comment@a54c31d7fa095754bfef525c0c8e5e5674c4b4b1 # v2.4.0
+        uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         with:
-          body-regex: ^-terraform=plan.*
-          direction: last
-          issue-number: ${{ github.event.number }}
+          result-encoding: string
+          retries: 3
+          script: |
+            const { data: list_comments } = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              per_page: 100,
+              repo: context.repo.repo,
+            });
+            const find_comment = list_comments
+              .sort((a, b) => b.id - a.id)
+              .find((comment) => /^-tf=plan/.test(comment.body));
+            return find_comment?.body;
 
       # Split the PR comment on newlines and parse the lines as an array of objects
       # in the format [ {"key1": "value1"}, {"key1": "value1", "key2": "value2"} ].
-      # E.g., [ {"terraform": "apply", "chdir": "path/to/dir", "auto-approve": true} ]
+      # E.g., [ {"tf": "apply", "chdir": "path/to/dir", "auto-approve": true} ]
       - name: Parse comment
         id: parse_comment
-        if: github.event.issue.pull_request || steps.find_comment.outputs.comment-body
+        if: github.event.issue.pull_request || steps.find_comment.outputs.result
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
         env:
-          comment: ${{ github.event.comment.body || steps.find_comment.outputs.comment-body }}
+          comment: ${{ github.event.comment.body || steps.find_comment.outputs.result }}
         with:
           script: |
             return process.env.comment
