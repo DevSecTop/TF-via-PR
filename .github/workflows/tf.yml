@@ -99,7 +99,7 @@ jobs:
                 return obj;
               });
 
-      - name: Get comment branch using github-script
+      - name: Get comment branch
         id: get_branch
         if: github.event.issue.pull_request
         uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6.4.1
