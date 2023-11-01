@@ -228,7 +228,7 @@ jobs:
         with:
           cli_config_credentials_hostname: ${{ env.TVP_CLI_HOSTNAME }}
           cli_config_credentials_token: ${{ env.TVP_CLI_TOKEN }}
-          terraform_version: ~1.6
+          terraform_version: 1.6.0-alpha3
           terraform_wrapper: true
         # terraform_version: ${{ env.TVP_CLI_VERSION || 'latest' }}
 
