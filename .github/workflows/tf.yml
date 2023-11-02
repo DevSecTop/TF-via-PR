@@ -228,9 +228,8 @@ jobs:
         with:
           cli_config_credentials_hostname: ${{ env.TVP_CLI_HOSTNAME }}
           cli_config_credentials_token: ${{ env.TVP_CLI_TOKEN }}
-          terraform_version: 1.6.0-alpha2
+          terraform_version: ${{ env.TVP_CLI_VERSION || 'latest' }}
           terraform_wrapper: true
-        # terraform_version: ${{ env.TVP_CLI_VERSION || 'latest' }}
 
       - name: Setup OpenTofu
         if: env.TVP_CLI_USES == 'tofu'
@@ -238,8 +237,9 @@ jobs:
         with:
           cli_config_credentials_hostname: ${{ env.TVP_CLI_HOSTNAME }}
           cli_config_credentials_token: ${{ env.TVP_CLI_TOKEN }}
-          tofu_version: ${{ env.TVP_CLI_VERSION || 'latest' }}
+          tofu_version: ~1.6
           tofu_wrapper: true
+        # tofu_version: ${{ env.TVP_CLI_VERSION || 'latest' }}
 
       # For each possible TF command argument, process then pass them into
       # environment variables. E.g., "-chdir=path/to/dir", "-auto-approve", etc.
