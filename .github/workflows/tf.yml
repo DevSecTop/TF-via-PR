@@ -237,7 +237,7 @@ jobs:
         with:
           cli_config_credentials_hostname: ${{ env.TVP_CLI_HOSTNAME }}
           cli_config_credentials_token: ${{ env.TVP_CLI_TOKEN }}
-          tofu_version: ~1.6
+          tofu_version: ~v1.6
           tofu_wrapper: true
         # tofu_version: ${{ env.TVP_CLI_VERSION || 'latest' }}
 
