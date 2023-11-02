@@ -39,10 +39,10 @@ jobs:
         BASE64_AWS_ACCESS_KEY_ID=${{ needs.credentials.outputs.AWS_ACCESS_KEY_ID }}
         BASE64_AWS_SECRET_ACCESS_KEY=${{ needs.credentials.outputs.AWS_SECRET_ACCESS_KEY }}
         BASE64_AWS_SESSION_TOKEN=${{ needs.credentials.outputs.AWS_SESSION_TOKEN }}
-        TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
         TVP_CHDIR_PREFIX=stacks/
         TVP_CLI_USES=tofu
-      # TVP_CLI_VERSION=>=1.6 <2.0
+        TVP_CLI_VERSION=~1.6
+        TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
       # TF_LOG=debug
 
   results:

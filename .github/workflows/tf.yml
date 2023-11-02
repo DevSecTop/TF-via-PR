@@ -237,9 +237,8 @@ jobs:
         with:
           cli_config_credentials_hostname: ${{ env.TVP_CLI_HOSTNAME }}
           cli_config_credentials_token: ${{ env.TVP_CLI_TOKEN }}
-          tofu_version: '>=1.6.0 <1.7.0-0'
+          tofu_version: ${{ env.TVP_CLI_VERSION || 'latest' }}
           tofu_wrapper: true
-        # tofu_version: ${{ env.TVP_CLI_VERSION || 'latest' }}
 
       # For each possible TF command argument, process then pass them into
       # environment variables. E.g., "-chdir=path/to/dir", "-auto-approve", etc.

@@ -15,6 +15,8 @@ jobs:
       env_vars: |
         AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
         TVP_CHDIR_PREFIX=stacks/
+        TVP_CLI_USES=tofu
         TVP_CLI_VERSION=~1.6
+        TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
+      # TF_LOG=debug
