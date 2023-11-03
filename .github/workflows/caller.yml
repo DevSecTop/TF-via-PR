@@ -17,6 +17,6 @@ jobs:
         AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
         TVP_CHDIR_PREFIX=stacks/
         TVP_CLI_USES=tofu
-        TVP_CLI_VERSION=~1.6
+        TVP_CLI_VERSION=1.6.0-alpha3
         TF_VAR_PREFIX=${{ secrets.TF_VAR_PREFIX }}
       # TF_LOG=debug
