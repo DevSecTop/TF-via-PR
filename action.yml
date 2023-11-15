@@ -101,6 +101,24 @@ runs:
             id: get_comment.id,
           };
 
+    # Add PR comment reaction to indicate that the workflow is running.
+    - name: Add reaction
+      id: reaction
+      if: steps.comment.outcome == 'success' || steps.commit.outcome == 'success'
+      env:
+        comment_id: ${{ github.event.comment.id || fromJSON(steps.comment.outputs.result)['id'] }}
+      uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      with:
+        result-encoding: string
+        retries: 3
+        script: |
+          return (await github.rest.reactions.createForIssueComment({
+            comment_id: process.env.comment_id,
+            content: "eyes",
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          })).data.id;
+
     # Split and trim the PR comment, then parse it as an array of objects.
     # E.g., {tf:apply, chdir:path/to/dir, auto-approve:true}.
     - name: Parse command
@@ -108,19 +126,10 @@ runs:
       if: steps.comment.outcome == 'success' || steps.commit.outcome == 'success'
       env:
         comment_body: ${{ github.event.comment.body || fromJSON(steps.comment.outputs.result)['body'] }}
-        comment_id: ${{ github.event.comment.id || fromJSON(steps.comment.outputs.result)['id'] }}
       uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
       with:
         retries: 3
         script: |
-          // Add a reaction to the PR comment to indicate that the workflow is running.
-          const add_reaction = await github.rest.reactions.createForIssueComment({
-            comment_id: process.env.comment_id,
-            content: "eyes",
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-          });
-          //
           return process.env.comment_body
             // Split on newlines, removing empty lines and whitespace.
             .trim()
@@ -360,13 +369,13 @@ runs:
       id: apply
       if: fromJSON(steps.command.outputs.result)['tf'] == 'apply'
       shell: bash
-      run: $cli_uses ${{ steps.arguments.outputs.arg_chdir }} apply ${{ steps.arguments.outputs.arg_compact_warnings }} ${{ steps.arguments.outputs.arg_destroy }} ${{ steps.arguments.outputs.arg_lock }} ${{ steps.arguments.outputs.arg_lock_timeout }} ${{ steps.arguments.outputs.arg_parallelism }} ${{ steps.arguments.outputs.arg_refresh }} ${{ steps.arguments.outputs.arg_refresh_only }} ${{ steps.arguments.outputs.arg_replace }} ${{ steps.arguments.outputs.arg_target }} ${{ steps.arguments.outputs.arg_var_file }} ${{ steps.arguments.outputs.arg_auto_approve }}
+      run: ${{ inputs.cli_uses }} ${{ steps.arguments.outputs.arg_chdir }} apply ${{ steps.arguments.outputs.arg_compact_warnings }} ${{ steps.arguments.outputs.arg_destroy }} ${{ steps.arguments.outputs.arg_lock }} ${{ steps.arguments.outputs.arg_lock_timeout }} ${{ steps.arguments.outputs.arg_parallelism }} ${{ steps.arguments.outputs.arg_refresh }} ${{ steps.arguments.outputs.arg_refresh_only }} ${{ steps.arguments.outputs.arg_replace }} ${{ steps.arguments.outputs.arg_target }} ${{ steps.arguments.outputs.arg_var_file }} ${{ steps.arguments.outputs.arg_auto_approve }}
 
     - name: TF force-unlock
       id: force_unlock
       if: fromJSON(steps.command.outputs.result)['tf'] == 'force-unlock'
       shell: bash
-      run: $cli_uses ${{ steps.arguments.outputs.arg_chdir }} force-unlock -force "${{ fromJSON(steps.command.outputs.result)['lock-id'] }}"
+      run: ${{ inputs.cli_uses }} ${{ steps.arguments.outputs.arg_chdir }} force-unlock -force "${{ fromJSON(steps.command.outputs.result)['lock-id'] }}"
 
     # Render TF output with reduced verbosity for PR comment legibility.
     - name: Render TF output
@@ -399,10 +408,12 @@ runs:
     - name: Comment TF output
       if: ${{ (success() || failure()) && steps.render.outcome == 'success' }}
       env:
+        comment_id: ${{ github.event.comment.id || fromJSON(steps.comment.outputs.result)['id'] }}
+        reaction_id: ${{ steps.reaction.outputs.result }}
         tf_command: ${{ steps.command.outputs.result }}
         tf_fmt: ${{ steps.render.outputs.tf_fmt }}
-        tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
         tf_output: ${{ steps.render.outputs.tf_output }}
+        tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
       uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
       with:
         retries: 3
@@ -451,6 +462,14 @@ runs:
               comment.user.type === "Bot" &&
               comment.body.includes(`<!-- ${process.env.tf_plan_id} -->`)
             );
+          });
+
+          // Delete PR comment reaction to indicate that the workflow has ended.
+          const delete_reaction = await github.rest.reactions.deleteForIssueComment({
+            comment_id: process.env.comment_id,
+            owner: context.repo.owner,
+            reaction_id: process.env.reaction_id,
+            repo: context.repo.repo,
           });
 
           // If a bot comment exists with a matching TFPLAN identifier, then update
