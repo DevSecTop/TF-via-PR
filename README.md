@@ -62,29 +62,29 @@ steps:
 Use-case scenario: Provision resources in a workspaces with input variables, followed by targeted destruction. [View PR in situ][pr_example_1].
 
 ```bash
-#1 PR Comment: Plan configuration in a workspace with input variable file.
+#1 PR Comment: Plan configuration in a workspace with a variable file.
 -tf=plan -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 
-#2 PR Comment: Apply configuration in a workspace with input variable file.
+#2 PR Comment: Apply configuration in a workspace with a variable file.
 -tf=apply -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 
-#3 PR Comment: Plan destruction of targeted resources in a workspace with input variable file.
+#3 PR Comment: Plan destruction of targeted resources in a workspace with a variable file.
 -tf=plan -destroy -target=aws_instance.sample,data.aws_ami.ubuntu -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 
-#4 PR Comment: Apply destruction of targeted resources in a workspace with input variable file.
+#4 PR Comment: Apply destruction of targeted resources in a workspace with a variable file.
 -tf=apply -destroy -target=aws_instance.sample,data.aws_ami.ubuntu -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 ```
 
 Use-case scenario: Provision resources with a backend, followed by destruction without confirmation, simultaneously. [View PR in situ][pr_example_2].
 
 ```bash
-#1 PR Comment: Plan multiple configurations with different backends.
+#1 PR Comment: Plan configuration with a backend file.
 -tf=plan -chdir=stacks/sample_bucket -backend-config=backend/dev.tfbackend
 
-#2 PR Comment: Apply multiple configurations with different backends.
+#2 PR Comment: Apply configuration with a backend file.
 -tf=apply -chdir=stacks/sample_bucket -backend-config=backend/dev.tfbackend
 
-#3 PR Comment: Destroy multiple configurations with different backends without confirmation.
+#3 PR Comment: Destroy configuration with a backend file without confirmation.
 -tf=apply -destroy -auto-approve -chdir=stacks/sample_bucket -backend-config=backend/dev.tfbackend
 ```
 
@@ -150,8 +150,8 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 [issue]: https://github.com/devsectop/tf-via-pr/issues "Raise an issue."
 [license]: LICENSE "Apache License 2.0."
 [opentofu_org]: https://opentofu.org "Open-source Terraform-compatible IaC tool."
-[pr_example_1]: https://github.com/devsectop/tf-via-pr/pull/121 "Example PR for this use-case scenario."
-[pr_example_2]: https://github.com/devsectop/tf-via-pr/pull/122 "Example PR for this use-case scenario."
+[pr_example_1]: https://github.com/devsectop/tf-via-pr/pull/164 "Example PR for this use-case scenario."
+[pr_example_2]: https://github.com/devsectop/tf-via-pr/pull/166 "Example PR for this use-case scenario."
 [pull_request]: https://github.com/devsectop/tf-via-pr/pulls "Create a pull request."
 [rishav_dhar]: https://github.com/rdhar "Rishav Dhar's GitHub profile."
 [securing_github_actions]: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions "Security hardening for GitHub Actions."
