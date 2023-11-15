@@ -24,4 +24,3 @@ output "sample_instance_id" {
   description = "ID of the sample EC2 instance."
   value       = aws_instance.sample.id
 }
-
