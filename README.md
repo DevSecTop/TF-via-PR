@@ -135,6 +135,11 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 - Please [open a discussion][discussion] to share ideas about where you'd like to see this project go.
 - Please [consider becoming a stargazer][stargazer] if you find this project useful.
 
+## Changelog
+
+- All notable changes to this project will be documented in human-friendly [releases][releases].
+- The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
+
 ## License
 
 - This project is licensed under the permissive [Apache License 2.0][license].
@@ -153,6 +158,7 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 [pr_example_1]: https://github.com/devsectop/tf-via-pr/pull/164 "Example PR for this use-case scenario."
 [pr_example_2]: https://github.com/devsectop/tf-via-pr/pull/166 "Example PR for this use-case scenario."
 [pull_request]: https://github.com/devsectop/tf-via-pr/pulls "Create a pull request."
+[releases]: https://github.com/devsectop/tf-via-pr/releases "Releases."
 [rishav_dhar]: https://github.com/rdhar "Rishav Dhar's GitHub profile."
 [securing_github_actions]: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions "Security hardening for GitHub Actions."
 [semver]: https://www.npmjs.com/package/semver#ranges "Semantic versioning ranges."
