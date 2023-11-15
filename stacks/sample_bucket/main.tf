@@ -9,5 +9,5 @@ module "sample_bucket" {
 # Output the ID of the sample S3 bucket.
 output "sample_bucket_id" {
   description = "ID of the sample S3 bucket."
-  value       = module.sample_bucket.id
+  value        = module.sample_bucket.id
 }
