@@ -6,7 +6,6 @@ module "sample_bucket" {
   bucket_versioning = var.bucket_versioning
 }
 
-
 # Output the ID of the sample S3 bucket.
 output "sample_bucket_id" {
   description = "ID of the sample S3 bucket."
