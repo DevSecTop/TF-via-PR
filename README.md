@@ -6,11 +6,14 @@
 
 [Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Examples](#examples) · [Parameters](#parameters)] · [Security](#security) · [License](#license)
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_light.png">
-  <img alt="Shows the screenshot of a PR conversation with the author triggering the workflow using a TF command within a comment and github-actions bot responding with the aforementioned TF command's output in a subsequent comment." src="assets/screenshot_dark.png">
-</picture>
+<figure>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_light.png">
+    <img alt="Screenshot of the author's TF command in a PR comment followed by github-action bot's TF output response in the next comment." src="assets/screenshot_dark.png">
+  </picture>
+  <figcaption><a href="https://github.com/devsectop/tf-via-pr-comments/pull/166" title="View the PR conversation referenced in the screenshot.">View PR in situ</a>: Screenshot of the author's TF command in a PR comment followed by github-action bot's TF output response in the next comment.</figcaption>
+</figure>
 
 ## Overview
 
