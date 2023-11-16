@@ -52,7 +52,7 @@ on:
 ...
 steps:
   - name: Provision TF
-    uses: devsectop/tf-via-pr@v9
+    uses: devsectop/tf-via-pr-comments@v9
     with:
       cli_uses: "terraform"
       cli_version: "~1.6"
@@ -156,18 +156,18 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 [configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [configure_oidc]: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-cloud-providers "Configuring OpenID Connect in cloud providers."
 [deployment_protection]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules "Configuring environment deployment protection rules."
-[discussion]: https://github.com/devsectop/tf-via-pr/discussions "Open a discussion."
+[discussion]: https://github.com/devsectop/tf-via-pr-comments/discussions "Open a discussion."
 [github_codespaces]: https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers "Introduction to GitHub Codespaces."
-[issue]: https://github.com/devsectop/tf-via-pr/issues "Raise an issue."
+[issue]: https://github.com/devsectop/tf-via-pr-comments/issues "Raise an issue."
 [license]: LICENSE "Apache License 2.0."
 [opentofu_org]: https://opentofu.org "Open-source Terraform-compatible IaC tool."
-[pr_example_1]: https://github.com/devsectop/tf-via-pr/pull/164 "Example PR for this use-case scenario."
-[pr_example_2]: https://github.com/devsectop/tf-via-pr/pull/166 "Example PR for this use-case scenario."
-[pull_request]: https://github.com/devsectop/tf-via-pr/pulls "Create a pull request."
-[releases]: https://github.com/devsectop/tf-via-pr/releases "Releases."
+[pr_example_1]: https://github.com/devsectop/tf-via-pr-comments/pull/164 "Example PR for this use-case scenario."
+[pr_example_2]: https://github.com/devsectop/tf-via-pr-comments/pull/166 "Example PR for this use-case scenario."
+[pull_request]: https://github.com/devsectop/tf-via-pr-comments/pulls "Create a pull request."
+[releases]: https://github.com/devsectop/tf-via-pr-comments/releases "Releases."
 [rishav_dhar]: https://github.com/rdhar "Rishav Dhar's GitHub profile."
 [securing_github_actions]: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions "Security hardening for GitHub Actions."
 [semver]: https://www.npmjs.com/package/semver#ranges "Semantic versioning ranges."
-[stargazer]: https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer."
+[stargazer]: https://github.com/devsectop/tf-via-pr-comments/stargazers "Become a stargazer."
 [terraform_io]: https://www.terraform.io "Terraform by Hashicorp."
 [tf_yml]: .github/workflows/tf.yml "Example workflow for running TF commands via PR comments with AWS authentication."

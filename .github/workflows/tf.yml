@@ -31,7 +31,7 @@ jobs:
         id: tf
         env:
           TF_VAR_PREFIX: ${{ secrets.TF_VAR_PREFIX }}
-        uses: devsectop/tf-via-pr@v9
+        uses: devsectop/tf-via-pr-comments@v9
         with:
           cli_uses: "terraform"
           cli_version: "~1.6"
