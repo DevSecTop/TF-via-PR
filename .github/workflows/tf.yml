@@ -21,12 +21,6 @@ jobs:
       statuses: write # Required for setting commit status.
 
     steps:
-      # TODO
-      - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        with:
-          ref: ${{ github.head_ref || format('refs/pull/{0}/merge', github.event.issue.number) }}
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a # v4.0.1
         with:
@@ -35,11 +29,9 @@ jobs:
 
       - name: Provision TF
         id: tf
-        # TODO
-        # uses: devsectop/tf-via-pr@v9
-        uses: ./
         env:
           TF_VAR_PREFIX: ${{ secrets.TF_VAR_PREFIX }}
+        uses: devsectop/tf-via-pr-comments@v9
         with:
           cli_uses: "terraform"
           cli_version: "~1.6"
