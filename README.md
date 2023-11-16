@@ -6,6 +6,12 @@
 
 [Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Examples](#examples) · [Parameters](#parameters)] · [Security](#security) · [Contributions](#contributions) · [License](#license)
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_light.png">
+  <img alt="Shows a screenshot of PR conversation with the author triggering the workflow using a TF command within a comment and github-actions bot responding with the aforementioned TF command's output in a subsequent comment." src="assets/screenshot_dark.png">
+</picture>
+
 ## Overview
 
 <details><summary>Terraform and OpenTofu are platform-agnostic tools for managing cloud and on-prem resources by provisioning infrastructure as code (IaC).</summary>
