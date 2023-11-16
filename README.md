@@ -70,7 +70,7 @@ steps:
 
 ### Examples
 
-Use-case scenario: Provision resources in a workspaces with input variables, followed by targeted destruction. [View PR in situ][pr_example_1].
+Use-case scenario: Provision resources in a workspace with a variable file, followed by targeted destruction. [View PR in situ][pr_example_1].
 
 ```bash
 #1 PR Comment: Plan configuration in a workspace with a variable file.
