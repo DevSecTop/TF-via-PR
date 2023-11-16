@@ -13,7 +13,8 @@
     <img alt="Screenshot of the author's TF command in a PR comment followed by github-action bot's TF output response in the next comment." src="assets/screenshot_dark.png">
   </picture>
   <figcaption>
-    <a href="https://github.com/devsectop/tf-via-pr-comments/pull/166" title="View the PR conversation referenced in the screenshot.">View PR in situ</a>: Screenshot of the author's TF command in a PR comment followed by github-action bot's TF output response in the next comment.</figcaption>
+    </br><a href="https://github.com/devsectop/tf-via-pr-comments/pull/166" title="View the PR conversation referenced in the screenshot.">View PR in situ</a>: Screenshot of the author's TF command in a PR comment followed by github-action bot's TF output response in the next comment.
+  </figcaption>
 </figure>
 
 ## Overview
