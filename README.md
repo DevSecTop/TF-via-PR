@@ -152,10 +152,6 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 - All works herein are my own and shared of my own volition.
 - Copyright 2023 [Rishav Dhar][rishav_dhar] — All wrongs reserved.
 
-[link 1](https://github.com/devsectop/tf-via-pr/blob/main/.github/workflows/tf.yml)
-[link 2](/.github/workflows/tf.yml)
-[link 3](.github/workflows/tf.yml)
-
 [action_yml]: action.yml "Composite action workflow for running TF commands via PR comments."
 [configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [configure_oidc]: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-cloud-providers "Configuring OpenID Connect in cloud providers."
@@ -174,4 +170,4 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 [semver]: https://www.npmjs.com/package/semver#ranges "Semantic versioning ranges."
 [stargazer]: https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer."
 [terraform_io]: https://www.terraform.io "Terraform by Hashicorp."
-[tf_yml]: https://github.com/devsectop/tf-via-pr/blob/main/.github/workflows/tf.yml "Example workflow for running TF commands via PR comments with AWS authentication."
+[tf_yml]: .github/workflows/tf.yml "Example workflow for running TF commands via PR comments with AWS authentication."
