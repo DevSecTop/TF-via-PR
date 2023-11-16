@@ -152,7 +152,11 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 - All works herein are my own and shared of my own volition.
 - Copyright 2023 [Rishav Dhar][rishav_dhar] — All wrongs reserved.
 
-[action_yml]: https://github.com/devsectop/tf-via-pr/blob/main/.github/workflows/tf.yml "Composite action workflow for running TF commands via PR comments."
+[link 1](https://github.com/devsectop/tf-via-pr/blob/main/.github/workflows/tf.yml)
+[link 2](/.github/workflows/tf.yml)
+[link 3](.github/workflows/tf.yml)
+
+[action_yml]: action.yml "Composite action workflow for running TF commands via PR comments."
 [configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [configure_oidc]: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-cloud-providers "Configuring OpenID Connect in cloud providers."
 [deployment_protection]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules "Configuring environment deployment protection rules."
