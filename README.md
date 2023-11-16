@@ -4,7 +4,7 @@
 >
 > Plan and apply changes to Terraform or OpenTofu (TF) configurations via pull request (PR) comments: for a CLI-like experience on the web. Powered by GitHub Actions to maximize compatibility and minimize maintenance for DIY deployments.
 
-[Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Examples](#examples) · [Parameters](#parameters)] · [Security](#security) · [Contributions](#contributions) · [License](#license)
+[Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Examples](#examples) · [Parameters](#parameters)] · [Security](#security) · [License](#license)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
@@ -132,14 +132,14 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 - Restrict changes to certain environments with [deployment protection rules][deployment_protection] or `apply_require_approval` so that approval is required from authorized users/teams before changes to the infrastructure can be applied.
 - Ease of integration with [OpenID Connect][configure_oidc] by passing short-lived credentials as environment variables to the workflow.
 
-## Contributions
-
-All forms of contribution are very welcome and deeply appreciated for fostering open-source projects.
-
-- Please [create a PR][pull_request] to contribute changes you'd like to see.
-- Please [raise an issue][issue] to discuss proposed changes or report unexpected behavior.
-- Please [open a discussion][discussion] to share ideas about where you'd like to see this project go.
-- Please [consider becoming a stargazer][stargazer] if you find this project useful.
+> [!NOTE]
+>
+> All forms of contribution are very welcome and deeply appreciated for fostering open-source projects.
+>
+> - Please [create a PR][pull_request] to contribute changes you'd like to see.
+> - Please [raise an issue][issue] to discuss proposed changes or report unexpected behavior.
+> - Please [open a discussion][discussion] to share ideas about where you'd like to see this project go.
+> - Please [consider becoming a stargazer][stargazer] if you find this project useful.
 
 ## Changelog
 
