@@ -137,12 +137,6 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 - All notable changes to this project will be documented in human-friendly [releases][releases].
 - The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
 
-## License
-
-- This project is licensed under the permissive [Apache License 2.0][license].
-- All works herein are my own and shared of my own volition.
-- Copyright 2023 [Rishav Dhar][rishav_dhar] — All wrongs reserved.
-
 > [!NOTE]
 >
 > All forms of contribution are very welcome and deeply appreciated for fostering open-source projects.
@@ -151,6 +145,12 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 > - Please [raise an issue][issue] to discuss proposed changes or report unexpected behavior.
 > - Please [open a discussion][discussion] to share ideas about where you'd like to see this project go.
 > - Please [consider becoming a stargazer][stargazer] if you find this project useful.
+
+## License
+
+- This project is licensed under the permissive [Apache License 2.0][license].
+- All works herein are my own and shared of my own volition.
+- Copyright 2023 [Rishav Dhar][rishav_dhar] — All wrongs reserved.
 
 [action_yml]: https://github.com/devsectop/tf-via-pr/blob/main/.github/workflows/tf.yml "Composite action workflow for running TF commands via PR comments."
 [configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
