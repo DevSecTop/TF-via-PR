@@ -4,7 +4,7 @@
 >
 > Plan and apply changes to Terraform or OpenTofu (TF) configurations via pull request (PR) comments: for a CLI-like experience on the web. Powered by GitHub Actions to maximize compatibility and minimize maintenance for DIY deployments.
 
-[Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Examples](#examples) · [Parameters](#parameters)] · [Security](#security) · [License](#license)
+[Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Examples](#examples) · [Parameters](#parameters)] · [Security](#security)· [Changelog](#changelog) · [License](#license)
 
 <figure>
   <picture>
