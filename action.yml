@@ -1,6 +1,6 @@
 name: "TF Via PR Comments"
 author: "Rishav Dhar (@rdhar)"
-description: "Run TF commands by parsing PR comments on their branch (https://github.com/devsectop/tf-via-pr-comments)"
+description: "GitHub Action to run Terraform or OpenTofu CLI commands via PR comments."
 
 branding:
   color: "purple"
