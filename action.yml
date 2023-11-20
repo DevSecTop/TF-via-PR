@@ -57,7 +57,7 @@ runs:
     - name: Add commit status
       id: commit
       if: github.event.issue.pull_request
-      uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
         script: |
@@ -83,7 +83,7 @@ runs:
     - name: Find comment
       id: comment
       if: github.event_name == 'pull_request'
-      uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
         script: |
@@ -107,7 +107,7 @@ runs:
       if: steps.comment.outcome == 'success' || steps.commit.outcome == 'success'
       env:
         comment_id: ${{ github.event.comment.id || fromJSON(steps.comment.outputs.result)['id'] }}
-      uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         result-encoding: string
         retries: 3
@@ -126,7 +126,7 @@ runs:
       if: steps.comment.outcome == 'success' || steps.commit.outcome == 'success'
       env:
         comment_body: ${{ github.event.comment.body || fromJSON(steps.comment.outputs.result)['body'] }}
-      uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
         script: |
@@ -154,7 +154,7 @@ runs:
     # E.g., "tf:plan", "tf:apply", "tf:force-unlock", etc.
     - name: Add PR label
       if: (!contains(join(github.event.pull_request.labels.*.name), format('tf:{0}', fromJSON(steps.command.outputs.result)['tf'])))
-      uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
         script: |
@@ -176,7 +176,7 @@ runs:
     # review state is approved. If not, then exit the workflow with a failure.
     - name: Check PR approval
       if: inputs.apply_require_approval == 'true' && fromJSON(steps.command.outputs.result)['tf'] == 'apply'
-      uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
         script: |
@@ -340,7 +340,7 @@ runs:
     - name: Get TF plan file
       id: artifact_url
       if: fromJSON(steps.command.outputs.result)['tf'] == 'apply' && fromJSON(steps.command.outputs.result)['auto-approve'] == ''
-      uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         result-encoding: string
         retries: 3
@@ -414,7 +414,7 @@ runs:
         tf_fmt: ${{ steps.render.outputs.tf_fmt }}
         tf_output: ${{ steps.render.outputs.tf_output }}
         tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
-      uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
         script: |
@@ -494,7 +494,7 @@ runs:
     # On issue_comment, update commit status with job status before exiting.
     - name: Update commit status
       if: ${{ (success() || failure()) && github.event.issue.pull_request }}
-      uses: actions/github-script@e69ef5462fd455e02edcaf4dd7708eda96b9eda0 # v7.0.0
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
         script: |
