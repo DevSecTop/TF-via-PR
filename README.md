@@ -1,4 +1,4 @@
-# Terraform/OpenTofu via Pull Request Comments
+# Terraform/OpenTofu via PR Comments
 
 > [!IMPORTANT]
 >
@@ -26,7 +26,7 @@
 
 </details>
 
-<details><summary>Best suited for DevOps and Platform engineers who want to empower their teams to self-service TF without the overhead of self-hosting runners, containers or VMs like <a href="https://www.runatlantis.io" title="Atlantis Terraform pull request automation.">Atlantis</a>.</summary>
+<details><summary>Best suited for DevOps and Platform engineers who want to empower their teams to self-service TF without the overhead of self-hosting runners, containers or VMs like <a href="https://www.runatlantis.io" title="Atlantis Terraform PR automation.">Atlantis</a>.</summary>
 
 - [Environment deployment protection rules][deployment_protection] mitigate the risk of erroneous changes along with standardized approval requirements.
 - Each PR and associated workflow run holds a complete log of infrastructure changes for ease of collaborative debugging as well as audit compliance.
