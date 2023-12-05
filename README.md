@@ -1,4 +1,4 @@
-# Terraform/OpenTofu Via Pull Request Comments
+# Terraform/OpenTofu via Pull Request Comments
 
 > [!IMPORTANT]
 >

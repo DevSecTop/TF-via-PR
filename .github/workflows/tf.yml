@@ -1,4 +1,4 @@
-name: TF Via PR Comments
+name: Terraform/Opentofu via Pull Request Comments
 
 on:
   issue_comment:
