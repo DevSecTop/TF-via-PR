@@ -5,15 +5,3 @@ updates:
     directory: /
     schedule:
       interval: daily
-
-  # Wildcard support: https://github.com/dependabot/dependabot-core/issues/2178
-
-  - package-ecosystem: terraform
-    directory: stacks/sample_bucket
-    schedule:
-      interval: monthly
-
-  - package-ecosystem: terraform
-    directory: stacks/sample_instance
-    schedule:
-      interval: monthly
