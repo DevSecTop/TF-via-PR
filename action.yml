@@ -333,6 +333,7 @@ runs:
       uses: actions/upload-artifact@694cdabd8bdb0f10b2cea11669e1bf5453eed0a6 # v4.2.0
       with:
         name: ${{ steps.arguments.outputs.tf_plan_id }}
+        overwrite: true
         path: ${{ steps.arguments.outputs.tf_cwd }}/tfplan
 
     # If "-tf=apply" is run without "-auto-approve", then get the download link
