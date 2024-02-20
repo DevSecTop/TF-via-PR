@@ -61,22 +61,8 @@ runs:
       with:
         retries: 3
         script: |
-          const { data: get_pull_request } = await github.rest.pulls.get({
-            owner: context.repo.owner,
-            pull_number: context.issue.number,
-            repo: context.repo.repo,
-          });
-          const add_pending_status = await github.rest.repos.createCommitStatus({
-            context: "${{ github.workflow }}",
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            sha: get_pull_request.head.sha,
-            state: "pending",
-            target_url: "${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}",
-          });
-          return {
-            sha: get_pull_request.head.sha
-          };
+          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_commit_status.js`);
+          await script({ github, context, core });
 
     # For subsequent commits on the PR branch, automatically re-run the most
     # recently added "-tf=plan" comment instead of manually re-triggering it.
@@ -87,37 +73,22 @@ runs:
       with:
         retries: 3
         script: |
-          const { data: list_comments } = await github.rest.issues.listComments({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            per_page: 100,
-            repo: context.repo.repo,
-          });
-          const get_comment = list_comments
-            .sort((a, b) => b.id - a.id)
-            .find((comment) => /^-tf=plan/.test(comment.body));
-          return {
-            body: get_comment.body,
-            id: get_comment.id,
-          };
+          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/find_comment.js`);
+          await script({ github, context, core });
 
     # Add PR comment reaction to indicate that the workflow is running.
     - name: Add reaction
       id: reaction
       if: steps.comment.outcome == 'success' || steps.commit.outcome == 'success'
       env:
-        comment_id: ${{ github.event.comment.id || fromJSON(steps.comment.outputs.result)['id'] }}
+        comment_id: ${{ github.event.comment.id || steps.comment.outputs.id }}
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         result-encoding: string
         retries: 3
         script: |
-          return (await github.rest.reactions.createForIssueComment({
-            comment_id: process.env.comment_id,
-            content: "eyes",
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-          })).data.id;
+          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_reaction.js`);
+          await script({ github, context, core });
 
     # Split and trim the PR comment, then parse it as an array of objects.
     # E.g., {tf:apply, chdir:path/to/dir, auto-approve:true}.
@@ -125,7 +96,7 @@ runs:
       id: command
       if: steps.comment.outcome == 'success' || steps.commit.outcome == 'success'
       env:
-        comment_body: ${{ github.event.comment.body || fromJSON(steps.comment.outputs.result)['body'] }}
+        comment_body: ${{ github.event.comment.body || steps.comment.outputs.body }}
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
@@ -158,19 +129,8 @@ runs:
       with:
         retries: 3
         script: |
-          const add_label = await github.rest.issues.addLabels({
-            issue_number: context.issue.number,
-            labels: ["tf:${{ fromJSON(steps.command.outputs.result)['tf'] }}"],
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-          });
-          const update_label = await github.rest.issues.updateLabel({
-            color: "${{ inputs.cli_uses == 'tofu' && 'FFDA18' || '5C4EE5' }}",
-            description: "Pull requests that ${{ fromJSON(steps.command.outputs.result)['tf'] }} TF code",
-            name: "tf:${{ fromJSON(steps.command.outputs.result)['tf'] }}",
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-          });
+          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_pr_label.js`);
+          await script({ github, context, label: "${{ fromJSON(steps.command.outputs.result)['tf'] }}", cli_uses: "${{ inputs.cli_uses }}" });
 
     # If apply_require_approval is set to "true", then verify that the PR
     # review state is approved. If not, then exit the workflow with a failure.
@@ -180,15 +140,8 @@ runs:
       with:
         retries: 3
         script: |
-          const { data: list_reviews } = await github.rest.pulls.listReviews({
-            owner: context.repo.owner,
-            pull_number: context.issue.number,
-            repo: context.repo.repo,
-          });
-          if (list_reviews.at(-1)
-            ?.state !== "APPROVED") {
-            core.setFailed("PR review approval is required when apply_require_approval is set to true.");
-          }
+          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/check_pr_approval.js`);
+          await script({ github, context, core });
 
     - name: Setup Terraform
       if: inputs.cli_uses == 'terraform' || inputs.cli_uses == ''
@@ -346,25 +299,14 @@ runs:
         result-encoding: string
         retries: 3
         script: |
-          const { data: list_artifacts } = await github.rest.actions.listArtifactsForRepo({
-            name: "${{ steps.arguments.outputs.tf_plan_id }}",
-            owner: context.repo.owner,
-            per_page: 100,
-            repo: context.repo.repo,
-          });
-          const download_artifact = await github.rest.actions.downloadArtifact({
-            archive_format: "zip",
-            artifact_id: list_artifacts.artifacts[0].id,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-          });
-          return download_artifact.url;
+          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/get_tf_plan_file.js`);
+          await script({ github, context, core, tf_plan_id: "${{ steps.arguments.outputs.tf_plan_id }}" });
 
     # Download and unzip the TF plan file to the specified working directory.
     - name: Download and unzip TF plan file
       if: fromJSON(steps.command.outputs.result)['tf'] == 'apply' && fromJSON(steps.command.outputs.result)['auto-approve'] == ''
       shell: bash
-      run: wget -O "${{ steps.arguments.outputs.tf_plan_id }}" "${{ steps.artifact_url.outputs.result }}" && unzip "${{ steps.arguments.outputs.tf_plan_id }}" -d "${{ steps.arguments.outputs.tf_cwd }}"
+      run: wget -O "${{ steps.arguments.outputs.tf_plan_id }}" "${{ steps.artifact_url.outputs.link }}" && unzip "${{ steps.arguments.outputs.tf_plan_id }}" -d "${{ steps.arguments.outputs.tf_cwd }}"
 
     - name: TF apply
       id: apply
@@ -409,8 +351,8 @@ runs:
     - name: Comment TF output
       if: ${{ (success() || failure()) && steps.render.outcome == 'success' }}
       env:
-        comment_id: ${{ github.event.comment.id || fromJSON(steps.comment.outputs.result)['id'] }}
-        reaction_id: ${{ steps.reaction.outputs.result }}
+        comment_id: ${{ github.event.comment.id || steps.comment.outputs.id }}
+        reaction_id: ${{ steps.reaction.outputs.id }}
         tf_command: ${{ steps.command.outputs.result }}
         tf_fmt: ${{ steps.render.outputs.tf_fmt }}
         tf_output: ${{ steps.render.outputs.tf_output }}
@@ -419,78 +361,8 @@ runs:
       with:
         retries: 3
         script: |
-          // Display latest TF change summary as the output header.
-          const comment_summary = process.env.tf_output
-            .split("\n")
-            .reverse()
-            .find((line) => /^(Apply|Plan|Error|No changes)/.test(line)) ||
-            "View TF result…";
-
-          // Display truncated TF fmt diff, if present.
-          const comment_fmt = process.env.tf_fmt ?
-            `<details><summary>Diff of format changes.</summary>
-
-            \`\`\`diff
-            ${process.env.tf_fmt}
-            \`\`\`
-            </details>` :
-            "";
-
-          // Display the: TF command, TF output, and workflow authorship.
-          // Include the TFPLAN name in a hidden footer as a unique identifier.
-          const comment_body = `
-          \`${process.env.tf_command}\`
-          ${comment_fmt}
-          <details><summary>${comment_summary}</br>
-
-          ###### ${{ github.workflow }} by @${{ github.actor }} via [${{ github.event_name }}](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}) at ${{ github.event.pull_request.updated_at || github.event.comment.updated_at }}.</summary>
-
-          \`\`\`hcl
-          ${process.env.tf_output}
-          \`\`\`
-          </details>
-          <!-- ${process.env.tf_plan_id} -->`;
-
-          // Check if the bot has commented on the PR using the TFPLAN identifier.
-          const { data: list_comments } = await github.rest.issues.listComments({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            per_page: 100,
-            repo: context.repo.repo,
-          });
-          const bot_comment = list_comments.find((comment) => {
-            return (
-              comment.user.type === "Bot" &&
-              comment.body.includes(`<!-- ${process.env.tf_plan_id} -->`)
-            );
-          });
-
-          // Delete PR comment reaction to indicate that the workflow has ended.
-          const delete_reaction = await github.rest.reactions.deleteForIssueComment({
-            comment_id: process.env.comment_id,
-            owner: context.repo.owner,
-            reaction_id: process.env.reaction_id,
-            repo: context.repo.repo,
-          });
-
-          // If a bot comment exists with a matching TFPLAN identifier, then update
-          // the comment, otherwise create a new comment. This prevents the bot
-          // from creating a new comment on every run of this workflow.
-          if (bot_comment) {
-            await github.rest.issues.updateComment({
-              body: comment_body,
-              comment_id: bot_comment.id,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-          } else {
-            await github.rest.issues.createComment({
-              body: comment_body,
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-            });
-          }
+          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/comment_tf_output.js`);
+          await script({ github, context, sha: "${{ steps.commit.outputs.sha }}", job_status: "${{ job.status }}" });
 
     # On issue_comment, update commit status with job status before exiting.
     - name: Update commit status
@@ -499,11 +371,5 @@ runs:
       with:
         retries: 3
         script: |
-          const add_pending_status = await github.rest.repos.createCommitStatus({
-            context: "${{ github.workflow }}",
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            sha: "${{ fromJSON(steps.commit.outputs.result)['sha'] }}",
-            state: "${{ job.status }}",
-            target_url: "${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }}",
-          });
+          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/update_commit_status.js`);
+          await script({ github, context, sha: "${{ steps.commit.outputs.sha }}", job_status: "${{ job.status }}" });
