@@ -154,7 +154,7 @@ runs:
 
     - name: Setup OpenTofu
       if: inputs.cli_uses == 'tofu'
-      uses: opentofu/setup-opentofu@da3271e0a2f8b8552a91e37cf85d03622c328ab7 # v1.0.2
+      uses: opentofu/setup-opentofu@ae80d4ecaab946d8f5ff18397fbf6d0686c6d46a # v1.0.3
       with:
         cli_config_credentials_hostname: ${{ inputs.cli_hostname }}
         cli_config_credentials_token: ${{ inputs.cli_token }}
