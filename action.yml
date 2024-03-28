@@ -327,7 +327,7 @@ runs:
       shell: bash
       run: |
         # Remove lines related to fetching the state of resources and truncate
-        # before the last 51200 characters to capture the final change summary.
+        # before the last 66000 characters to capture the final change summary.
         tf_output_raw=$(cat <<'EOTF'
         ${{ steps.apply.outputs.stderr || steps.apply.outputs.stdout || steps.plan.outputs.stderr || steps.plan.outputs.stdout || steps.force_unlock.outputs.stderr || steps.force_unlock.outputs.stdout || steps.workspace.outputs.stderr || steps.validate.outputs.stderr || steps.init.outputs.stderr }}
         EOTF
@@ -335,16 +335,16 @@ runs:
         echo 'tf_output<<EOTF' >> $GITHUB_OUTPUT
         echo "$tf_output_raw" |
           grep -vE ': Creating...|: Creation complete after|: Destroying...|: Destruction complete after|: Modifications complete after|: Modifying...|: Provisioning with|: Read complete after|: Reading...|: Refreshing state...|: Still creating...|: Still destroying...|: Still modifying...|: Still reading...|. This may take a few moments...' |
-          tail -c 51200 >> $GITHUB_OUTPUT
+          tail -c 66000 >> $GITHUB_OUTPUT
         echo 'EOTF' >> $GITHUB_OUTPUT
 
-        # Similarly, truncate after the first 10240 characters.
+        # This time, truncate after the first 12000 characters instead.
         tf_fmt_raw=$(cat <<'EOTF'
         ${{ steps.fmt.outputs.stdout }}
         EOTF
         )
         echo 'tf_fmt<<EOTF' >> $GITHUB_OUTPUT
-        echo "$tf_fmt_raw" | head -c 10240 >> $GITHUB_OUTPUT
+        echo "$tf_fmt_raw" | head -c 12000 >> $GITHUB_OUTPUT
         echo 'EOTF' >> $GITHUB_OUTPUT
 
     # Add or update PR comment with rendered TF output before exiting.
