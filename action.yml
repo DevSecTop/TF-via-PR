@@ -17,6 +17,9 @@ inputs:
     description: String prefix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied.
   backend_config_suffix:
     description: String suffix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied.
+  cache_plugins:
+    description: Boolean flag to cache TF plugins for faster workflow runs (requires .terraform.lock.hcl file).
+    default: true
   chdir_prefix:
     description: String prefix for TF `-chdir` argument. This is a global argument that switches to a different directory.
   cli_uses:
@@ -24,6 +27,7 @@ inputs:
   command_input:
     description: String input to run TF CLI command with arguments directly via workflow automation.
   fmt_enable:
+    description: Boolean flag to enable TF fmt command and display diff of changes.
     default: true
   validate_enable:
     description: Boolean flag to enable TF validate command check.
@@ -192,7 +196,7 @@ runs:
         echo "tf_cwd=$arg_chdir" >> $GITHUB_OUTPUT
         # Store a combination of the PR number and TF command arguments
         # for use as a unique identifier to reference the TF plan file.
-        echo "tf_plan_id=$(echo ${{ github.event.number || github.event.issue.number }}$arg_backend_config$arg_chdir$arg_var_file$arg_workspace$arg_destroy-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_OUTPUT
+        echo "tf_plan_id=$(echo ${{ github.event.number || github.event.issue.number }}$arg_backend_config$arg_chdir$arg_var_file$arg_workspace$arg_destroy$arg_tf_cli-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_OUTPUT
         # If "-backend-config" argument is present, then include any prefix and suffix.
         if [ -n "$arg_backend_config" ]; then echo "arg_backend_config=-backend-config=${{ inputs.backend_config_prefix }}$arg_backend_config${{ inputs.backend_config_suffix }}" >> $GITHUB_OUTPUT; fi
         # If "-var-file" argument is present, then include any prefix and suffix.
@@ -203,12 +207,18 @@ runs:
         # If "-auto-approve" is not supplied, then set it to read from "tfplan".
         if [ -z "$arg_auto_approve" ]; then echo "arg_auto_approve=tfplan" >> $GITHUB_OUTPUT; fi
 
-    - name: Checkout repository
-      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+    - name: Cache TF plugins
+      id: cache_plugins
+      if: inputs.cache_plugins == 'true'
+      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
-        ref: ${{ github.head_ref || format('refs/pull/{0}/merge', github.event.issue.number) }}
+        key: ${{ runner.os }}-${{ env.TF_CLI_USES }}-${{ hashFiles(format('{0}/.terraform.lock.hcl', steps.arguments.outputs.tf_cwd)) }}
+        path: |
+          ~/.terraform.d/plugin-cache
+          ${{ steps.arguments.outputs.tf_cwd }}/.terraform
 
     - name: TF init
+      if: steps.cache_plugins.outputs.cache-hit != 'true'
       id: init
       shell: bash
       run: ${{ env.TF_CLI_USES }} ${{ steps.arguments.outputs.arg_chdir }} init ${{ steps.arguments.outputs.arg_backend }} ${{ steps.arguments.outputs.arg_backend_config }} ${{ steps.arguments.outputs.arg_cloud }} ${{ steps.arguments.outputs.arg_from_module }} ${{ steps.arguments.outputs.arg_get }} ${{ steps.arguments.outputs.arg_ignore_remote_version }} ${{ steps.arguments.outputs.arg_lock }} ${{ steps.arguments.outputs.arg_lock_timeout }} ${{ steps.arguments.outputs.arg_lockfile }} ${{ steps.arguments.outputs.arg_plugin_dir }} ${{ steps.arguments.outputs.arg_upgrade }}
