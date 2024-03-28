@@ -1,10 +1,10 @@
-name: "Terraform/OpenTofu via PR Comments"
-author: "Rishav Dhar (@rdhar)"
-description: "GitHub Action to run Terraform or OpenTofu (TF) CLI commands via pull request (PR) comments."
+name: OpenTofu/Terraform via PR Comments
+author: Rishav Dhar (@rdhar)
+description: GitHub Action to automate OpenTofu or Terraform (TF) CLI commands via pull request (PR) comments.
 
 branding:
-  color: "purple"
-  icon: "package"
+  color: purple
+  icon: package
 
 inputs:
   apply_require_approval:
