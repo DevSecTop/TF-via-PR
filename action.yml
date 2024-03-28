@@ -8,13 +8,15 @@ branding:
 
 inputs:
   apply_require_approval:
-    description: "Boolean flag to require PR review approval for TF apply commands or consider deployment protection rules."
+    description: Boolean flag to require PR review approval for TF apply commands or consider deployment protection rules.
+    default: false
   backend_config_from_workspace:
-    description: "Boolean flag to re-use TF `-workspace` as `-backend-config` argument, if supplied."
+    description: Boolean flag to re-use TF `-workspace` as `-backend-config` argument, if supplied.
+    default: false
   backend_config_prefix:
-    description: "String prefix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied."
+    description: String prefix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied.
   backend_config_suffix:
-    description: "String suffix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied."
+    description: String suffix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied.
   chdir_prefix:
     description: String prefix for TF `-chdir` argument. This is a global argument that switches to a different directory.
   cli_uses:
@@ -22,15 +24,17 @@ inputs:
   command_input:
     description: String input to run TF CLI command with arguments directly via workflow automation.
   fmt_enable:
-    description: "Boolean flag to enable TF fmt command and display diff of changes."
+    default: true
   validate_enable:
-    description: "Boolean flag to enable TF validate command check."
+    description: Boolean flag to enable TF validate command check.
+    default: true
   var_file_from_workspace:
-    description: "Boolean flag to re-use TF `-workspace` as `-var-file` argument, if supplied."
+    description: Boolean flag to re-use TF `-workspace` as `-var-file` argument, if supplied.
+    default: false
   var_file_prefix:
-    description: "String prefix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied."
+    description: String prefix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied.
   var_file_suffix:
-    description: "String suffix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied."
+    description: String suffix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied.
 
 outputs:
   command:
