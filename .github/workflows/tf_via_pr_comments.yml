@@ -1,0 +1,40 @@
+name: TF via PR Comments
+
+on:
+  issue_comment:
+    types: [created, edited]
+  pull_request:
+    types: [synchronize]
+    paths: ["**/*.tf*"]
+
+jobs:
+  tf:
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.comment.body, '-tf=') || contains(join(github.event.pull_request.labels.*.name), 'tf:')
+
+    permissions:
+      actions: read # Required for workflow query and artifact download.
+      contents: read # Required for repository checkout.
+      issues: read # Required for getting PR branch from issue comment.
+      pull-requests: write # Required for commenting on PR.
+      statuses: write # Required for setting commit status from issue comment.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          ref: ${{ github.event.issue && format('refs/pull/{0}/merge', github.event.issue.number) }}
+
+      - name: Setup TF
+        uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
+
+      - name: Provision TF
+        uses: devsectop/tf-via-pr-comments@dc6ce4481c36f83bd8a5110040499da17df6cb1a # v9.1.0
+        env:
+          TF_VAR_PLACEHOLDER: value
+        with:
+          recreate_comment: true
+          var_file_from_workspace: true
+          var_file_prefix: env/
+          var_file_suffix: .tfvars
+          chdir_prefix: sample/

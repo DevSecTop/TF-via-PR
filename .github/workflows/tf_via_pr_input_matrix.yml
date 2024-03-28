@@ -1,0 +1,43 @@
+name: TF via PR Input Matrix Strategy
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+    paths: ["**/*.tf*"]
+
+jobs:
+  tf:
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed' || github.event.pull_request.merged
+
+    permissions:
+      actions: read # Required for workflow query and artifact download.
+      contents: read # Required for repository checkout.
+      pull-requests: write # Required for commenting on PR.
+
+    strategy:
+      fail-fast: false
+      matrix:
+        deployment: [dev, stg, prd]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup TF
+        uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
+
+      - name: Provision TF
+        id: tf
+        uses: devsectop/tf-via-pr-comments@dc6ce4481c36f83bd8a5110040499da17df6cb1a # v9.1.0
+        env:
+          TF_VAR_PLACEHOLDER: value
+        with:
+          command_input: ${{ format('-tf={0} -chdir=sample/sample_bucket -backend-config=backend/{1}.tfvars', github.event.action != 'closed' && 'plan' || 'apply', matrix.deployment) }}
+
+      - name: Echo TF
+        run: |
+          echo "command: ${{ steps.tf.outputs.command }}"
+          echo "plan_id: ${{ steps.tf.outputs.plan_id }}"
+          echo "tf_fmt: ${{ steps.tf.outputs.tf_fmt }}"
+          echo "tf_output: ${{ steps.tf.outputs.tf_output }}"
