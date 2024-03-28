@@ -1,10 +1,19 @@
-# Terraform/OpenTofu via PR Comments
+[![GitHub release tag](https://img.shields.io/github/v/release/devsectop/tf-via-pr-comments?logo=semanticrelease&label=Release)](https://github.com/devsectop/tf-via-pr-comments/releases)
+[![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr-comments?logo=apache&label=License)](LICENSE)
+[![CodeQL](https://github.com/devsectop/tf-via-pr-comments/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/devsectop/tf-via-pr-comments/actions/workflows/github-code-scanning/codeql)
+[![GitHub repository stars count](https://img.shields.io/github/stars/devsectop/tf-via-pr-comments)](https://github.com/devsectop/tf-via-pr-comments/stargazers)
+
+[![OpenTofu compatibility](https://img.shields.io/badge/OpenTofu-Compatible-FFDA18?logo=opentofu&logoColor=white)](https://github.com/opentofu/setup-opentofu)
+[![Terraform compatibility](https://img.shields.io/badge/Terraform-Compatible-844FBA?logo=terraform&logoColor=white)](https://github.com/hashicorp/setup-terraform)
+[![Static Badge](https://img.shields.io/badge/GitHub-Marketplace-2088FF?logo=githubactions&logoColor=white)](https://github.com/marketplace/actions/terraform-opentofu-via-pr-comments)
+
+# OpenTofu/Terraform via PR Comments
 
 > [!IMPORTANT]
 >
-> Plan and apply changes to Terraform or OpenTofu (TF) configurations via pull request (PR) comments: for a CLI-like experience on the web. Powered by GitHub Actions to maximize compatibility and minimize maintenance for DIY deployments.
-
-[Overview](#overview) · [Usage](#usage) [[Workflow](#workflow) · [Examples](#examples) · [Parameters](#parameters)] · [Security](#security) · [Changelog](#changelog) · [License](#license)
+> GitHub Action to automate OpenTofu or Terraform (TF) CLI commands via pull request (PR) comments.
+>
+> Overview: [Highlights](#highlights) · [Usage](#usage) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
 <figure>
   <picture>
@@ -13,64 +22,59 @@
     <img alt="Screenshot of the author's TF command in a PR comment followed by github-action bot's TF output response in the next comment." src="assets/screenshot_dark.png">
   </picture>
   <figcaption>
-    </br><a href="https://github.com/devsectop/tf-via-pr-comments/pull/166" title="View the PR conversation referenced in the screenshot.">View PR in situ:</a> Screenshot of the author's TF command in a PR comment followed by github-action bot's TF output response in the next comment.
+    </br><a href="https://github.com/devsectop/tf-via-pr-comments/pull/166" title="View the PR conversation referenced in the screenshot.">View PR:</a> Screenshot of TF CLI command in a PR comment followed by github-action bot's TF output response in the next comment.
   </figcaption>
 </figure>
 
-## Overview
+## Highlights
 
-<details><summary>Terraform and OpenTofu are platform-agnostic tools for managing cloud and on-prem resources by provisioning infrastructure as code (IaC).</summary>
+### What does it do?
 
-- Enables you to define resources in human-readable configuration files that can be version controlled and shared for consistent state management.
+<details><summary>Add PR comments in the form of CLI commands to trigger OpenTofu or Terraform operations.</summary>
+
 - Both [Hashicorp][terraform_io] `terraform` and [OpenTofu][opentofu_org] `tofu` CLIs are supported, with the latter offering an open-source and backwards-compatible drop-in replacement for the former.
-
+- Comments beginning with `-tf=` are parsed with each argument and flag being passed into the appropriate TF command automatically.
 </details>
+
+<details><summary>Run TF CLI commands dynamically on PR open, update and close without manual intervention.</summary>
+
+- Automate TF plan and apply as part of GitOps framework to deliver consistent infrastructure-as-code (IaC) across environments.
+- Run multiple TF commands in a matrix strategy for parallel provisioning of resources across different workspaces or directories.
+</details>
+
+<details><summary>Speed up workflow by caching TF module plugins and substituting input variables.</summary>
+
+- Use ".terraform.lock.hcl" file ([which should be included in version control](https://developer.hashicorp.com/terraform/language/files/dependency-lock#:~:text=include%20this%20file%20in%20your%20version%20control)) to cache TF plugins and associated dependencies for faster subsequent workflow runs.
+- A number of input parameters can be substituted in the parsed command, such as: workspace, var-file and backend-config pre/suffixes.
+</details>
+
+### Who is it for?
 
 <details><summary>Best suited for DevOps and Platform engineers who want to empower their teams to self-service TF without the overhead of self-hosting runners, containers or VMs like <a href="https://www.runatlantis.io" title="Atlantis Terraform PR automation.">Atlantis</a>.</summary>
 
 - [Environment deployment protection rules][deployment_protection] mitigate the risk of erroneous changes along with standardized approval requirements.
 - Each PR and associated workflow run holds a complete log of infrastructure changes for ease of collaborative debugging as well as audit compliance.
-
-</details>
-
-<details><summary><a href="https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions" title="Introduction to GitHub Actions.">GitHub Actions</a> (GHA) is a continuous integration and continuous deployment (CI/CD) platform that enables you to automate your project's pipelines with custom workflows.</summary>
-
-- This repository hosts a [composite action][action_yml] that parses PR comments for TF commands and runs them on GitHub's ephemeral runners.
-- Also supports [GitHub Codespaces][github_codespaces] dev container, which offers a tailored TF development environment, complete with tools and runtimes to lower the barrier to entry for contributors.
-
 </details>
 
 ## Usage
 
-### Workflow
+### How does it work?
 
-- A functional workflow is provided in "[.github/workflows/tf.yml][tf_yml]", including recommended permissions and event triggers.
-- Here is a simplified snippet to get started, with the full list of inputs documented [below](#inputs).
+Functional workflow examples are provided below, along with associated permissions and triggers. The full list of inputs is documented [below](#inputs).
 
-```yml
-on:
-  issue_comment:
-    types: [created, edited]
-  pull_request:
-    types: [synchronize]
-    paths: ["**/*.tf*"]
-...
-steps:
-  - name: Provision TF
-    uses: devsectop/tf-via-pr-comments@v9
-    with:
-      cli_uses: "terraform"
-      cli_version: "~1.6"
-```
+- [TF via PR Comments](.github/workflows/tf_via_pr_comments.yml)
+- [TF via PR Input with AWS Authentication](.github/workflows/tf_via_pr_input.yml)
+- [TF via PR Input with Matrix Strategy](.github/workflows/tf_via_pr_input_matrix.yml)
+- [TF via PR Comments or Input](.github/workflows/tf_via_pr_comments_or_input.yml)
 
 > [!NOTE]
 >
 > - Pin your workflow version to a specific release tag or SHA to harden your CI/CD pipeline [security](#security) against supply chain attacks.
 > - Environment variables are automatically assumed, enabling cloud provider authentication (e.g., preceding [aws-actions/configure-aws-credentials][configure_aws_credentials] action can be used to pass short-lived credentials).
 
-### Examples
+### Where to use it?
 
-Use-case scenario: Provision resources in a workspace with a variable file, followed by targeted destruction. [View PR in situ][pr_example_1].
+Use-case: Provision resources in a workspace with a variable file, followed by targeted destruction. [View PR][pr_example_1].
 
 ```bash
 #1 PR Comment: Plan configuration in a workspace with a variable file.
@@ -86,7 +90,7 @@ Use-case scenario: Provision resources in a workspace with a variable file, foll
 -tf=apply -destroy -target=aws_instance.sample,data.aws_ami.ubuntu -chdir=stacks/sample_instance -workspace=dev -var-file=env/dev.tfvars
 ```
 
-Use-case scenario: Provision resources with a backend, followed by destruction without confirmation, simultaneously. [View PR in situ][pr_example_2].
+Use-case: Provision resources with a backend, followed by destruction without confirmation, simultaneously. [View PR][pr_example_2].
 
 ```bash
 #1 PR Comment: Plan configuration with a backend file.
@@ -103,22 +107,22 @@ Use-case scenario: Provision resources with a backend, followed by destruction w
 
 #### Inputs
 
-| Name                                               | Description                                                                                                                              |
-| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `apply_require_approval`</br>Default: false        | Boolean flag to require PR review approval for TF apply commands or consider [deployment protection rules][deployment_protection].       |
-| `backend_config_from_workspace`</br>Default: false | Boolean flag to re-use TF `-workspace` as `-backend-config` argument, if supplied.                                                       |
-| `backend_config_prefix`</br>Example: ../backend/   | String prefix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied. |
-| `backend_config_suffix`</br>Example: .tfbackend    | String suffix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied. |
-| `chdir_prefix`</br>Example: stacks/                | String prefix for TF `-chdir` argument. This is a global option that switches to a different directory.                                  |
-| `cli_hostname`</br>Example: app.terraform.io       | Hostname of TF cloud/enterprise instance to place within the credentials block of TF CLI configuration.                                  |
-| `cli_token`</br>Example: xyz…                      | API token for TF cloud/enterprise instance to place within the credentials block of TF CLI configuration.                                |
-| `cli_uses`</br>Default: terraform                  | String to choose TF CLI, from: `terraform` and `tofu`.                                                                                   |
-| `cli_version`</br>Default: latest                  | Version of TF CLI to install, supporting [semver ranges][semver].                                                                        |
-| `fmt_enable`</br>Default: true                     | Boolean flag to enable TF fmt command and display diff of changes.                                                                       |
-| `validate_enable`</br>Default: true                | Boolean flag to enable TF validate command check.                                                                                        |
-| `var_file_from_workspace`</br>Default: false       | Boolean flag to re-use TF `-workspace` as `-var-file` argument, if supplied.                                                             |
-| `var_file_prefix`</br>Example: ../env/             | String prefix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied.                   |
-| `var_file_suffix`</br>Example: .tfvars             | String suffix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied.                   |
+| Name                                                 | Description                                                                                                                              |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `apply_require_approval`</br>Default: false          | Boolean flag to require PR review approval for TF apply commands or consider [deployment protection rules][deployment_protection].       |
+| `backend_config_from_workspace`</br>Default: false   | Boolean flag to re-use TF `-workspace` as `-backend-config` argument, if supplied.                                                       |
+| `backend_config_prefix`</br>Example: ../backend/     | String prefix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied. |
+| `backend_config_suffix`</br>Example: .tfbackend      | String suffix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied. |
+| `cache_plugins`</br>Default: true                    | Boolean flag to cache TF plugins for faster workflow runs (requires .terraform.lock.hcl file).                                           |
+| `chdir_prefix`</br>Example: stacks/                  | String prefix for TF `-chdir` argument. This is a global argument that switches to a different directory.                                |
+| `cli_uses`</br>Example: tofu                         | String name of TF CLI to use and override default assumption from wrapper environment variable.                                          |
+| `command_input`</br>Example: -tf=plan -workspace=dev | String input to run TF CLI command with arguments directly via workflow automation.                                                      |
+| `fmt_enable`</br>Default: true                       | Boolean flag to enable TF fmt command and display diff of changes.                                                                       |
+| `recreate_comment`</br>Default: false                | Boolean flag to recreate PR comment on update instead of editing the existing one.                                                       |
+| `validate_enable`</br>Default: true                  | Boolean flag to enable TF validate command check.                                                                                        |
+| `var_file_from_workspace`</br>Default: false         | Boolean flag to re-use TF `-workspace` as `-var-file` argument, if supplied.                                                             |
+| `var_file_prefix`</br>Example: ../env/               | String prefix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied.                   |
+| `var_file_suffix`</br>Example: .tfvars               | String suffix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied.                   |
 
 #### Outputs
 
@@ -150,14 +154,15 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 > - Please [raise an issue][issue] to discuss proposed changes or report unexpected behavior.
 > - Please [open a discussion][discussion] to share ideas about where you'd like to see this project go.
 > - Please [consider becoming a stargazer][stargazer] if you find this project useful.
+>
+> Includes a [GitHub Codespaces][github_codespaces] dev container, which offers a tailored TF development environment, complete with tools and runtimes to lower the barrier to entry for contributors.
 
 ## License
 
 - This project is licensed under the permissive [Apache License 2.0][license].
 - All works herein are my own and shared of my own volition.
-- Copyright 2023 [Rishav Dhar][rishav_dhar] — All wrongs reserved.
+- Copyright 2022-2024 [Rishav Dhar][rishav_dhar] — All wrongs reserved.
 
-[action_yml]: action.yml "Composite action workflow for running TF commands via PR comments."
 [configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [configure_oidc]: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-cloud-providers "Configuring OpenID Connect in cloud providers."
 [deployment_protection]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules "Configuring environment deployment protection rules."
@@ -166,8 +171,8 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 [issue]: https://github.com/devsectop/tf-via-pr-comments/issues "Raise an issue."
 [license]: LICENSE "Apache License 2.0."
 [opentofu_org]: https://opentofu.org "Open-source Terraform-compatible IaC tool."
-[pr_example_1]: https://github.com/devsectop/tf-via-pr-comments/pull/164 "Example PR for this use-case scenario."
-[pr_example_2]: https://github.com/devsectop/tf-via-pr-comments/pull/166 "Example PR for this use-case scenario."
+[pr_example_1]: https://github.com/devsectop/tf-via-pr-comments/pull/164 "Example PR for this use-case."
+[pr_example_2]: https://github.com/devsectop/tf-via-pr-comments/pull/166 "Example PR for this use-case."
 [pull_request]: https://github.com/devsectop/tf-via-pr-comments/pulls "Create a pull request."
 [releases]: https://github.com/devsectop/tf-via-pr-comments/releases "Releases."
 [rishav_dhar]: https://github.com/rdhar "Rishav Dhar's GitHub profile."
@@ -175,4 +180,3 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 [semver]: https://www.npmjs.com/package/semver#ranges "Semantic versioning ranges."
 [stargazer]: https://github.com/devsectop/tf-via-pr-comments/stargazers "Become a stargazer."
 [terraform_io]: https://www.terraform.io "Terraform by Hashicorp."
-[tf_yml]: .github/workflows/tf.yml "Example workflow for running TF commands via PR comments with AWS authentication."

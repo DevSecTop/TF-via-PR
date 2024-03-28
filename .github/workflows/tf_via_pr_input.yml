@@ -1,0 +1,40 @@
+name: TF via PR Input with AWS Authentication
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+    paths: ["**/*.tf*"]
+
+jobs:
+  tf:
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed' || github.event.pull_request.merged
+
+    permissions:
+      actions: read # Required for workflow query and artifact download.
+      contents: read # Required for repository checkout.
+      id-token: write # Required for assuming AWS role via OIDC provider.
+      pull-requests: write # Required for commenting on PR.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+
+      - name: Setup TF
+        uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
+
+      - name: Provision TF
+        uses: devsectop/tf-via-pr-comments@dc6ce4481c36f83bd8a5110040499da17df6cb1a # v9.1.0
+        env:
+          TF_VAR_PLACEHOLDER: value
+        with:
+          backend_config_prefix: backend/
+          backend_config_suffix: .tfvars
+          chdir_prefix: sample/
+          command_input: ${{ format('-tf={0} -chdir=sample_bucket -backend-config=dev', github.event.action != 'closed' && 'plan' || 'apply') }}
