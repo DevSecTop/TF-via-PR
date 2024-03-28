@@ -118,10 +118,34 @@ runs:
     - name: Process TF arguments
       id: arguments
       env:
+        arg_auto_approve: ${{ fromJSON(steps.parsed.outputs.command)['auto-approve'] }}
+        arg_backend_config: ${{ inputs.backend_config_from_workspace == 'true' && fromJSON(steps.parsed.outputs.command)['workspace'] || fromJSON(steps.parsed.outputs.command)['backend-config'] }}
+        arg_backend: ${{ fromJSON(steps.parsed.outputs.command)['backend'] }}
+        arg_chdir: ${{ format('{0}{1}', inputs.chdir_prefix, fromJSON(steps.parsed.outputs.command)['chdir']) }}
+        arg_cloud: ${{ fromJSON(steps.parsed.outputs.command)['cloud'] }}
+        arg_compact_warnings: ${{ fromJSON(steps.parsed.outputs.command)['compact-warnings'] }}
         arg_concise: ${{ fromJSON(steps.parsed.outputs.command)['concise'] }}
+        arg_destroy: ${{ fromJSON(steps.parsed.outputs.command)['destroy'] }}
+        arg_from_module: ${{ fromJSON(steps.parsed.outputs.command)['from-module'] }}
+        arg_get: ${{ fromJSON(steps.parsed.outputs.command)['get'] }}
+        arg_ignore_remote_version: ${{ fromJSON(steps.parsed.outputs.command)['ignore-remote-version'] }}
+        arg_lock_timeout: ${{ fromJSON(steps.parsed.outputs.command)['lock-timeout'] }}
+        arg_lock: ${{ fromJSON(steps.parsed.outputs.command)['lock'] }}
+        arg_lockfile: ${{ fromJSON(steps.parsed.outputs.command)['lockfile'] }}
+        arg_no_tests: ${{ fromJSON(steps.parsed.outputs.command)['no-tests'] }}
         arg_or_create: ${{ fromJSON(steps.parsed.outputs.command)['or-create'] }}
+        arg_parallelism: ${{ fromJSON(steps.parsed.outputs.command)['parallelism'] }}
+        arg_plugin_dir: ${{ fromJSON(steps.parsed.outputs.command)['plugin-dir'] }}
+        arg_refresh_only: ${{ fromJSON(steps.parsed.outputs.command)['refresh-only'] }}
+        arg_refresh: ${{ fromJSON(steps.parsed.outputs.command)['refresh'] }}
+        arg_replace: ${{ fromJSON(steps.parsed.outputs.command)['replace'] }}
+        arg_target: ${{ fromJSON(steps.parsed.outputs.command)['target'] }}
+        arg_test_directory: ${{ fromJSON(steps.parsed.outputs.command)['test-directory'] }}
         arg_tf_cli: ${{ inputs.cli_uses || (env.TOFU_CLI_PATH && 'tofu') || 'terraform' }}
         arg_tf: ${{ fromJSON(steps.parsed.outputs.command)['tf'] }}
+        arg_upgrade: ${{ fromJSON(steps.parsed.outputs.command)['upgrade'] }}
+        arg_var_file: ${{ inputs.var_file_from_workspace == 'true' && fromJSON(steps.parsed.outputs.command)['workspace'] || fromJSON(steps.parsed.outputs.command)['var-file'] }}
+        arg_workspace: ${{ fromJSON(steps.parsed.outputs.command)['workspace'] }}
       shell: bash
       run: |
         # Iterate over all environment variables prefixed with "arg_".
