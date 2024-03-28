@@ -38,20 +38,20 @@ inputs:
 
 outputs:
   command:
-    description: "JSON object of the parsed command."
-    value: ${{ steps.command.outputs.result }}
+    description: JSON object of the parsed command.
+    value: ${{ steps.parsed.outputs.command }}
   plan_id:
-    description: "String ID of the TF plan file artifact's unique identifier."
+    description: String ID of the TF plan file artifact's unique identifier.
     value: ${{ steps.arguments.outputs.tf_plan_id }}
   tf_fmt:
-    description: "String output of the truncated TF fmt command."
+    description: String output of the truncated TF fmt command.
     value: ${{ steps.render.outputs.tf_fmt }}
   tf_output:
-    description: "String output of the truncated last TF command."
+    description: String output of the truncated last TF command.
     value: ${{ steps.render.outputs.tf_output }}
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     # On issue_comment, add commit status since it's not added automatically.
     - name: Add commit status
@@ -60,23 +60,19 @@ runs:
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
-        script: |
-          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_commit_status.js`);
-          await script({ github, context, core });
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_commit_status.js`)({ github, context, core });
 
     # For subsequent commits on the PR branch, automatically re-run the most
-    # recently added "-tf=plan" comment instead of manually re-triggering it.
+    # recent "-tf=plan" comment instead of having to manually re-trigger it.
     - name: Find comment
       id: comment
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' && inputs.command_input == ''
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
-        script: |
-          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/find_comment.js`);
-          await script({ github, context, core });
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/find_comment.js`)({ github, context, core });
 
-    # Add PR comment reaction to indicate that the workflow is running.
+    # Add PR comment reaction to indicate that the workflow is processing it.
     - name: Add reaction
       id: reaction
       if: steps.comment.outcome == 'success' || steps.commit.outcome == 'success'
@@ -86,84 +82,44 @@ runs:
       with:
         result-encoding: string
         retries: 3
-        script: |
-          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_reaction.js`);
-          await script({ github, context, core });
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_reaction.js`)({ github, context, core });
 
     # Split and trim the PR comment, then parse it as an array of objects.
     # E.g., {tf:apply, chdir:path/to/dir, auto-approve:true}.
     - name: Parse command
-      id: command
-      if: steps.comment.outcome == 'success' || steps.commit.outcome == 'success'
-      env:
-        comment_body: ${{ github.event.comment.body || steps.comment.outputs.body }}
+      id: parsed
+      if: steps.comment.outcome == 'success' || steps.commit.outcome == 'success' || inputs.command_input != ''
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        comment_body: ${{ github.event.comment.body || steps.comment.outputs.body || inputs.command_input }}
       with:
-        retries: 3
-        script: |
-          return process.env.comment_body
-            // Split on newlines, removing empty lines and whitespace.
-            .trim()
-            .split("\n")
-            .filter((line) => line.trim())
-            // Join the lines into one string and split on spaces outside of quotation marks.
-            .join(" ")
-            .split(/\s(?=(?:[^'"]|'[^']*'|"[^"]*")*$)/)
-            // Reduce the array of arguments into a single object.
-            .reduce((acc, arg) => {
-              // Split the arg on the first equals sign to assign key value pairs to the object.
-              const [key, value] = arg.split(/=(.+)/);
-              // Remove the leading dash from the key and remove quotation marks outside of square brackets from the value if it exists, otherwise set the value to true.
-              return {
-                ...acc,
-                [key.slice(1)]: value?.replace(/['"]+(?![^\[]*\])/g, "") || true
-              };
-            }, {});
+        result-encoding: string
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/parse_command.js`)({ core });
 
     # If the PR doesn't have one already, add a colored PR label to indicate
     # which TF commands have attempted to run on the PR branch.
     # E.g., "tf:plan", "tf:apply", "tf:force-unlock", etc.
     - name: Add PR label
-      if: (!contains(join(github.event.pull_request.labels.*.name), format('tf:{0}', fromJSON(steps.command.outputs.result)['tf'])))
+      if: (!contains(join(github.event.pull_request.labels.*.name), format('tf:{0}', fromJSON(steps.parsed.outputs.command)['tf'])))
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        label: ${{ fromJSON(steps.parsed.outputs.command)['tf'] }}
       with:
         retries: 3
-        script: |
-          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_pr_label.js`);
-          await script({ github, context, label: "${{ fromJSON(steps.command.outputs.result)['tf'] }}", cli_uses: "${{ inputs.cli_uses }}" });
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_pr_label.js`)({ github, context });
 
     # If apply_require_approval is set to "true", then verify that the PR
     # review state is approved. If not, then exit the workflow with a failure.
     - name: Check PR approval
-      if: inputs.apply_require_approval == 'true' && fromJSON(steps.command.outputs.result)['tf'] == 'apply'
+      if: inputs.apply_require_approval == 'true' && fromJSON(steps.parsed.outputs.command)['tf'] == 'apply'
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
-        script: |
-          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/check_pr_approval.js`);
-          await script({ github, context, core });
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/check_pr_approval.js`)({ github, context, core });
 
-    - name: Setup Terraform
-      if: inputs.cli_uses == 'terraform' || inputs.cli_uses == ''
-      uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
-      with:
-        cli_config_credentials_hostname: ${{ inputs.cli_hostname }}
-        cli_config_credentials_token: ${{ inputs.cli_token }}
-        terraform_version: ${{ inputs.cli_version || 'latest' }}
-        terraform_wrapper: true
-
-    - name: Setup OpenTofu
-      if: inputs.cli_uses == 'tofu'
-      uses: opentofu/setup-opentofu@da3271e0a2f8b8552a91e37cf85d03622c328ab7 # v1.0.2
-      with:
-        cli_config_credentials_hostname: ${{ inputs.cli_hostname }}
-        cli_config_credentials_token: ${{ inputs.cli_token }}
-        tofu_version: ${{ inputs.cli_version || 'latest' }}
-        tofu_wrapper: true
-
-    # For all supplied TF options, process each one in the format "-key=value".
+    # For all supplied TF arguments, process each one in the format "-key=value".
     # E.g., "-chdir=path/to/dir", "-auto-approve", etc.
-    - name: Populate TF arguments
+    - name: Process TF arguments
       id: arguments
       env:
         arg_auto_approve: ${{ fromJSON(steps.command.outputs.result)['auto-approve'] }}
@@ -293,18 +249,18 @@ runs:
     # for the most recently uploaded, matching TF plan file artifact.
     - name: Get TF plan file
       id: artifact_url
-      if: fromJSON(steps.command.outputs.result)['tf'] == 'apply' && fromJSON(steps.command.outputs.result)['auto-approve'] == ''
+      if: fromJSON(steps.parsed.outputs.command)['tf'] == 'apply' && fromJSON(steps.parsed.outputs.command)['auto-approve'] == ''
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
       with:
         result-encoding: string
         retries: 3
-        script: |
-          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/get_tf_plan_file.js`);
-          await script({ github, context, core, tf_plan_id: "${{ steps.arguments.outputs.tf_plan_id }}" });
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/get_tf_plan_file.js`)({ github, context, core });
 
     # Download and unzip the TF plan file to the specified working directory.
     - name: Download and unzip TF plan file
-      if: fromJSON(steps.command.outputs.result)['tf'] == 'apply' && fromJSON(steps.command.outputs.result)['auto-approve'] == ''
+      if: fromJSON(steps.parsed.outputs.command)['tf'] == 'apply' && fromJSON(steps.parsed.outputs.command)['auto-approve'] == ''
       shell: bash
       run: wget -O "${{ steps.arguments.outputs.tf_plan_id }}" "${{ steps.artifact_url.outputs.link }}" && unzip "${{ steps.arguments.outputs.tf_plan_id }}" -d "${{ steps.arguments.outputs.tf_cwd }}"
 
@@ -350,26 +306,36 @@ runs:
     # Add or update PR comment with rendered TF output before exiting.
     - name: Comment TF output
       if: ${{ (success() || failure()) && steps.render.outcome == 'success' }}
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       env:
-        comment_id: ${{ github.event.comment.id || steps.comment.outputs.id }}
-        reaction_id: ${{ steps.reaction.outputs.id }}
-        tf_command: ${{ steps.command.outputs.result }}
+        matrix: ${{ toJSON(matrix) }}
+        recreate_comment: ${{ inputs.recreate_comment }}
+        tf_command: ${{ steps.parsed.outputs.command }}
         tf_fmt: ${{ steps.render.outputs.tf_fmt }}
         tf_output: ${{ steps.render.outputs.tf_output }}
         tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
+      with:
+        retries: 3
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/comment_tf_output.js`)({ github, context });
+
+    # Remove PR comment reaction to indicate that the workflow has ended.
+    - name: Remove reaction
+      if: ${{ (success() || failure()) && steps.reaction.outcome == 'success' }}
+      env:
+        comment_id: ${{ github.event.comment.id || steps.comment.outputs.id }}
+        reaction_id: ${{ steps.reaction.outputs.id }}
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       with:
         retries: 3
-        script: |
-          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/comment_tf_output.js`);
-          await script({ github, context, sha: "${{ steps.commit.outputs.sha }}", job_status: "${{ job.status }}" });
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/remove_reaction.js`)({ github, context });
 
     # On issue_comment, update commit status with job status before exiting.
     - name: Update commit status
       if: ${{ (success() || failure()) && github.event.issue.pull_request }}
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        sha: ${{ steps.commit.outputs.sha }}
+        job_status: ${{ job.status }}
       with:
         retries: 3
-        script: |
-          const script = require(`${process.env.GITHUB_ACTION_PATH}/scripts/update_commit_status.js`);
-          await script({ github, context, sha: "${{ steps.commit.outputs.sha }}", job_status: "${{ job.status }}" });
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/update_commit_status.js`)({ github, context });
