@@ -29,6 +29,9 @@ inputs:
   fmt_enable:
     description: Boolean flag to enable TF fmt command and display diff of changes.
     default: true
+  recreate_comment:
+    description: Boolean flag to recreate PR comment on update instead of editing the existing one.
+    default: false
   validate_enable:
     description: Boolean flag to enable TF validate command check.
     default: true
