@@ -119,6 +119,7 @@ runs:
       id: arguments
       env:
         arg_concise: ${{ fromJSON(steps.parsed.outputs.command)['concise'] }}
+        arg_or_create: ${{ fromJSON(steps.parsed.outputs.command)['or-create'] }}
         arg_tf_cli: ${{ inputs.cli_uses || (env.TOFU_CLI_PATH && 'tofu') || 'terraform' }}
         arg_tf: ${{ fromJSON(steps.parsed.outputs.command)['tf'] }}
       shell: bash
