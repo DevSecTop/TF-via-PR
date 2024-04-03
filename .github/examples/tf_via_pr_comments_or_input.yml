@@ -25,13 +25,8 @@ jobs:
         with:
           ref: ${{ github.event.issue && format('refs/pull/{0}/merge', github.event.issue.number) }}
 
-      - name: Setup TF (via tenv)
-        run: |
-          LATEST_COSIGN=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v\", ")
-          LATEST_TENV=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest|jq -r .tag_name)
-          curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign_${LATEST_COSIGN}_amd64.deb"
-          curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_TENV}_amd64.deb"
-          sudo dpkg -i "cosign_${LATEST_COSIGN}_amd64.deb" "tenv_${LATEST_TENV}_amd64.deb"
+      - name: Setup TF
+        uses: opentofu/setup-opentofu@ae80d4ecaab946d8f5ff18397fbf6d0686c6d46a # v1.0.3
 
       - name: Provision TF
         uses: devsectop/tf-via-pr-comments@069fd20e039d1ee5fba48b8a319752e44451782a # v10
@@ -40,7 +35,6 @@ jobs:
         with:
           recreate_comment: true
           var_file_from_workspace: true
-          cli_uses: tofu
           command_input: ${{ github.event.comment && '' || format('-tf={0} -chdir=sample/sample_instance -workspace=dev', github.event.action != 'closed' && 'plan' || 'apply') }}
           var_file_prefix: env/
           var_file_suffix: .tfvars
