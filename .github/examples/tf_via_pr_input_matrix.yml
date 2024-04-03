@@ -25,11 +25,11 @@ jobs:
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup TF
-        uses: opentofu/setup-opentofu@ae80d4ecaab946d8f5ff18397fbf6d0686c6d46a # v1.0.3
+        uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
 
       - name: Provision TF
         id: tf
-        uses: devsectop/tf-via-pr-comments@069fd20e039d1ee5fba48b8a319752e44451782a # v10
+        uses: devsectop/tf-via-pr-comments@dc6ce4481c36f83bd8a5110040499da17df6cb1a # v9.1.0
         env:
           TF_VAR_PLACEHOLDER: value
         with:

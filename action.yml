@@ -152,7 +152,7 @@ runs:
         arg_replace: ${{ fromJSON(steps.parsed.outputs.command)['replace'] }}
         arg_target: ${{ fromJSON(steps.parsed.outputs.command)['target'] }}
         arg_test_directory: ${{ fromJSON(steps.parsed.outputs.command)['test-directory'] }}
-        arg_tf_cli: ${{ inputs.cli_uses || (env.TOFU_CLI_PATH && 'tofu') || (env.TERRAFORM_CLI_PATH && 'terraform') }}
+        arg_tf_cli: ${{ inputs.cli_uses || (env.TOFU_CLI_PATH && 'tofu') || 'terraform' }}
         arg_tf: ${{ fromJSON(steps.parsed.outputs.command)['tf'] }}
         arg_upgrade: ${{ fromJSON(steps.parsed.outputs.command)['upgrade'] }}
         arg_var_file: ${{ inputs.var_file_from_workspace == 'true' && fromJSON(steps.parsed.outputs.command)['workspace'] || fromJSON(steps.parsed.outputs.command)['var-file'] }}
@@ -302,7 +302,7 @@ runs:
         # Remove lines related to fetching the state of resources and truncate
         # before the last 66000 characters to capture the final change summary.
         tf_output_raw=$(cat <<'EOTF'
-        ${{ steps.apply.outputs.stderr || steps.apply.outputs.stdout || steps.plan.outputs.stderr || steps.plan.outputs.stdout || steps.force_unlock.outputs.stderr || steps.force_unlock.outputs.stdout || steps.workspace.outputs.stderr || steps.fmt.outputs.stdout || steps.validate.outputs.stderr || steps.init.outputs.stderr }}
+        ${{ steps.apply.outputs.stderr || steps.apply.outputs.stdout || steps.plan.outputs.stderr || steps.plan.outputs.stdout || steps.force_unlock.outputs.stderr || steps.force_unlock.outputs.stdout || steps.workspace.outputs.stderr || steps.validate.outputs.stderr || steps.init.outputs.stderr }}
         EOTF
         )
         echo 'tf_output<<EOTF' >> $GITHUB_OUTPUT
