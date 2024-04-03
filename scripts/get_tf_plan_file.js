@@ -1,7 +1,7 @@
-module.exports = async ({ github, context, core, tf_plan_id }) => {
+module.exports = async ({ github, context, core }) => {
   // Fetch the list of artifacts which match the TF plan ID.
   const { data: list_artifacts } = await github.rest.actions.listArtifactsForRepo({
-    name: tf_plan_id,
+    name: process.env.tf_plan_id,
     owner: context.repo.owner,
     per_page: 100,
     repo: context.repo.repo,

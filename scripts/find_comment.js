@@ -10,7 +10,8 @@ module.exports = async ({ github, context, core }) => {
   // Identify the latest comment starting with "-tf=plan".
   const get_comment = list_comments
     .sort((a, b) => b.id - a.id)
-    .find((comment) => /^-tf=plan/.test(comment.body));
+    .find((comment) => /^-tf=plan/
+    .test(comment.body));
 
   core.setOutput("body", get_comment.body);
   core.setOutput("id", get_comment.id);
