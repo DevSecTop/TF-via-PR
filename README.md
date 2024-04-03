@@ -62,10 +62,10 @@
 
 Functional workflow examples are provided below, along with associated permissions and triggers. The full list of inputs is documented [below](#inputs).
 
-- [TF via PR Comments](.github/workflows/tf_via_pr_comments.yml)
-- [TF via PR Input with AWS Authentication](.github/workflows/tf_via_pr_input.yml)
-- [TF via PR Input with Matrix Strategy](.github/workflows/tf_via_pr_input_matrix.yml)
-- [TF via PR Comments or Input](.github/workflows/tf_via_pr_comments_or_input.yml)
+- [TF via PR Comments](.github/examples/tf_via_pr_comments.yml)
+- [TF via PR Input with AWS Authentication](.github/examples/tf_via_pr_input.yml)
+- [TF via PR Input with Matrix Strategy](.github/examples/tf_via_pr_input_matrix.yml)
+- [TF via PR Comments or Input](.github/examples/tf_via_pr_comments_or_input.yml)
 
 > [!NOTE]
 >
