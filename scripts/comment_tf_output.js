@@ -3,27 +3,36 @@ module.exports = async ({ github, context }) => {
   const comment_summary = process.env.tf_output
     .split("\n")
     .reverse()
-    .find((line) => /^(Apply|Plan|Error|No changes)/.test(line)) ||
-    "View TF result…";
+    .find((line) => /^(Apply|Plan|Error|No changes)/.test(line)) || "View output…";
 
   // Display truncated TF fmt diff, if present.
-  const comment_fmt = process.env.tf_fmt ?
-    `<details><summary>Diff of format changes.</summary>
+  const comment_fmt = process.env.tf_fmt
+    ? `<details><summary>Check format diff.</summary>
 
-    \`\`\`diff
-    ${process.env.tf_fmt}
-    \`\`\`
-    </details>` :
-    "";
+  \`\`\`diff
+  ${process.env.tf_fmt}
+  \`\`\`
+  </details>`
+    : "";
 
-  // Display the: TF command, TF output, and workflow authorship.
+  // Resolve the job URL for the footer, accounting for matrix strategy.
+  const { data: workflow_run } = await github.rest.actions.listJobsForWorkflowRun({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    run_id: context.runId,
+  });
+  const matrix = JSON.parse(process.env.matrix);
+  const job_name = `${context.job}${matrix ? ` (${Object.values(matrix).join(", ")})` : ""}`;
+  const job_url = workflow_run.jobs.find((job) => job.name === job_name).html_url;
+
+  // Display the: TF command, TF output, and workflow authorip.
   // Include the TFPLAN name in a hidden footer as a unique identifier.
   const comment_body = `
   \`${process.env.tf_command}\`
   ${comment_fmt}
   <details><summary>${comment_summary}</br>
 
-  ###### ${context.workflow} by @${context.actor} via [${context.eventName}](${context.payload.repository.html_url}/actions/runs/${context.runId}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
+  ###### ${context.workflow} by @${context.actor} via [${context.eventName}](${job_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
 
   \`\`\`hcl
   ${process.env.tf_output}
@@ -39,36 +48,40 @@ module.exports = async ({ github, context }) => {
     repo: context.repo.repo,
   });
   const bot_comment = list_comments.find((comment) => {
-    return (
-      comment.user.type === "Bot" &&
-      comment.body.includes(`<!-- ${process.env.tf_plan_id} -->`)
-    );
+    return comment.user.type === "Bot" && comment.body.includes(`<!-- ${process.env.tf_plan_id} -->`);
   });
 
-  // Delete PR comment reaction to indicate that the workflow has ended.
-  const delete_reaction = await github.rest.reactions.deleteForIssueComment({
-    comment_id: process.env.comment_id,
+  // Define common parameters for the PR comment.
+  const comment_parameters = {
+    body: comment_body,
     owner: context.repo.owner,
-    reaction_id: process.env.reaction_id,
     repo: context.repo.repo,
-  });
+  };
 
-  // If a bot comment exists with a matching TFPLAN identifier, then update
-  // the comment, otherwise create a new comment. This prevents the bot
-  // from creating a new comment on every run of this workflow.
+  // If a bot comment exists with a matching TFPLAN identifier, then edit it to
+  // reflect the latest TF output, otherwise create a new comment by default.
+  // If recreate_comment is true, then delete the existing comment
+  // before creating a new one.
   if (bot_comment) {
-    await github.rest.issues.updateComment({
-      body: comment_body,
-      comment_id: bot_comment.id,
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-    });
+    if (process.env.recreate_comment === "true") {
+      await github.rest.issues.deleteComment({
+        ...comment_parameters,
+        comment_id: bot_comment.id,
+      });
+      await github.rest.issues.createComment({
+        ...comment_parameters,
+        issue_number: context.issue.number,
+      });
+    } else {
+      await github.rest.issues.updateComment({
+        ...comment_parameters,
+        comment_id: bot_comment.id,
+      });
+    }
   } else {
     await github.rest.issues.createComment({
-      body: comment_body,
+      ...comment_parameters,
       issue_number: context.issue.number,
-      owner: context.repo.owner,
-      repo: context.repo.repo,
     });
   }
 };
