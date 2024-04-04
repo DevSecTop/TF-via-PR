@@ -34,14 +34,14 @@ jobs:
       - name: Setup TF (via tenv)
         env:
           CLI_USES: ${{ matrix.cli_uses }}
-          TENV_TOOL: ${{ matrix.cli_uses == 'terraform' && 'tf' || 'tofu' }}
         run: |
           LATEST_COSIGN=$(curl https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v\", ")
           LATEST_TENV=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest|jq -r .tag_name)
           curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign_${LATEST_COSIGN}_amd64.deb"
           curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_TENV}_amd64.deb"
           sudo dpkg -i "cosign_${LATEST_COSIGN}_amd64.deb" "tenv_${LATEST_TENV}_amd64.deb"
-          tenv ${TENV_TOOL} install latest && ${CLI_USES} --version
+          tenv ${CLI_USES} install latest
+          ${CLI_USES} --version
 
       - name: Provision TF
         id: tf
