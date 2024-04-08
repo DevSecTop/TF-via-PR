@@ -40,16 +40,16 @@ jobs:
           curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign_${LATEST_COSIGN}_amd64.deb"
           curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_TENV}_amd64.deb"
           sudo dpkg -i "cosign_${LATEST_COSIGN}_amd64.deb" "tenv_${LATEST_TENV}_amd64.deb"
-          tenv "${CLI_USES}" use 1.6.1
+          tenv $CLI_USES use 1.6.1
           echo "$(tenv update-path)"
           echo "$(tenv update-path)" >> $GITHUB_PATH
-          "${CLI_USES}" --version
+          $CLI_USES --version
 
       - name: Version TF
         env:
           CLI_USES: ${{ matrix.cli_uses }}
         run: |
-          "${CLI_USES}" --version
+          $CLI_USES --version
 
       - name: Provision TF
         id: tf
