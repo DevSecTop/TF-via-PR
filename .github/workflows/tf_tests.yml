@@ -46,7 +46,8 @@ jobs:
       - name: Version TF
         env:
           CLI_USES: ${{ matrix.cli_uses }}
-        run: ${CLI_USES} --version
+        run: |
+          ${CLI_USES} --version
 
       - name: Provision TF
         id: tf
