@@ -43,6 +43,11 @@ jobs:
           tenv ${CLI_USES} use 1.6.1
           ${CLI_USES} --version
 
+      - name: Version TF
+        env:
+          CLI_USES: ${{ matrix.cli_uses }}
+        run: ${CLI_USES} --version
+
       - name: Provision TF
         id: tf
         continue-on-error: true
