@@ -35,12 +35,14 @@ jobs:
         env:
           CLI_USES: ${{ matrix.cli_uses }}
         run: |
-          LATEST_COSIGN=$(curl --silent https://api.github.com/repos/sigstore/cosign/releases/latest | jq -r .tag_name | tr -d "v")
-          curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign_${LATEST_COSIGN}_amd64.deb"
-          LATEST_TENV=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
-          curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${LATEST_TENV}_amd64.deb"
-          sudo dpkg -i "cosign_${LATEST_COSIGN}_amd64.deb" "tenv_${LATEST_TENV}_amd64.deb"
-          tenv $CLI_USES use 1.6.1 && tenv update-path
+          VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
+          curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${VERSION}_amd64.deb"
+          sudo dpkg -i "tenv_${VERSION}_amd64.deb"
+          tenv $CLI_USES constraint "~> 1.6" tenv update-path
+
+      - env:
+          CLI_USES: ${{ matrix.cli_uses }}
+        run: $CLI_USES --version
 
       - name: Provision TF
         id: tf
