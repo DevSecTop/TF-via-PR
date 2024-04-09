@@ -40,10 +40,6 @@ jobs:
           sudo dpkg -i "tenv_${VERSION}_amd64.deb"
           tenv $CLI_USES install "~> 1.6.0" && tenv update-path
 
-      - env:
-          CLI_USES: ${{ matrix.cli_uses }}
-        run: $CLI_USES --version
-
       - name: Provision TF
         id: tf
         continue-on-error: true
