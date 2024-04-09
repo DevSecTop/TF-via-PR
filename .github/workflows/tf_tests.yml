@@ -38,7 +38,7 @@ jobs:
           VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
           curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${VERSION}_amd64.deb"
           sudo dpkg -i "tenv_${VERSION}_amd64.deb"
-          tenv $CLI_USES constraint "~> 1.6" tenv update-path
+          tenv $CLI_USES constraint "< 1.7" tenv update-path
 
       - env:
           CLI_USES: ${{ matrix.cli_uses }}
