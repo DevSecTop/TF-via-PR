@@ -47,6 +47,9 @@ outputs:
   command:
     description: JSON object of the parsed command.
     value: ${{ steps.parsed.outputs.command }}
+  comment_id:
+    description: String ID of the PR comment created or updated by the workflow.
+    value: ${{ steps.pr_comment.outputs.id }}
   plan_id:
     description: String ID of the TF plan file artifact's unique identifier.
     value: ${{ steps.arguments.outputs.tf_plan_id }}
@@ -322,6 +325,7 @@ runs:
 
     # Add or update PR comment with rendered TF output before exiting.
     - name: Comment TF output
+      id: pr_comment
       if: ${{ (success() || failure()) && steps.render.outcome == 'success' }}
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       env:
