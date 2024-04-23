@@ -1,4 +1,4 @@
-module.exports = async ({ github, context }) => {
+module.exports = async ({ github, context, core }) => {
   // Display latest TF change summary as the output header.
   const comment_summary = process.env.tf_output
     .split("\n")
@@ -68,28 +68,29 @@ ${process.env.tf_output}
   // reflect the latest TF output, otherwise create a new comment by default.
   // If recreate_comment is true, then delete the existing comment
   // before creating a new one.
-  let pr_comment;
   if (bot_comment) {
     if (process.env.recreate_comment === "true") {
       await github.rest.issues.deleteComment({
         ...comment_parameters,
         comment_id: bot_comment.id,
       });
-      pr_comment = await github.rest.issues.createComment({
+      const { data: pr_comment } = await github.rest.issues.createComment({
         ...comment_parameters,
         issue_number: context.issue.number,
       });
+      core.setOutput("id", pr_comment.id);
     } else {
-      pr_comment = await github.rest.issues.updateComment({
+      const { data: pr_comment } = await github.rest.issues.updateComment({
         ...comment_parameters,
         comment_id: bot_comment.id,
       });
+      core.setOutput("id", pr_comment.id);
     }
   } else {
-    pr_comment = await github.rest.issues.createComment({
+    const { data: pr_comment } = await github.rest.issues.createComment({
       ...comment_parameters,
       issue_number: context.issue.number,
     });
+    core.setOutput("id", pr_comment.id);
   }
-  core.setOutput("id", pr_comment.id);
 };

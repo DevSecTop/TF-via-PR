@@ -337,7 +337,7 @@ runs:
         tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
       with:
         retries: 3
-        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/comment_tf_output.js`)({ github, context });
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/comment_tf_output.js`)({ github, context, core });
 
     # Remove PR comment reaction to indicate that the workflow has ended.
     - name: Remove reaction
