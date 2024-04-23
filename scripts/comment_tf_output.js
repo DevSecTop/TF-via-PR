@@ -78,25 +78,19 @@ ${process.env.tf_output}
         ...comment_parameters,
         issue_number: context.issue.number,
       });
-      console.log(pr_comment.id);
-      console.log(pr_comment);
-      core.setOutput("comment_id", pr_comment.id);
+      core.setOutput("id", pr_comment.id);
     } else {
       const { data: pr_comment } = await github.rest.issues.updateComment({
         ...comment_parameters,
         comment_id: bot_comment.id,
       });
-      console.log(pr_comment.id);
-      console.log(pr_comment);
-      core.setOutput("comment_id", pr_comment.id);
+      core.setOutput("id", pr_comment.id);
     }
   } else {
     const { data: pr_comment } = await github.rest.issues.createComment({
       ...comment_parameters,
       issue_number: context.issue.number,
     });
-    console.log(pr_comment.id);
-    console.log(pr_comment);
-    core.setOutput("comment_id", pr_comment.id);
+    core.setOutput("id", pr_comment.id);
   }
 };
