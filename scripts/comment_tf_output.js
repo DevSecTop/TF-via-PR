@@ -7,7 +7,7 @@ module.exports = async ({ github, context, core }) => {
 
   // Display truncated TF fmt diff, if present.
   const comment_fmt = process.env.tf_fmt
-    ? `<details><summary>Check format diff.</summary>
+    ? `<details><summary>Format check diff.</summary>
 
 \`\`\`diff
 ${process.env.tf_fmt}

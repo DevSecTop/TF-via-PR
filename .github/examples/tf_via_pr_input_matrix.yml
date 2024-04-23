@@ -22,14 +22,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@v4
 
       - name: Setup TF
-        uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # v3.0.0
+        uses: hashicorp/setup-terraform@v3
 
       - name: Provision TF
         id: tf
-        uses: devsectop/tf-via-pr-comments@7c7189683e615af6aa8cca70c58caab74f6002b0 # v 10.1.0
+        uses: devsectop/tf-via-pr-comments@v10
         env:
           TF_VAR_PLACEHOLDER: value
         with:
