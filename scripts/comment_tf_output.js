@@ -68,29 +68,28 @@ ${process.env.tf_output}
   // reflect the latest TF output, otherwise create a new comment by default.
   // If recreate_comment is true, then delete the existing comment
   // before creating a new one.
+  let pr_comment;
   if (bot_comment) {
     if (process.env.recreate_comment === "true") {
       await github.rest.issues.deleteComment({
         ...comment_parameters,
         comment_id: bot_comment.id,
       });
-      const create_comment = await github.rest.issues.createComment({
+      pr_comment = await github.rest.issues.createComment({
         ...comment_parameters,
         issue_number: context.issue.number,
       });
-      core.setOutput("id", create_comment.id);
     } else {
-      const update_comment = await github.rest.issues.updateComment({
+      pr_comment = await github.rest.issues.updateComment({
         ...comment_parameters,
         comment_id: bot_comment.id,
       });
-      core.setOutput("id", update_comment.id);
     }
   } else {
-    const create_comment = await github.rest.issues.createComment({
+    pr_comment = await github.rest.issues.createComment({
       ...comment_parameters,
       issue_number: context.issue.number,
     });
-    core.setOutput("id", create_comment.id);
   }
+  core.setOutput("id", pr_comment.id);
 };
