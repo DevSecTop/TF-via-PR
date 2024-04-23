@@ -1,4 +1,4 @@
-module.exports = async ({ github, context }) => {
+module.exports = async ({ github, context, core }) => {
   // Display latest TF change summary as the output header.
   const comment_summary = process.env.tf_output
     .split("\n")
