@@ -119,8 +119,8 @@ Use-case: Provision resources with a backend, followed by destruction without co
 | `cli_uses`</br>Example: tofu                         | String name of TF CLI to use and override default assumption from wrapper environment variable.                                          |
 | `command_input`</br>Example: -tf=plan -workspace=dev | String input to run TF CLI command with arguments directly via workflow automation.                                                      |
 | `fmt_enable`</br>Default: true                       | Boolean flag to enable TF fmt command and display diff of changes.                                                                       |
-| `recreate_comment`</br>Default: false                | Boolean flag to recreate PR comment on update instead of editing the existing one.                                                       |
-| `validate_enable`</br>Default: true                  | Boolean flag to enable TF validate command check.                                                                                        |
+| `recreate_comment`</br>Default: true                 | Boolean flag to recreate PR comment on update instead of editing the existing one.                                                       |
+| `validate_enable`</br>Default: false                 | Boolean flag to enable TF validate command check.                                                                                        |
 | `var_file_from_workspace`</br>Default: false         | Boolean flag to re-use TF `-workspace` as `-var-file` argument, if supplied.                                                             |
 | `var_file_prefix`</br>Example: ../env/               | String prefix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied.                   |
 | `var_file_suffix`</br>Example: .tfvars               | String suffix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied.                   |
