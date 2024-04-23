@@ -79,6 +79,7 @@ ${process.env.tf_output}
         ...comment_parameters,
         issue_number: context.issue.number,
       });
+      console.log(pr_comment);
     } else {
       pr_comment = await github.rest.issues.updateComment({
         ...comment_parameters,
