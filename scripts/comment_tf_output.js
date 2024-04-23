@@ -9,10 +9,10 @@ module.exports = async ({ github, context }) => {
   const comment_fmt = process.env.tf_fmt
     ? `<details><summary>Check format diff.</summary>
 
-  \`\`\`diff
-  ${process.env.tf_fmt}
-  \`\`\`
-  </details>`
+\`\`\`diff
+${process.env.tf_fmt}
+\`\`\`
+</details>`
     : "";
 
   // Resolve the job URL for the footer, accounting for matrix strategy.
@@ -28,17 +28,23 @@ module.exports = async ({ github, context }) => {
   // Display the: TF command, TF output, and workflow authorip.
   // Include the TFPLAN name in a hidden footer as a unique identifier.
   const comment_body = `
-  \`${process.env.tf_command}\`
-  ${comment_fmt}
-  <details><summary>${comment_summary}</br>
+\`${process.env.tf_command}\`
 
-  ###### ${context.workflow} by @${context.actor} via [${context.eventName}](${job_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
+<!-- pre_output -->
 
-  \`\`\`hcl
-  ${process.env.tf_output}
-  \`\`\`
-  </details>
-  <!-- ${process.env.tf_plan_id} -->`;
+${comment_fmt}
+<details><summary>${comment_summary}</br>
+
+###### ${context.workflow} by @${context.actor} via [${context.eventName}](${job_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
+
+\`\`\`hcl
+${process.env.tf_output}
+\`\`\`
+</details>
+
+<!-- post_output -->
+
+<!-- ${process.env.tf_plan_id} -->`;
 
   // Check if the bot has commented on the PR using the TFPLAN identifier.
   const { data: list_comments } = await github.rest.issues.listComments({
@@ -62,26 +68,28 @@ module.exports = async ({ github, context }) => {
   // reflect the latest TF output, otherwise create a new comment by default.
   // If recreate_comment is true, then delete the existing comment
   // before creating a new one.
+  let pr_comment;
   if (bot_comment) {
     if (process.env.recreate_comment === "true") {
       await github.rest.issues.deleteComment({
         ...comment_parameters,
         comment_id: bot_comment.id,
       });
-      await github.rest.issues.createComment({
+      pr_comment = await github.rest.issues.createComment({
         ...comment_parameters,
         issue_number: context.issue.number,
       });
     } else {
-      await github.rest.issues.updateComment({
+      pr_comment = await github.rest.issues.updateComment({
         ...comment_parameters,
         comment_id: bot_comment.id,
       });
     }
   } else {
-    await github.rest.issues.createComment({
+    pr_comment = await github.rest.issues.createComment({
       ...comment_parameters,
       issue_number: context.issue.number,
     });
   }
+  core.setOutput("id", pr_comment.id);
 };

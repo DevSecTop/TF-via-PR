@@ -127,12 +127,13 @@ Use-case: Provision resources with a backend, followed by destruction without co
 
 #### Outputs
 
-| Name                                                          | Description                                                 |
-| ------------------------------------------------------------- | ----------------------------------------------------------- |
-| `command`</br>Example: `{tf:plan,chdir:stacks/sample_bucket}` | JSON object of the parsed command.                          |
-| `plan_id`</br>Example: stacks-sample-bucket-tfplan            | String ID of the TF plan file artifact's unique identifier. |
-| `tf_fmt`                                                      | String output of the truncated TF fmt command.              |
-| `tf_output`                                                   | String output of the truncated last TF command.             |
+| Name                                                          | Description                                                     |
+| ------------------------------------------------------------- | --------------------------------------------------------------- |
+| `command`</br>Example: `{tf:plan,chdir:stacks/sample_bucket}` | JSON object of the parsed command.                              |
+| `comment_id`</br>Example: 1234567890                          | String ID of the PR comment created or updated by the workflow. |
+| `plan_id`</br>Example: stacks-sample-bucket-tfplan            | String ID of the TF plan file artifact's unique identifier.     |
+| `tf_fmt`                                                      | String output of the truncated TF fmt command.                  |
+| `tf_output`                                                   | String output of the truncated last TF command.                 |
 
 ## Security
 
