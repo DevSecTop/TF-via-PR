@@ -1,17 +1,17 @@
-[![GitHub release tag](https://img.shields.io/github/v/release/devsectop/tf-via-pr-comments?logo=semanticrelease&label=Release)](https://github.com/devsectop/tf-via-pr-comments/releases)
-[![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr-comments?logo=apache&label=License)](LICENSE)
-[![CodeQL](https://github.com/devsectop/tf-via-pr-comments/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/devsectop/tf-via-pr-comments/actions/workflows/github-code-scanning/codeql)
-[![GitHub repository stars count](https://img.shields.io/github/stars/devsectop/tf-via-pr-comments)](https://github.com/devsectop/tf-via-pr-comments/stargazers)
+[![GitHub release tag](https://img.shields.io/github/v/release/devsectop/tf-via-pr?logo=semanticrelease&label=Release)](https://github.com/devsectop/tf-via-pr/releases)
+[![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr?logo=apache&label=License)](LICENSE)
+[![CodeQL](https://github.com/devsectop/tf-via-pr/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/devsectop/tf-via-pr/actions/workflows/github-code-scanning/codeql)
+[![GitHub repository stars count](https://img.shields.io/github/stars/devsectop/tf-via-pr)](https://github.com/devsectop/tf-via-pr/stargazers)
 
 [![OpenTofu compatibility](https://img.shields.io/badge/OpenTofu-Compatible-FFDA18?logo=opentofu&logoColor=white)](https://github.com/opentofu/setup-opentofu)
 [![Terraform compatibility](https://img.shields.io/badge/Terraform-Compatible-844FBA?logo=terraform&logoColor=white)](https://github.com/hashicorp/setup-terraform)
 [![Static Badge](https://img.shields.io/badge/GitHub-Marketplace-2088FF?logo=githubactions&logoColor=white)](https://github.com/marketplace/actions/terraform-opentofu-via-pr-comments)
 
-# OpenTofu/Terraform via PR Comments
+# OpenTofu/Terraform via PR
 
 > [!IMPORTANT]
 >
-> GitHub Action to automate OpenTofu or Terraform (TF) CLI commands via pull request (PR) comments.
+> GitHub Action to automate OpenTofu or Terraform (TF) CLI commands via pull request (PR) interaction.
 >
 > Overview: [Highlights](#highlights) · [Usage](#usage) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
@@ -22,7 +22,7 @@
     <img alt="Screenshot of the author's TF command in a PR comment followed by github-action bot's TF output response in the next comment." src="assets/screenshot_dark.png">
   </picture>
   <figcaption>
-    </br><a href="https://github.com/devsectop/tf-via-pr-comments/pull/166" title="View the PR conversation referenced in the screenshot.">View PR:</a> Screenshot of TF CLI command in a PR comment followed by github-action bot's TF output response in the next comment.
+    </br><a href="https://github.com/devsectop/tf-via-pr/pull/166" title="View the PR conversation referenced in the screenshot.">View PR:</a> Screenshot of TF CLI command in a PR comment followed by github-action bot's TF output response in the next comment.
   </figcaption>
 </figure>
 
@@ -30,10 +30,10 @@
 
 ### What does it do?
 
-<details><summary>Add PR comments in the form of CLI commands to trigger OpenTofu or Terraform operations.</summary>
+<details><summary>Add PR comments or workflow input in the form of CLI commands to trigger OpenTofu or Terraform operations.</summary>
 
 - Both [Hashicorp][terraform_io] `terraform` and [OpenTofu][opentofu_org] `tofu` CLIs are supported, with the latter offering an open-source and backwards-compatible drop-in replacement for the former.
-- Comments beginning with `-tf=` are parsed with each argument and flag being passed into the appropriate TF command automatically.
+- Comments/input beginning with `-tf=` are parsed with each argument and flag being passed into the appropriate TF command automatically.
 </details>
 
 <details><summary>Run TF CLI commands dynamically on PR open, update and close without manual intervention.</summary>
@@ -168,17 +168,17 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 [configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [configure_oidc]: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-cloud-providers "Configuring OpenID Connect in cloud providers."
 [deployment_protection]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules "Configuring environment deployment protection rules."
-[discussion]: https://github.com/devsectop/tf-via-pr-comments/discussions "Open a discussion."
+[discussion]: https://github.com/devsectop/tf-via-pr/discussions "Open a discussion."
 [github_codespaces]: https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers "Introduction to GitHub Codespaces."
-[issue]: https://github.com/devsectop/tf-via-pr-comments/issues "Raise an issue."
+[issue]: https://github.com/devsectop/tf-via-pr/issues "Raise an issue."
 [license]: LICENSE "Apache License 2.0."
 [opentofu_org]: https://opentofu.org "Open-source Terraform-compatible IaC tool."
-[pr_example_1]: https://github.com/devsectop/tf-via-pr-comments/pull/164 "Example PR for this use-case."
-[pr_example_2]: https://github.com/devsectop/tf-via-pr-comments/pull/166 "Example PR for this use-case."
-[pull_request]: https://github.com/devsectop/tf-via-pr-comments/pulls "Create a pull request."
-[releases]: https://github.com/devsectop/tf-via-pr-comments/releases "Releases."
+[pr_example_1]: https://github.com/devsectop/tf-via-pr/pull/164 "Example PR for this use-case."
+[pr_example_2]: https://github.com/devsectop/tf-via-pr/pull/166 "Example PR for this use-case."
+[pull_request]: https://github.com/devsectop/tf-via-pr/pulls "Create a pull request."
+[releases]: https://github.com/devsectop/tf-via-pr/releases "Releases."
 [rishav_dhar]: https://github.com/rdhar "Rishav Dhar's GitHub profile."
 [securing_github_actions]: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions "Security hardening for GitHub Actions."
 [semver]: https://www.npmjs.com/package/semver#ranges "Semantic versioning ranges."
-[stargazer]: https://github.com/devsectop/tf-via-pr-comments/stargazers "Become a stargazer."
+[stargazer]: https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer."
 [terraform_io]: https://www.terraform.io "Terraform by Hashicorp."
