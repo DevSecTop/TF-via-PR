@@ -2,7 +2,7 @@
 
 Integrating security in your CI/CD pipeline is critical to practicing DevSecOps. This GHA aims to be secure by default, and it should be complemented with your own review to ensure it meets your (organization's) security requirements.
 
-- All associated GHAs used in this workflow are [pinned to a specific SHA][securing_github_actions] to prevent supply chain attacks from third-party upstream dependencies.
+- All 3 GHAs used in this workflow are [pinned to a specific SHA][securing_github_actions] to prevent supply chain attacks from upstream dependencies: [actions/cache](https://github.com/actions/cache), [actions/github-script](https://github.com/actions/github-script) and [actions/upload-artifact](https://github.com/actions/upload-artifact).
 - Restrict changes to certain environments with [deployment protection rules][deployment_protection] or `apply_require_approval` so that approval is required from authorized users/teams before changes to the infrastructure can be applied.
 - Ease of integration with [OpenID Connect][configure_oidc] by passing short-lived credentials as environment variables to the workflow.
 
