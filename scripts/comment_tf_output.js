@@ -4,6 +4,7 @@ module.exports = async ({ github, context, core }) => {
     .split("\n")
     .reverse()
     .find((line) => /^(Apply|Plan|Error|No changes)/.test(line)) || "View output…";
+  core.setOutput("summary", comment_summary);
 
   // Display truncated TF fmt diff, if present.
   const comment_fmt = process.env.tf_fmt
@@ -16,7 +17,8 @@ ${process.env.tf_fmt}
     : "";
 
   // Resolve the job URL for the footer, accounting for matrix strategy.
-  const { data: workflow_run } = await github.rest.actions.listJobsForWorkflowRun({
+  const { data: workflow_run } = await github.rest.actions.listJobsForWorkflowRunAttempt({
+    attempt_number: process.env.run_attempt,
     owner: context.repo.owner,
     repo: context.repo.repo,
     run_id: context.runId,
@@ -26,6 +28,16 @@ ${process.env.tf_fmt}
   const job_url = workflow_run.jobs.find((job) => job.name === job_name).html_url;
 
   // Display the: TF command, TF output, and workflow authorip.
+  const comment_output = `
+  <details><summary>${comment_summary}</br>
+
+###### ${context.workflow} by @${context.actor} via [${context.eventName}](${job_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
+
+\`\`\`hcl
+${process.env.tf_output}
+\`\`\`
+</details>`;
+
   // Include the TFPLAN name in a hidden footer as a unique identifier.
   const comment_body = `
 \`${process.env.tf_command}\`
@@ -33,14 +45,7 @@ ${process.env.tf_fmt}
 <!-- pre_output -->
 
 ${comment_fmt}
-<details><summary>${comment_summary}</br>
-
-###### ${context.workflow} by @${context.actor} via [${context.eventName}](${job_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
-
-\`\`\`hcl
-${process.env.tf_output}
-\`\`\`
-</details>
+${comment_output}
 
 <!-- post_output -->
 

@@ -50,6 +50,9 @@ outputs:
   comment_id:
     description: String ID of the PR comment created or updated by the workflow.
     value: ${{ steps.pr_comment.outputs.id }}
+  comment_summary:
+    description: String summary of the PR comment created or updated by the workflow.
+    value: ${{ steps.pr_comment.outputs.summary }}
   plan_id:
     description: String ID of the TF plan file artifact's unique identifier.
     value: ${{ steps.arguments.outputs.tf_plan_id }}
@@ -331,6 +334,7 @@ runs:
       env:
         matrix: ${{ toJSON(matrix) }}
         recreate_comment: ${{ inputs.recreate_comment }}
+        run_attempt: ${{ github.run_attempt }}
         tf_command: ${{ steps.parsed.outputs.command }}
         tf_fmt: ${{ steps.render.outputs.tf_fmt }}
         tf_output: ${{ steps.render.outputs.tf_output }}
