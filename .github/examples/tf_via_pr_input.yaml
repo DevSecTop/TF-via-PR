@@ -1,9 +1,9 @@
+---
 name: TF via PR Input with AWS Authentication
-
 on:
   pull_request:
     types: [opened, reopened, synchronize, closed]
-    paths: ["**/*.tf*"]
+    paths: ['**/*.tf*']
 
 jobs:
   tf:

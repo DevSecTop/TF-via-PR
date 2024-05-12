@@ -1,11 +1,11 @@
+---
 name: TF via PR Comments
-
 on:
   issue_comment:
     types: [created, edited]
   pull_request:
     types: [synchronize]
-    paths: ["**/*.tf*"]
+    paths: ['**/*.tf*']
 
 jobs:
   tf:
