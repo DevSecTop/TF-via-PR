@@ -1,7 +1,13 @@
+---
 version: 2
-
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: daily
+  - package-ecosystem: terraform
+    directories:
+      - /stacks/sample_bucket
+      - /stacks/sample_instance
+    schedule:
+      interval: weekly
