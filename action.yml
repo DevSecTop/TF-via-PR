@@ -334,6 +334,7 @@ runs:
       env:
         matrix: ${{ toJSON(matrix) }}
         recreate_comment: ${{ inputs.recreate_comment }}
+        run_attempt: ${{ github.run_attempt }}
         tf_command: ${{ steps.parsed.outputs.command }}
         tf_fmt: ${{ steps.render.outputs.tf_fmt }}
         tf_output: ${{ steps.render.outputs.tf_output }}
