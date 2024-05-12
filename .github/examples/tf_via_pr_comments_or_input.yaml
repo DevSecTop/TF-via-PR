@@ -5,7 +5,7 @@ on:
     types: [created, edited]
   pull_request:
     types: [opened, reopened, synchronize, closed]
-    paths: ["**/*.tf*"]
+    paths: ['**/*.tf*']
 
 jobs:
   tf:

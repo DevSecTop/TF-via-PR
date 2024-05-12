@@ -3,10 +3,7 @@ name: TF Tests
 on:
   pull_request:
     types: [opened, reopened, synchronize, closed]
-    paths:
-      - '**.yaml'
-      - scripts/**
-      - tests/**
+    paths: ['**.yaml', scripts/**, tests/**]
 
 jobs:
   tests:
