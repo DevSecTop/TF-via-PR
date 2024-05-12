@@ -4,6 +4,7 @@ module.exports = async ({ github, context, core }) => {
     .split("\n")
     .reverse()
     .find((line) => /^(Apply|Plan|Error|No changes)/.test(line)) || "View output…";
+  core.setOutput("summary", comment_summary);
 
   // Display truncated TF fmt diff, if present.
   const comment_fmt = process.env.tf_fmt

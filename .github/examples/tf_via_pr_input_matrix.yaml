@@ -39,6 +39,7 @@ jobs:
         run: |
           echo "command: ${{ steps.tf.outputs.command }}"
           echo "comment_id: ${{ steps.tf.outputs.comment_id }}"
+          echo "comment_summary: ${{ steps.tf.outputs.comment_summary }}"
           echo "plan_id: ${{ steps.tf.outputs.plan_id }}"
           echo "tf_fmt: ${{ steps.tf.outputs.tf_fmt }}"
           echo "tf_output: ${{ steps.tf.outputs.tf_output }}"
