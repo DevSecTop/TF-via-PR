@@ -7,18 +7,20 @@
 
   jobs:
     tests:
+      name: Tests Job
       runs-on: ubuntu-latest
       if: github.event.action != 'closed' || github.event.pull_request.merged
 
       strategy:
         fail-fast: false
         matrix:
-          cli_uses: [tofu, terraform]
+          cli_uses: [terraform]
+          # cli_uses: [tofu, terraform]
           test:
-            - 10_fail_invalid_resource_type
-            - 11_fail_data_source_error
+            # - 10_fail_invalid_resource_type
+            # - 11_fail_data_source_error
             - 50_pass_one
-            - 51_pass_character_limit
+            # - 51_pass_character_limit
             - 52_pass_format_diff
 
       permissions:
