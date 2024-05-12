@@ -1,24 +1,17 @@
+---
 name: TF Tests
-
 on:
   pull_request:
     types: [opened, reopened, synchronize, closed]
     paths:
-      - "**.yml"
-      - "scripts/**"
-      - "tests/**"
+      - '**.yaml'
+      - scripts/**
+      - tests/**
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     if: github.event.action != 'closed' || github.event.pull_request.merged
-
-    permissions:
-      actions: read # Required for workflow query and artifact download.
-      contents: read # Required for repository checkout.
-      issues: read # Required for getting PR branch from issue comment.
-      pull-requests: write # Required for commenting on PR.
-      statuses: write # Required for setting commit status from issue comment.
 
     strategy:
       fail-fast: false
@@ -31,6 +24,13 @@ jobs:
           - 51_pass_character_limit
           - 52_pass_format_diff
 
+    permissions:
+      actions: read # Required for workflow query and artifact download.
+      contents: read # Required for repository checkout.
+      issues: read # Required for getting PR branch from issue comment.
+      pull-requests: write # Required for commenting on PR.
+      statuses: write # Required for setting commit status from issue comment.
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -38,7 +38,7 @@ jobs:
       - name: Setup TF (via tenv)
         env:
           CLI_USES: ${{ matrix.cli_uses }}
-          CLI_VERSION: ~> 1.6.0
+          CLI_VERSION: ~> 1.7.0
         run: |
           VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
           curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${VERSION}_amd64.deb"
@@ -68,6 +68,7 @@ jobs:
         uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: console.log(JSON.stringify(context, null, 2))
+
       - name: Echo github context
         if: always()
         env:

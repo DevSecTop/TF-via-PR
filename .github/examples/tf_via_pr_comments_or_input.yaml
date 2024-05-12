@@ -1,5 +1,5 @@
+---
 name: TF via PR Comments or Input
-
 on:
   issue_comment:
     types: [created, edited]
