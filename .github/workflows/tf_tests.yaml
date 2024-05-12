@@ -7,7 +7,6 @@ on:
 
 jobs:
   tests:
-    name: Tests Job
     runs-on: ubuntu-latest
     if: github.event.action != 'closed' || github.event.pull_request.merged
 
