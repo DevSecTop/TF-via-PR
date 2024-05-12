@@ -5,6 +5,15 @@ on:
     types: [opened, reopened, synchronize, closed]
 
 jobs:
+  demo:
+    name: Demo Job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        uses: actions/github-script@v7
+        with:
+          script: console.log(JSON.stringify(context.job)
+
   tests:
     name: Tests Job
     runs-on: ubuntu-latest
