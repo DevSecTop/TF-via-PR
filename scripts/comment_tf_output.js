@@ -24,8 +24,7 @@ ${process.env.tf_fmt}
     run_id: context.runId,
   });
   const matrix = JSON.parse(process.env.matrix);
-  const job = workflow_run.jobs.find((job) => job.run_id === context.runId).name;
-  const job_name = `${job}${matrix ? ` (${Object.values(matrix).join(", ")})` : ""}`;
+  const job_name = `${context.job}${matrix ? ` (${Object.values(matrix).join(", ")})` : ""}`;
   const job_url = workflow_run.jobs.find((job) => job.name === job_name).html_url;
 
   // Display the: TF command, TF output, and workflow authorip.
