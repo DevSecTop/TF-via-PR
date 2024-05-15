@@ -25,13 +25,14 @@ ${process.env.tf_fmt}
   });
   const matrix = JSON.parse(process.env.matrix);
   const job_name = `${context.job}${matrix ? ` (${Object.values(matrix).join(", ")})` : ""}`;
-  const job_url = workflow_run.jobs.find((job) => job.name === job_name).html_url;
+  const check_url = workflow_run.jobs.find((job) => job.name === job_name).html_url;
+  core.setOutput("check_id", workflow_run.jobs.find((job) => job.name === job_name).id);
 
   // Display the: TF command, TF output, and workflow authorip.
   const comment_output = `
   <details><summary>${comment_summary}</br>
 
-###### ${context.workflow} by @${context.actor} via [${context.eventName}](${job_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
+###### ${context.workflow} by @${context.actor} via [${context.eventName}](${check_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
 
 \`\`\`hcl
 ${process.env.tf_output}

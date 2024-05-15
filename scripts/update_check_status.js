@@ -3,7 +3,7 @@ module.exports = async ({ github, context }) => {
   const update_check_status = await github.rest.checks.update({
     owner: context.repo.owner,
     repo: context.repo.repo,
-    check_run_id: context.runId,
+    check_run_id: process.env.check_id,
     output: {
       summary: "OUTPUT SUMMARY",
       text: process.env.tf_summary,
