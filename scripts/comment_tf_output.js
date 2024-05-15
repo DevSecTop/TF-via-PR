@@ -26,7 +26,15 @@ ${process.env.tf_fmt}
   const matrix = JSON.parse(process.env.matrix);
   const job_name = `${context.job}${matrix ? ` (${Object.values(matrix).join(", ")})` : ""}`;
   const check_url = workflow_run.jobs.find((job) => job.name === job_name).html_url;
-  core.setOutput("check_id", workflow_run.jobs.find((job) => job.name === job_name).id);
+  const check_id = workflow_run.jobs.find((job) => job.name === job_name).id;
+
+  // Update the check status with TF output summary.
+  const update_check_status = await github.rest.checks.update({
+    check_run_id: check_id,
+    output: { title: comment_summary },
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+  });
 
   // Display the: TF command, TF output, and workflow authorip.
   const comment_output = `

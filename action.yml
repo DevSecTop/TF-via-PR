@@ -354,17 +354,6 @@ runs:
         retries: 3
         script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/remove_reaction.js`)({ github, context });
 
-    # On pull_request, update check status with the job summary before exiting.
-    - name: Update check status
-      if: ${{ (success() || failure()) && steps.pr_comment.outcome == 'success' }}
-      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-      env:
-        check_id: ${{ steps.pr_comment.outputs.check_id }}
-        tf_summary: ${{ steps.pr_comment.outputs.summary }}
-      with:
-        retries: 3
-        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/update_check_status.js`)({ github, context });
-
     # On issue_comment, update commit status with the job status before exiting.
     - name: Update commit status
       if: ${{ (success() || failure()) && github.event.issue.pull_request }}
