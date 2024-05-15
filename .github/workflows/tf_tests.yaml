@@ -26,7 +26,7 @@ jobs:
       actions: read # Required for workflow query and artifact download.
       contents: read # Required for repository checkout.
       pull-requests: write # Required for commenting on PR.
-      checks: write # Required for adding summary to check status.
+      checks: read # Required for adding summary to check status.
 
     steps:
       - name: Checkout repository
