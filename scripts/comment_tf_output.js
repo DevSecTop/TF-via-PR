@@ -25,13 +25,25 @@ ${process.env.tf_fmt}
   });
   const matrix = JSON.parse(process.env.matrix);
   const job_name = `${context.job}${matrix ? ` (${Object.values(matrix).join(", ")})` : ""}`;
-  const job_url = workflow_run.jobs.find((job) => job.name === job_name).html_url;
+  const check_url = workflow_run.jobs.find((job) => job.name === job_name).html_url;
+  const check_id = workflow_run.jobs.find((job) => job.name === job_name).id;
+
+  // Update the check status with TF output summary.
+  const update_check_status = await github.rest.checks.update({
+    check_run_id: check_id,
+    output: {
+      summary: comment_summary,
+      title: comment_summary,
+    },
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+  });
 
   // Display the: TF command, TF output, and workflow authorip.
   const comment_output = `
   <details><summary>${comment_summary}</br>
 
-###### ${context.workflow} by @${context.actor} via [${context.eventName}](${job_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
+###### ${context.workflow} by @${context.actor} via [${context.eventName}](${check_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
 
 \`\`\`hcl
 ${process.env.tf_output}
@@ -50,6 +62,10 @@ ${comment_output}
 <!-- post_output -->
 
 <!-- ${process.env.tf_plan_id} -->`;
+
+  // Display the comment body as a job summary.
+  core.summary.addRaw(comment_body);
+  core.summary.write();
 
   // Check if the bot has commented on the PR using the TFPLAN identifier.
   const { data: list_comments } = await github.rest.issues.listComments({
