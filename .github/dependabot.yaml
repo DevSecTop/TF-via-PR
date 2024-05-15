@@ -11,3 +11,7 @@ updates:
       - /stacks/sample_instance
     schedule:
       interval: weekly
+    groups:
+      terraform:
+        patterns:
+          - "*"
