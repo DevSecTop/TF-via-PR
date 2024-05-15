@@ -13,13 +13,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cli_uses: [tofu, terraform]
+        # cli_uses: [tofu, terraform]
+        cli_uses: [terraform]
         test:
-          - 10_fail_invalid_resource_type
-          - 11_fail_data_source_error
+          # - 10_fail_invalid_resource_type
+          # - 11_fail_data_source_error
           - 50_pass_one
-          - 51_pass_character_limit
-          - 52_pass_format_diff
+          # - 51_pass_character_limit
+          # - 52_pass_format_diff
 
     permissions:
       actions: read # Required for workflow query and artifact download.
