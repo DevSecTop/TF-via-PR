@@ -63,6 +63,10 @@ ${comment_output}
 
 <!-- ${process.env.tf_plan_id} -->`;
 
+  // Display the comment output as a job summary.
+  core.summary.addRaw(comment_output);
+  core.summary.write();
+
   // Check if the bot has commented on the PR using the TFPLAN identifier.
   const { data: list_comments } = await github.rest.issues.listComments({
     issue_number: context.issue.number,
