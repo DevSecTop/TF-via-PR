@@ -63,8 +63,8 @@ ${comment_output}
 
 <!-- ${process.env.tf_plan_id} -->`;
 
-  // Display the comment output as a job summary.
-  core.summary.addRaw(comment_output);
+  // Display the comment body as a job summary.
+  core.summary.addRaw(comment_body);
   core.summary.write();
 
   // Check if the bot has commented on the PR using the TFPLAN identifier.
