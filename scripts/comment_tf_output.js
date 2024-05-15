@@ -31,7 +31,10 @@ ${process.env.tf_fmt}
   // Update the check status with TF output summary.
   const update_check_status = await github.rest.checks.update({
     check_run_id: check_id,
-    output: { title: comment_summary },
+    output: {
+      summary: comment_summary,
+      title: comment_summary,
+    },
     owner: context.repo.owner,
     repo: context.repo.repo,
   });
