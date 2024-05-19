@@ -61,7 +61,7 @@ ${process.env.tf_fmt}
       .split("\n")
       .filter((line) => line.startsWith("  # "))
       .map((line) => line.slice(4))
-      .substring(0, 12000);
+      .substring(0, 12);
     // Limit the number of changed_lines characters to 12000.
     // const changed_lines_str = changed_lines.join("\n");
     // if (changed_lines_str.length > 12000) {
