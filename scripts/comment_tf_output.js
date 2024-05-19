@@ -43,6 +43,7 @@ ${process.env.tf_fmt}
   console.log("process.env.tf_command.tf:", JSON.parse(process.env.tf_command).tf);
 
   // Parse the TFplan file to create an outline of changes.
+  let comment_outline = "";
   if (JSON.parse(process.env.tf_command).tf === "plan") {
     // Parse TFplan file.
     let tfplan = "";
@@ -65,7 +66,7 @@ ${process.env.tf_fmt}
       .slice(0, 12000);
 
     // Display the TFplan outline.
-    const comment_outline = `
+    comment_outline = `
 <details><summary>Outline of changes.</summary>
 
 \`\`\`hcl
@@ -73,6 +74,7 @@ ${changed_lines.join("\n")}
 \`\`\`
 </details>
 `;
+  }
 
   // Display the: TF command, TF output, and workflow authorip.
   const comment_output = `
