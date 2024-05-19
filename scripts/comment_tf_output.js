@@ -63,8 +63,8 @@ ${process.env.tf_fmt}
       .map((line) => line.slice(4))
       .slice(0, 12000);
 
-    // Create a collapsible summary of changes.
-    comment_outline = changed_lines
+    // Create a collapsible summary of changes if any.
+    comment_outline = changed_lines.length
       ? `<details><summary>Outline of changes.</summary>
 
 \`\`\`hcl
