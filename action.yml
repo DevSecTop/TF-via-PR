@@ -306,7 +306,7 @@ runs:
       shell: bash
       run: |
         # Remove lines related to fetching the state of resources and truncate
-        # before the last 66000 characters to capture the final change summary.
+        # before the last 48000 characters to capture the final change summary.
         tf_output_raw=$(cat <<'EOTF'
         ${{ steps.apply.outputs.stderr || steps.apply.outputs.stdout || steps.plan.outputs.stderr || steps.plan.outputs.stdout || steps.force_unlock.outputs.stderr || steps.force_unlock.outputs.stdout || steps.workspace.outputs.stderr || steps.validate.outputs.stderr || steps.init.outputs.stderr }}
         EOTF
@@ -314,16 +314,16 @@ runs:
         echo 'tf_output<<EOTF' >> $GITHUB_OUTPUT
         echo "$tf_output_raw" |
           grep -vE ': Creating...|: Creation complete after|: Destroying...|: Destruction complete after|: Modifications complete after|: Modifying...|: Provisioning with|: Read complete after|: Reading...|: Refreshing state...|: Still creating...|: Still destroying...|: Still modifying...|: Still reading...|. This may take a few moments...' |
-          tail -c 66000 >> $GITHUB_OUTPUT
+          tail -c 48000 >> $GITHUB_OUTPUT
         echo 'EOTF' >> $GITHUB_OUTPUT
 
-        # This time, truncate after the first 12000 characters instead.
+        # This time, truncate after the first 6000 characters instead.
         tf_fmt_raw=$(cat <<'EOTF'
         ${{ steps.fmt.outputs.stdout }}
         EOTF
         )
         echo 'tf_fmt<<EOTF' >> $GITHUB_OUTPUT
-        echo "$tf_fmt_raw" | head -c 12000 >> $GITHUB_OUTPUT
+        echo "$tf_fmt_raw" | head -c 6000 >> $GITHUB_OUTPUT
         echo 'EOTF' >> $GITHUB_OUTPUT
 
     # Add or update PR comment with rendered TF output before exiting.
@@ -341,7 +341,7 @@ runs:
         tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
       with:
         retries: 3
-        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/comment_tf_output.js`)({ github, context, core });
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/comment_tf_output.js`)({ github, context, core, exec });
 
     # Remove PR comment reaction to indicate that the workflow has ended.
     - name: Remove reaction

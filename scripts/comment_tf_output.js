@@ -1,4 +1,4 @@
-module.exports = async ({ github, context, core }) => {
+module.exports = async ({ github, context, core, exec }) => {
   // Display latest TF change summary as the output header.
   const comment_summary = process.env.tf_output
     .split("\n")
@@ -39,6 +39,41 @@ ${process.env.tf_fmt}
     repo: context.repo.repo,
   });
 
+  // If [tf] of process.env.tf_command object equals "plan", then parse the TFplan file.
+  console.log("process.env.tf_command.tf:", JSON.parse(process.env.tf_command).tf);
+
+  // Parse the TFplan file to create an outline of changes.
+  if (JSON.parse(process.env.tf_command).tf === "plan") {
+    // Parse TFplan file.
+    let tfplan = "";
+    const data_handler = (data) => {
+      tfplan += data.toString();
+    };
+    const options = {
+      listeners: {
+        stdout: data_handler,
+        stderr: data_handler,
+      },
+    };
+    await exec.exec(process.env.TF_CLI, [`-chdir=${process.env.TF_CHDIR}`, "show", "-no-color", "tfplan"], options);
+
+    // Create an outline from lines starting with '  # ' while removing the prefix for the first 12000 characters.
+    const changed_lines = tfplan
+      .split("\n")
+      .filter((line) => line.startsWith("  # "))
+      .map((line) => line.slice(4))
+      .slice(0, 12000);
+
+    // Display the TFplan outline.
+    const comment_outline = `
+<details><summary>Outline of changes.</summary>
+
+\`\`\`hcl
+${changed_lines.join("\n")}
+\`\`\`
+</details>
+`;
+
   // Display the: TF command, TF output, and workflow authorip.
   const comment_output = `
   <details><summary>${comment_summary}</br>
@@ -57,6 +92,7 @@ ${process.env.tf_output}
 <!-- pre_output -->
 
 ${comment_fmt}
+${comment_outline}
 ${comment_output}
 
 <!-- post_output -->
