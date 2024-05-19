@@ -39,19 +39,43 @@ ${process.env.tf_fmt}
     repo: context.repo.repo,
   });
 
-  // Display the TFplan outline.
-  const comment_outline = `
+  // Parse the TFplan file to extract an outline of changes.
+  let comment_outline = "";
+  if (process.env.tf_plan_outline) {
+    // Parse TFplan file.
+    let tfplan = "";
+    const data_handler = (data) => {
+      tfplan += data.toString();
+    };
+    const options = {
+      listeners: {
+        stdout: data_handler,
+        stderr: data_handler,
+      },
+    };
+    await exec.exec(process.env.TF_CLI_USES, [`-chdir=${process.env.tf_chdir}`, "show", "-no-color", "tfplan"], options);
+
+    // Create a summary from lines starting with '  # ' while removing the
+    // prefix from the first 12000 characters.
+    const changed_lines = tfplan
+      .split("\n")
+      .filter((line) => line.startsWith("  # "))
+      .map((line) => line.slice(4))
+      .slice(0, 12000);
+
+    // Create a collapsible summary of changes.
+    comment_outline = `
 <details><summary>Outline of changes.</summary>
 
 \`\`\`hcl
-${process.env.tf_plan_outline}
+${changed_lines.join("\n")}
 \`\`\`
-</details>
-`;
+</details>`;
+  }
 
   // Display the: TF command, TF output, and workflow authorip.
   const comment_output = `
-  <details><summary>${comment_summary}</br>
+<details><summary>${comment_summary}</br>
 
 ###### ${context.workflow} by @${context.actor} via [${context.eventName}](${check_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
 

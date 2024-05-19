@@ -262,21 +262,11 @@ runs:
       run: ${{ env.TF_CLI_USES }} ${{ steps.arguments.outputs.arg_chdir }} plan -out=tfplan ${{ steps.arguments.outputs.arg_compact_warnings }} ${{ steps.arguments.outputs.arg_concise }} ${{ steps.arguments.outputs.arg_destroy }} ${{ steps.arguments.outputs.arg_lock }} ${{ steps.arguments.outputs.arg_lock_timeout }} ${{ steps.arguments.outputs.arg_parallelism }} ${{ steps.arguments.outputs.arg_refresh }} ${{ steps.arguments.outputs.arg_refresh_only }} ${{ steps.arguments.outputs.arg_replace }} ${{ steps.arguments.outputs.arg_target }} ${{ steps.arguments.outputs.arg_var_file }}
 
     # Generate an outline of changes from the TF plan file.
-    - name: TF plan outline
-      if: inputs.plan_outline == 'true'
-      id: plan_outline
-      shell: bash
-      run: ${{ env.TF_CLI_USES }} ${{ steps.arguments.outputs.arg_chdir }} show -no-color tfplan
-
-    - name: Print TF plan outline
-      if: inputs.plan_outline == 'true'
-      shell: bash
-      run: |
-        echo "${{ steps.plan_outline.outputs.stdout }}"
-        # Create an outline from lines starting with '  # ' while removing the prefix for the first 12000 characters.
-        echo 'tf_plan_outline<<EOTF' >> $GITHUB_OUTPUT
-        echo "${{ steps.plan_outline.outputs.stdout }}" | grep -E '^  # ' | sed 's/^  # //' | head -c 12000 >> $GITHUB_OUTPUT
-        echo 'EOTF' >> $GITHUB_OUTPUT
+    # - name: TF plan outline
+    #   if: inputs.plan_outline == 'true'
+    #   id: plan_outline
+    #   shell: bash
+    #   run: ${{ env.TF_CLI_USES }} ${{ steps.arguments.outputs.arg_chdir }} show -no-color tfplan
 
     # If "-tf=plan" is successful, then upload the TF plan file as a zipped
     # repository artifact with a unique identifier for later use.
@@ -348,16 +338,16 @@ runs:
 
         # Create an outline from lines starting with '  # ' while removing the
         # prefix for the first 12000 characters.
-        if [ "${{ steps.plan_outline.outcome }}" != "skipped" ]
-        then
-          tf_plan_outline_raw=$(cat <<'EOTF'
-          ${{ steps.plan_outline.outputs.stdout }}
-          EOTF
-          )
-          echo 'tf_plan_outline<<EOTF' >> $GITHUB_OUTPUT
-          echo "$tf_plan_outline_raw" | grep -E '^  # ' | sed 's/^  # //' | head -c 12000 >> $GITHUB_OUTPUT
-          echo 'EOTF' >> $GITHUB_OUTPUT
-        fi
+        # if [ "${{ steps.plan_outline.outcome }}" != "skipped" ]
+        # then
+        #   tf_plan_outline_raw=$(cat <<'EOTF'
+        #   ${{ steps.plan_outline.outputs.stdout }}
+        #   EOTF
+        #   )
+        #   echo 'tf_plan_outline<<EOTF' >> $GITHUB_OUTPUT
+        #   echo "$tf_plan_outline_raw" | grep -E '^  # ' | sed 's/^  # //' | head -c 12000 >> $GITHUB_OUTPUT
+        #   echo 'EOTF' >> $GITHUB_OUTPUT
+        # fi
 
     # Add or update PR comment with rendered TF output before exiting.
     - name: Comment TF output
@@ -368,11 +358,12 @@ runs:
         matrix: ${{ toJSON(matrix) }}
         recreate_comment: ${{ inputs.recreate_comment }}
         run_attempt: ${{ github.run_attempt }}
+        tf_chdir: ${{ steps.arguments.outputs.tf_cwd }}
         tf_command: ${{ steps.parsed.outputs.command }}
         tf_fmt: ${{ steps.render.outputs.tf_fmt }}
         tf_output: ${{ steps.render.outputs.tf_output }}
         tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
-        tf_plan_outline: ${{ steps.render.outputs.tf_plan_outline }}
+        tf_plan_outline: ${{ inputs.plan_outline && steps.plan.outcome == 'success' }}
       with:
         retries: 3
         script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/comment_tf_output.js`)({ github, context, core, exec });
