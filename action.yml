@@ -270,6 +270,7 @@ runs:
 
     - name: Print TF plan outline
       if: inputs.plan_outline == 'true'
+      shell: bash
       run: echo "${{ steps.plan_outline.outputs.stdout }}"
 
     # If "-tf=plan" is successful, then upload the TF plan file as a zipped
