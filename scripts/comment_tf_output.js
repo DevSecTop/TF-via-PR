@@ -55,13 +55,19 @@ ${process.env.tf_fmt}
     };
     await exec.exec(process.env.TF_CLI_USES, [`-chdir=${process.env.tf_chdir}`, "show", "-no-color", "tfplan"], options);
 
-    // Create a summary from lines starting with '  # ' while removing the
+    // Create a summary from lines starting with '  # ' without this prefix.
     // prefix from the first 12000 characters.
     const changed_lines = tfplan
       .split("\n")
       .filter((line) => line.startsWith("  # "))
       .map((line) => line.slice(4))
-      .slice(0, 12);
+      .substring(0, 12000);
+    // Limit the number of changed_lines characters to 12000.
+    // const changed_lines_str = changed_lines.join("\n");
+    // if (changed_lines_str.length > 12000) {
+    //   changed_lines = changed_lines_str.substring(0, 12000).split("\n");
+    //   changed_lines.push("…");
+    // }
 
     // Create a collapsible summary of changes if any.
     comment_outline = changed_lines.length
