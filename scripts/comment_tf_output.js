@@ -61,17 +61,17 @@ ${process.env.tf_fmt}
       .split("\n")
       .filter((line) => line.startsWith("  # "))
       .map((line) => line.slice(4))
-      .slice(0, 12000);
+      .slice(0, 12);
 
     // Create a collapsible summary of changes if any.
-//     comment_outline = changed_lines.length
-//       ? `<details><summary>Outline of changes.</summary>
+    comment_outline = changed_lines.length
+      ? `<details><summary>Outline of changes.</summary>
 
-// \`\`\`hcl
-// ${changed_lines.join("\n")}
-// \`\`\`
-// </details>`
-//       : "";
+\`\`\`hcl
+${changed_lines.join("\n")}
+\`\`\`
+</details>`
+      : "";
   }
 
   // Display the: TF command, TF output, and workflow authorip.
