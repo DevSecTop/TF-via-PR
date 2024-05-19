@@ -64,7 +64,7 @@ ${process.env.tf_fmt}
       .slice(0, 12000);
 
     // Create a collapsible summary of changes.
-    comment_outline = process.env.changed_lines
+    comment_outline = changed_lines
       ? `<details><summary>Outline of changes.</summary>
 
 \`\`\`hcl
