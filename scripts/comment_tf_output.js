@@ -71,7 +71,8 @@ ${process.env.tf_fmt}
 ${changed_lines.join("\n")}
 \`\`\`
 </details>`
-    : "";
+      : "";
+  }
 
   // Display the: TF command, TF output, and workflow authorip.
   const comment_output = `
