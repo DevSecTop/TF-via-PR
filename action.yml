@@ -271,7 +271,12 @@ runs:
     - name: Print TF plan outline
       if: inputs.plan_outline == 'true'
       shell: bash
-      run: echo "${{ steps.plan_outline.outputs.stdout }}"
+      run: |
+        echo "${{ steps.plan_outline.outputs.stdout }}"
+        # Create an outline from lines starting with '  # ' while removing the prefix for the first 12000 characters.
+        echo 'tf_plan_outline<<EOTF' >> $GITHUB_OUTPUT
+        echo "${{ steps.plan_outline.outputs.stdout }}" | grep -E '^  # ' | sed 's/^  # //' | head -c 12000 >> $GITHUB_OUTPUT
+        echo 'EOTF' >> $GITHUB_OUTPUT
 
     # If "-tf=plan" is successful, then upload the TF plan file as a zipped
     # repository artifact with a unique identifier for later use.
@@ -341,6 +346,19 @@ runs:
         echo "$tf_fmt_raw" | head -c 6000 >> $GITHUB_OUTPUT
         echo 'EOTF' >> $GITHUB_OUTPUT
 
+        # Create an outline from lines starting with '  # ' while removing the
+        # prefix for the first 12000 characters.
+        if [ "${{ steps.plan_outline.outcome }}" != "skipped" ]
+        then
+          tf_plan_outline_raw=$(cat <<'EOTF'
+          ${{ steps.plan_outline.outputs.stdout }}
+          EOTF
+          )
+          echo 'tf_plan_outline<<EOTF' >> $GITHUB_OUTPUT
+          echo "$tf_plan_outline_raw" | grep -E '^  # ' | sed 's/^  # //' | head -c 12000 >> $GITHUB_OUTPUT
+          echo 'EOTF' >> $GITHUB_OUTPUT
+        fi
+
     # Add or update PR comment with rendered TF output before exiting.
     - name: Comment TF output
       id: pr_comment
@@ -354,6 +372,7 @@ runs:
         tf_fmt: ${{ steps.render.outputs.tf_fmt }}
         tf_output: ${{ steps.render.outputs.tf_output }}
         tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
+        tf_plan_outline: ${{ steps.render.outputs.tf_plan_outline }}
       with:
         retries: 3
         script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/comment_tf_output.js`)({ github, context, core, exec });

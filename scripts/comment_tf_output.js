@@ -39,39 +39,15 @@ ${process.env.tf_fmt}
     repo: context.repo.repo,
   });
 
-  // Parse the TFplan file to create an outline of changes.
-  let comment_outline = "";
-//   if (JSON.parse(process.env.tf_command).tf === "plan") {
-//     // Parse TFplan file.
-//     let tfplan = "";
-//     const data_handler = (data) => {
-//       tfplan += data.toString();
-//     };
-//     const options = {
-//       listeners: {
-//         stdout: data_handler,
-//         stderr: data_handler,
-//       },
-//     };
-//     await exec.exec(process.env.TF_CLI, [`-chdir=${process.env.TF_CHDIR}`, "show", "-no-color", "tfplan"], options);
+  // Display the TFplan outline.
+  const comment_outline = `
+<details><summary>Outline of changes.</summary>
 
-//     // Create an outline from lines starting with '  # ' while removing the prefix for the first 12000 characters.
-//     const changed_lines = tfplan
-//       .split("\n")
-//       .filter((line) => line.startsWith("  # "))
-//       .map((line) => line.slice(4))
-//       .slice(0, 12000);
-
-//     // Display the TFplan outline.
-//     comment_outline = `
-// <details><summary>Outline of changes.</summary>
-
-// \`\`\`hcl
-// ${changed_lines.join("\n")}
-// \`\`\`
-// </details>
-// `;
-//   }
+\`\`\`hcl
+${process.env.tf_plan_outline}
+\`\`\`
+</details>
+`;
 
   // Display the: TF command, TF output, and workflow authorip.
   const comment_output = `
