@@ -64,14 +64,14 @@ ${process.env.tf_fmt}
       .slice(0, 12000);
 
     // Create a collapsible summary of changes.
-    comment_outline = `
-<details><summary>Outline of changes.</summary>
+    const comment_outline = process.env.changed_lines
+      ? `<details><summary>Outline of changes.</summary>
 
 \`\`\`hcl
 ${changed_lines.join("\n")}
 \`\`\`
-</details>`;
-  }
+</details>`
+    : "";
 
   // Display the: TF command, TF output, and workflow authorip.
   const comment_output = `
