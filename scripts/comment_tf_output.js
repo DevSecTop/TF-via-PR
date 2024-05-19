@@ -67,7 +67,7 @@ ${process.env.tf_fmt}
       ? `<details><summary>Outline of changes.</summary>
 
 \`\`\`hcl
-${changed_lines.join("\n").substring(0, 12)}
+${changed_lines.join("\n").substring(0, 12000)}
 \`\`\`
 </details>`
       : "";
