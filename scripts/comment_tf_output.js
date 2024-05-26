@@ -44,7 +44,7 @@ ${process.env.tf_fmt}
   console.log("process.env.tf_plan_outline", process.env.tf_plan_outline);
   console.log("part 1");
   console.log("part 2");
-  if (process.env.tf_plan_outline) {
+  if (process.env.tf_plan_outline === "true") {
     console.log("inside parse tfplan");
     // Parse TFplan file.
     let tfplan = "";
