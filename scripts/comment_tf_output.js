@@ -43,6 +43,7 @@ ${process.env.tf_fmt}
   let comment_outline = "";
   console.log("process.env.tf_plan_outline", process.env.tf_plan_outline);
   console.log("part 1");
+  console.log("part 2");
   if (process.env.tf_plan_outline) {
     console.log("inside parse tfplan");
     // Parse TFplan file.
