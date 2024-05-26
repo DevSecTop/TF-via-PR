@@ -343,7 +343,7 @@ runs:
         tf_fmt: ${{ steps.render.outputs.tf_fmt }}
         tf_output: ${{ steps.render.outputs.tf_output }}
         tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
-        tf_plan_outline: ${{ inputs.plan_outline && steps.plan.outcome == 'success' }}
+        tf_plan_outline: ${{ steps.plan.outputs.exitcode == 0 && inputs.plan_outline }}
       with:
         retries: 3
         script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/comment_tf_output.js`)({ github, context, core, exec });

@@ -41,7 +41,7 @@ ${process.env.tf_fmt}
 
   // Parse the TFplan file to extract an outline of changes.
   let comment_outline = "";
-  if (process.env.tf_plan_outline) {
+  if (process.env.tf_plan_outline === "true") {
     // Parse TFplan file.
     let tfplan = "";
     const data_handler = (data) => {
