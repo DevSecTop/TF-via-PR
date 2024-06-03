@@ -1,0 +1,51 @@
+---
+name: TF Instance
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+    paths: [stacks/sample_instance/**]
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: ~> 1.7.0
+  TF_VAR_PREFIX: sample
+
+jobs:
+  TF:
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed' || github.event.pull_request.merged
+
+    permissions:
+      actions: read # Required for workflow query and artifact download.
+      checks: write # Required for adding summary to check status.
+      contents: read # Required for repository checkout.
+      id-token: write # Required for assuming AWS role via OIDC provider.
+      pull-requests: write # Required for commenting on PR.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Authenticate AWS
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+
+      - name: Setup TF
+        uses: opentofu/setup-opentofu@ae80d4ecaab946d8f5ff18397fbf6d0686c6d46a # v1.0.3
+        with:
+          tofu_version: ${{ env.TF_VERSION }}
+
+      - name: Provision TF
+        uses: ./
+        with:
+          command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance', github.event.action != 'closed' && 'plan' || 'apply') }}
+          cache_plugins: false
+
+      # - name: Deprovision TF
+      #   if: github.event.action == 'closed'
+      #   uses: ./
+      #   with:
+      #     command_input: -tf=apply -chdir=stacks/sample_instance -destroy -auto-approve
+      #     cache_plugins: false
