@@ -1,9 +1,16 @@
 ---
-name: TF Instance
+name: TF
 on:
   pull_request:
     types: [opened, reopened, synchronize, closed]
     paths: [stacks/sample_instance/**]
+
+permissions:
+  actions: read # Required for workflow query and artifact download.
+  checks: write # Required for adding summary to check status.
+  contents: read # Required for repository checkout.
+  id-token: write # Required for assuming AWS role via OIDC provider.
+  pull-requests: write # Required for commenting on PR.
 
 env:
   AWS_REGION: us-east-1
@@ -11,16 +18,9 @@ env:
   TF_VAR_PREFIX: sample
 
 jobs:
-  TF:
+  Instance:
     runs-on: ubuntu-latest
     if: github.event.action != 'closed' || github.event.pull_request.merged
-
-    permissions:
-      actions: read # Required for workflow query and artifact download.
-      checks: write # Required for adding summary to check status.
-      contents: read # Required for repository checkout.
-      id-token: write # Required for assuming AWS role via OIDC provider.
-      pull-requests: write # Required for commenting on PR.
 
     strategy:
       fail-fast: false
@@ -48,9 +48,9 @@ jobs:
           command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance -var-file=env/{1}.tfvars', github.event.action != 'closed' && 'plan' || 'apply', matrix.context ) }}
           cache_plugins: false
 
-      # - name: Deprovision TF
-      #   if: github.event.action == 'closed'
-      #   uses: ./
-      #   with:
-      #     command_input: -tf=apply -chdir=stacks/sample_instance -var-file=env/dev.tfvars -destroy -auto-approve
-      #     cache_plugins: false
+      - name: Deprovision TF
+        if: github.event.action == 'closed'
+        uses: ./
+        with:
+          command_input: -tf=apply -chdir=stacks/sample_instance -var-file=env/${{ matrix.context }}.tfvars -destroy -auto-approve
+          cache_plugins: false
