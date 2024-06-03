@@ -1,0 +1,93 @@
+---
+name: TF Sample
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+    paths: [stacks/sample_instance/**]
+
+permissions:
+  actions: read # Required for workflow query and artifact download.
+  checks: write # Required for adding summary to check status.
+  contents: read # Required for repository checkout.
+  id-token: write # Required for assuming AWS role via OIDC provider.
+  pull-requests: write # Required for commenting on PR.
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: ~> 1.7.0
+  TF_VAR_PREFIX: sample
+
+jobs:
+  Instance:
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed' || github.event.pull_request.merged
+
+    strategy:
+      fail-fast: false
+      matrix:
+        context: [dev, stg]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Authenticate AWS
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+
+      - name: Setup TF
+        uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8 # v3.1.1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Provision TF
+        uses: ./
+        with:
+          command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance -var-file=env/{1}.tfvars', github.event.action != 'closed' && 'plan' || 'apply', matrix.context) }}
+          cache_plugins: false
+
+      - name: Deprovision TF
+        if: github.event.action == 'closed'
+        uses: ./
+        with:
+          command_input: -tf=apply -chdir=stacks/sample_instance -var-file=env/${{ matrix.context }}.tfvars -destroy -auto-approve
+          cache_plugins: false
+
+  Bucket:
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed' || github.event.pull_request.merged
+
+    strategy:
+      fail-fast: false
+      matrix:
+        context: [dev, stg]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Authenticate AWS
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+
+      - name: Setup TF
+        uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8 # v3.1.1
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Provision TF
+        uses: ./
+        with:
+          command_input: ${{ format('-tf={0} -chdir=stacks/sample_bucket -backend-config=backend/{1}.tfbackend', github.event.action != 'closed' && 'plan' || 'apply', matrix.context) }}
+          cache_plugins: false
+
+      - name: Deprovision TF
+        if: github.event.action == 'closed'
+        uses: ./
+        with:
+          command_input: -tf=apply -chdir=stacks/sample_bucket -backend-config=backend/${{ matrix.context }}.tfbackend -destroy -auto-approve
+          cache_plugins: false
