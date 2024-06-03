@@ -40,12 +40,12 @@ jobs:
       - name: Provision TF
         uses: ./
         with:
-          command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance', github.event.action != 'closed' && 'plan' || 'apply') }}
+          command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance -var-file=env/dev.tfvars', github.event.action != 'closed' && 'plan' || 'apply') }}
           cache_plugins: false
 
       # - name: Deprovision TF
       #   if: github.event.action == 'closed'
       #   uses: ./
       #   with:
-      #     command_input: -tf=apply -chdir=stacks/sample_instance -destroy -auto-approve
+      #     command_input: -tf=apply -chdir=stacks/sample_instance -var-file=env/dev.tfvars -destroy -auto-approve
       #     cache_plugins: false
