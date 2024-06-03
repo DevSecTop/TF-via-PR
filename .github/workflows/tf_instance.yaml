@@ -33,9 +33,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE }}
 
       - name: Setup TF
-        uses: opentofu/setup-opentofu@ae80d4ecaab946d8f5ff18397fbf6d0686c6d46a # v1.0.3
+        uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8 # v3.1.1
         with:
-          tofu_version: ${{ env.TF_VERSION }}
+          terraform_version: ${{ env.TF_VERSION }}
 
       - name: Provision TF
         uses: ./
