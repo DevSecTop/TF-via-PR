@@ -22,6 +22,11 @@ jobs:
       id-token: write # Required for assuming AWS role via OIDC provider.
       pull-requests: write # Required for commenting on PR.
 
+    strategy:
+      fail-fast: false
+      matrix:
+        context: [dev, stg]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -40,7 +45,7 @@ jobs:
       - name: Provision TF
         uses: ./
         with:
-          command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance -var-file=env/dev.tfvars', github.event.action != 'closed' && 'plan' || 'apply') }}
+          command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance -var-file=env/${{ matrix.context }}.tfvars', github.event.action != 'closed' && 'plan' || 'apply') }}
           cache_plugins: false
 
       # - name: Deprovision TF
