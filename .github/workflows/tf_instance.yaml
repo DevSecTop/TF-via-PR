@@ -1,5 +1,5 @@
 ---
-name: TF
+name: TF Sample
 on:
   pull_request:
     types: [opened, reopened, synchronize, closed]
@@ -18,7 +18,7 @@ env:
   TF_VAR_PREFIX: sample
 
 jobs:
-  Sample_Instance:
+  Instance:
     runs-on: ubuntu-latest
     if: github.event.action != 'closed' || github.event.pull_request.merged
 
@@ -55,14 +55,14 @@ jobs:
           command_input: -tf=apply -chdir=stacks/sample_instance -var-file=env/${{ matrix.context }}.tfvars -destroy -auto-approve
           cache_plugins: false
 
-  Sample_Bucket:
+  Bucket:
     runs-on: ubuntu-latest
     if: github.event.action != 'closed' || github.event.pull_request.merged
 
     strategy:
       fail-fast: false
       matrix:
-        context: [dev]
+        context: [dev, stg]
 
     steps:
       - name: Checkout repository
