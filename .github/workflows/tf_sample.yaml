@@ -45,7 +45,7 @@ jobs:
       - name: Provision TF
         uses: ./
         with:
-          command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance -var-file=env/{1}.tfvars', github.event.action != 'closed' && 'plan' || 'apply', matrix.context ) }}
+          command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance -var-file=env/{1}.tfvars', github.event.action != 'closed' && 'plan' || 'apply', matrix.context) }}
           cache_plugins: false
 
       - name: Deprovision TF
@@ -82,7 +82,7 @@ jobs:
       - name: Provision TF
         uses: ./
         with:
-          command_input: ${{ format('-tf={0} -chdir=stacks/sample_bucket -backend-config=backend/{1}.tfbackend', github.event.action != 'closed' && 'plan' || 'apply', matrix.context ) }}
+          command_input: ${{ format('-tf={0} -chdir=stacks/sample_bucket -backend-config=backend/{1}.tfbackend', github.event.action != 'closed' && 'plan' || 'apply', matrix.context) }}
           cache_plugins: false
 
       - name: Deprovision TF
