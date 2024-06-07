@@ -9,8 +9,7 @@ updates:
 
   - package-ecosystem: terraform
     directories:
-      - /stacks/sample_bucket
-      - /stacks/sample_instance
+      - /stacks/*
     schedule:
       interval: daily
     groups:
