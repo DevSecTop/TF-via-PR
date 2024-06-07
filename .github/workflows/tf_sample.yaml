@@ -3,7 +3,7 @@ name: TF Sample
 on:
   pull_request:
     types: [opened, reopened, synchronize, closed]
-    paths: [.github/workflows/tf_sample.yaml, stacks/**/*]
+    paths: [.github/workflows/tf_sample.yaml, stacks/**]
 
 permissions:
   actions: read # Required for workflow query and artifact download.
