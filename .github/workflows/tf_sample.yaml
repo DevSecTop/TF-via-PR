@@ -48,6 +48,10 @@ jobs:
           command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance -var-file=env/{1}.tfvars', github.event.action != 'closed' && 'plan' || 'apply', matrix.context) }}
           cache_plugins: false
 
+      - name: Await resource initialization
+        if: github.event.action == 'closed'
+        run: sleep 60
+
       - name: Deprovision TF
         if: github.event.action == 'closed'
         uses: ./
@@ -84,6 +88,10 @@ jobs:
         with:
           command_input: ${{ format('-tf={0} -chdir=stacks/sample_bucket -backend-config=backend/{1}.tfbackend', github.event.action != 'closed' && 'plan' || 'apply', matrix.context) }}
           cache_plugins: false
+
+      - name: Await resource initialization
+        if: github.event.action == 'closed'
+        run: sleep 60
 
       - name: Deprovision TF
         if: github.event.action == 'closed'
