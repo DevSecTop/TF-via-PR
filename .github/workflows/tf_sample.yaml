@@ -50,7 +50,7 @@ jobs:
 
       - name: Await resource initialization
         if: github.event.action == 'closed'
-        run: sleep 60
+        run: sleep 150
 
       - name: Deprovision TF
         if: github.event.action == 'closed'
@@ -91,7 +91,7 @@ jobs:
 
       - name: Await resource initialization
         if: github.event.action == 'closed'
-        run: sleep 60
+        run: sleep 150
 
       - name: Deprovision TF
         if: github.event.action == 'closed'
