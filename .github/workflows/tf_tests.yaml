@@ -3,7 +3,7 @@ name: TF Tests
 on:
   pull_request:
     types: [opened, reopened, synchronize, closed]
-    paths: ['**.yaml', scripts/**, tests/**]
+    paths: [.github/workflows/tf_tests.yaml, scripts/**, tests/**]
 
 jobs:
   tests:
