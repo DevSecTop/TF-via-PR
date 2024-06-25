@@ -56,17 +56,23 @@ ${process.env.tf_fmt}
     await exec.exec(process.env.TF_CLI_USES, [`-chdir=${process.env.tf_chdir}`, "show", "-no-color", "tfplan"], options);
 
     // Create a summary from lines starting with '  # ' without this prefix.
-    // prefix from the first 12000 characters.
+    // Re-prefix the lines with diff indicators based on the change type.
     const changed_lines = tfplan
       .split("\n")
-      .filter((line) => line.startsWith("  # "))
-      .map((line) => line.slice(4));
+      .filter(line => line.startsWith("  # "))
+      .map(line => {
+        const diff_line = line.slice(4);
+        if (diff_line.includes("create")) return "+ " + diff_line;
+        if (diff_line.includes("update")) return "! " + diff_line;
+        if (diff_line.includes("delete")) return "- " + diff_line;
+        return diff_line;
+      });
 
     // Create a collapsible summary of changes if any.
     comment_outline = changed_lines.length
       ? `<details><summary>Outline of changes.</summary>
 
-\`\`\`hcl
+\`\`\`diff
 ${changed_lines.join("\n").substring(0, 12000)}
 \`\`\`
 </details>`
