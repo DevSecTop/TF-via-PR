@@ -59,12 +59,13 @@ ${process.env.tf_fmt}
     // Re-prefix the lines with diff indicators based on the change type.
     const changed_lines = tfplan
       .split("\n")
-      .filter(line => line.startsWith("  # "))
-      .map(line => {
+      .filter((line) => line.startsWith("  # "))
+      .map((line) => {
         const diff_line = line.slice(4);
-        if (diff_line.includes("create")) return "+ " + diff_line;
-        if (diff_line.includes("update")) return "! " + diff_line;
-        if (diff_line.includes("delete")) return "- " + diff_line;
+        if (diff_line.includes(" created")) return "+ " + diff_line;
+        if (diff_line.includes(" destroyed")) return "- " + diff_line;
+        if (diff_line.includes(" updated")) return "! " + diff_line;
+        if (diff_line.includes(" been")) return "# " + diff_line;
         return diff_line;
       });
 
