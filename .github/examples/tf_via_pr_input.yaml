@@ -35,7 +35,4 @@ jobs:
         env:
           TF_VAR_PLACEHOLDER: value
         with:
-          backend_config_prefix: backend/
-          backend_config_suffix: .tfvars
-          chdir_prefix: sample/
-          command_input: ${{ format('-tf={0} -chdir=sample_bucket -backend-config=dev', github.event.action != 'closed' && 'plan' || 'apply') }}
+          command_input: ${{ format('-tf={0} -chdir=sample/sample_bucket -backend-config=backend/dev.tfvars', github.event.action != 'closed' && 'plan' || 'apply') }}
