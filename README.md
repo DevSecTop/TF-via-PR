@@ -30,10 +30,10 @@
 
 ### What does it do?
 
-<details><summary>Add PR comments or workflow input in the form of CLI commands to trigger OpenTofu or Terraform operations.</summary>
+<details><summary>Add PR input triggers or PR comments in the form of CLI commands to trigger OpenTofu or Terraform operations.</summary>
 
 - Both [Hashicorp][terraform_io] `terraform` and [OpenTofu][opentofu_org] `tofu` CLIs are supported, with the latter offering an open-source and backwards-compatible drop-in replacement for the former.
-- Comments/input beginning with `-tf=` are parsed with each argument and flag being passed into the appropriate TF command automatically.
+- Input/comments beginning with `-tf=` are parsed with each argument and flag being passed into the appropriate TF command automatically (including `workspace` and `backend-config`).
 </details>
 
 <details><summary>Run TF CLI commands dynamically on PR open, update and close without manual intervention.</summary>
@@ -42,8 +42,9 @@
 - Run multiple TF commands in a matrix strategy for parallel provisioning of resources across different workspaces or directories.
 </details>
 
-<details><summary>Speed up workflow by caching TF module plugins and substituting input variables.</summary>
+<details><summary>Reuse TF plan file, cache TF module plugins and dynamically substitute input variables.</summary>
 
+- Store TF plan file as a repository artifact for later reference or for use in subsequent TF `apply` or `destroy` commands.
 - Use ".terraform.lock.hcl" file ([which should be included in version control](https://developer.hashicorp.com/terraform/language/files/dependency-lock#:~:text=include%20this%20file%20in%20your%20version%20control)) to cache TF plugins and associated dependencies for faster subsequent workflow runs.
 - A number of input parameters can be substituted in the parsed command, such as: workspace, var-file and backend-config pre/suffixes.
 </details>

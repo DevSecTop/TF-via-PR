@@ -31,7 +31,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Provision TF
-        uses: devsectop/tf-via-pr-comments@v10
+        uses: devsectop/tf-via-pr@v10
         env:
           TF_VAR_PLACEHOLDER: value
         with:

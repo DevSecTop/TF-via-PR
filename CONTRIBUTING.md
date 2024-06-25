@@ -9,8 +9,8 @@ All forms of contribution are very welcome and deeply appreciated for fostering 
 
 This project includes a [GitHub Codespaces][github_codespaces] container for a tailored TF development environment, complete with tools and runtimes to lower the barrier to entry for contributors.
 
-[discussion]: https://github.com/devsectop/tf-via-pr-comments/discussions "Open a discussion."
+[discussion]: https://github.com/devsectop/tf-via-pr/discussions "Open a discussion."
 [github_codespaces]: https://docs.github.com/en/codespaces/setting-up-your-project-for-codespaces/adding-a-dev-container-configuration/introduction-to-dev-containers "Introduction to GitHub Codespaces."
-[issue]: https://github.com/devsectop/tf-via-pr-comments/issues "Raise an issue."
-[pull_request]: https://github.com/devsectop/tf-via-pr-comments/pulls "Create a pull request."
-[stargazer]: https://github.com/devsectop/tf-via-pr-comments/stargazers "Become a stargazer."
+[issue]: https://github.com/devsectop/tf-via-pr/issues "Raise an issue."
+[pull_request]: https://github.com/devsectop/tf-via-pr/pulls "Create a pull request."
+[stargazer]: https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer."
