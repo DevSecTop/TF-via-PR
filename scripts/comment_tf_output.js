@@ -63,8 +63,9 @@ ${process.env.tf_fmt}
       .map(line => {
         const diff_line = line.slice(4);
         if (diff_line.includes(" created")) return "+ " + diff_line;
-        if (diff_line.includes(" updated")) return "! " + diff_line;
         if (diff_line.includes(" destroyed")) return "- " + diff_line;
+        if (diff_line.includes(" updated")) return "! " + diff_line;
+        if (diff_line.includes(" has been")) return "# " + diff_line;
         return diff_line;
       });
 
