@@ -48,17 +48,6 @@ jobs:
           command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance -var-file=env/{1}.tfvars', github.event.action != 'closed' && 'plan -lock=false' || 'apply', matrix.context) }}
           cache_plugins: false
 
-      - name: Await resource initialization
-        if: github.event.action == 'closed'
-        run: sleep 150
-
-      - name: Deprovision TF
-        if: github.event.action == 'closed'
-        uses: ./
-        with:
-          command_input: -tf=apply -chdir=stacks/sample_instance -var-file=env/${{ matrix.context }}.tfvars -destroy -auto-approve
-          cache_plugins: false
-
   Bucket:
     runs-on: ubuntu-latest
     if: github.event.action != 'closed' || github.event.pull_request.merged
@@ -87,15 +76,4 @@ jobs:
         uses: ./
         with:
           command_input: ${{ format('-tf={0} -chdir=stacks/sample_bucket -backend-config=backend/{1}.tfbackend', github.event.action != 'closed' && 'plan -lock=false' || 'apply', matrix.context) }}
-          cache_plugins: false
-
-      - name: Await resource initialization
-        if: github.event.action == 'closed'
-        run: sleep 150
-
-      - name: Deprovision TF
-        if: github.event.action == 'closed'
-        uses: ./
-        with:
-          command_input: -tf=apply -chdir=stacks/sample_bucket -backend-config=backend/${{ matrix.context }}.tfbackend -destroy -auto-approve
           cache_plugins: false
