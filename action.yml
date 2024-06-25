@@ -29,6 +29,9 @@ inputs:
   fmt_enable:
     description: Boolean flag to enable TF fmt command and display diff of changes.
     default: true
+  label_enable:
+    description: Boolean flag to enable PR label addition for each TF command run.
+    default: true
   plan_outline:
     description: Boolean flag to output TF plan outline of changes.
     default: true
@@ -116,7 +119,7 @@ runs:
     # which TF commands have attempted to run on the PR branch.
     # E.g., "tf:plan", "tf:apply", "tf:force-unlock", etc.
     - name: Add PR label
-      if: (!contains(join(github.event.pull_request.labels.*.name), format('tf:{0}', fromJSON(steps.parsed.outputs.command)['tf'])))
+      if: (!contains(join(github.event.pull_request.labels.*.name), format('tf:{0}', fromJSON(steps.parsed.outputs.command)['tf']))) && inputs.label_enable == 'true'
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       env:
         label: ${{ fromJSON(steps.parsed.outputs.command)['tf'] }}

@@ -119,6 +119,7 @@ Use-case: Provision resources with a backend, followed by destruction without co
 | `cli_uses`</br>Example: tofu                         | String name of TF CLI to use and override default assumption from wrapper environment variable.                                          |
 | `command_input`</br>Example: -tf=plan -workspace=dev | String input to run TF CLI command with arguments directly via workflow automation.                                                      |
 | `fmt_enable`</br>Default: true                       | Boolean flag to enable TF fmt command and display diff of changes.                                                                       |
+| `label_enable`</br>Default: true                     | Boolean flag to enable PR label addition for each TF command run.                                                                        |
 | `plan_outline`</br>Default: true                     | Boolean flag to output TF plan outline of changes.                                                                                       |
 | `recreate_comment`</br>Default: true                 | Boolean flag to recreate PR comment on update instead of editing the existing one.                                                       |
 | `validate_enable`</br>Default: false                 | Boolean flag to enable TF validate command check.                                                                                        |
@@ -158,7 +159,7 @@ Integrating security in your CI/CD pipeline is critical to practicing DevSecOps.
 > - Please [open a discussion][discussion] to share ideas about where you'd like to see this project go.
 > - Please [consider becoming a stargazer][stargazer] if you find this project useful.
 >
-> Includes a [GitHub Codespaces][github_codespaces] dev container, which offers a tailored TF development environment, complete with tools and runtimes to lower the barrier to entry for contributors.
+> This project includes a [GitHub Codespaces][github_codespaces] container for a tailored TF development environment, complete with tools and runtimes to lower the barrier to entry for contributors.
 
 ## License
 
