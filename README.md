@@ -17,9 +17,9 @@
 
 <figure>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_light.png">
-    <img alt="Screenshot of the author's TF command in a PR comment followed by github-action bot's TF output response in the next comment." src="assets/screenshot_dark.png">
+    <source media="(prefers-color-scheme: dark)" srcset="/assets/screenshot_dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="/assets/screenshot_light.png">
+    <img alt="Screenshot of the author's TF command in a PR comment followed by github-action bot's TF output response in the next comment." src="/assets/screenshot_dark.png">
   </picture>
   <figcaption>
     </br><a href="https://github.com/devsectop/tf-via-pr/pull/166" title="View the PR conversation referenced in the screenshot.">View PR:</a> Screenshot of TF CLI command in a PR comment followed by github-action bot's TF output response in the next comment.
@@ -62,11 +62,11 @@
 
 Functional workflow examples are provided below, along with associated permissions and triggers. The full list of inputs is documented [below](#inputs).
 
-- [TF via PR Comments](.github/examples/tf_via_pr_comments.yaml)
-- [TF via PR Comments or Input](.github/examples/tf_via_pr_comments_or_input.yaml)
 - [TF via PR Input with AWS Authentication](.github/examples/tf_via_pr_input.yaml)
 - [TF via PR Input with Matrix Strategy](.github/examples/tf_via_pr_input_matrix.yaml)
 - [TF via PR Input with `tenv` Proxy](.github/workflows/tf_tests.yaml)
+- [TF via PR Comments or Input](.github/examples/tf_via_pr_comments_or_input.yaml)
+- [TF via PR Comments](.github/examples/tf_via_pr_comments.yaml)
 
 > [!NOTE]
 >
