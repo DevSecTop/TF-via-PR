@@ -136,6 +136,15 @@ runs:
         retries: 3
         script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/check_pr_approval.js`)({ github, context, core });
 
+    # Get the PR number from non-`pull_request` or non-`issue_comment` events.
+    - name: Get PR number
+      if: github.event_name != 'pull_request' && github.event_name != 'issue_comment'
+      shell: bash
+      run: |
+        if [ "${{ github.event_name }}" == "merge_group" ]; then
+          echo "PR_NUMBER=$(echo $GITHUB_REF | grep -oP 'pr-\K\d+')" >> $GITHUB_ENV
+        fi
+
     # For all supplied TF arguments, process each one in the format "-key=value".
     # E.g., "-chdir=path/to/dir", "-auto-approve", etc.
     - name: Process TF arguments
@@ -211,7 +220,7 @@ runs:
         echo "tf_cwd=$arg_chdir" >> $GITHUB_OUTPUT
         # Store a combination of the PR number and TF command arguments
         # for use as a unique identifier to reference the TF plan file.
-        echo "tf_plan_id=$(echo ${{ github.event.number || github.event.issue.number }}$arg_backend_config$arg_chdir$arg_var_file$arg_workspace$arg_destroy$arg_tf_cli-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_OUTPUT
+        echo "tf_plan_id=$(echo ${{ github.event.number || github.event.issue.number || env.PR_NUMBER }}$arg_backend_config$arg_chdir$arg_var_file$arg_workspace$arg_destroy$arg_tf_cli-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_OUTPUT
         # If "-backend-config" argument is present, then include any prefix and suffix.
         if [ -n "$arg_backend_config" ]; then echo "arg_backend_config=-backend-config=${{ inputs.backend_config_prefix }}$arg_backend_config${{ inputs.backend_config_suffix }}" >> $GITHUB_OUTPUT; fi
         # If "-var-file" argument is present, then include any prefix and suffix.

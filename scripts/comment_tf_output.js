@@ -65,8 +65,7 @@ ${process.env.tf_fmt}
         if (diff_line.includes(" created")) return "+ " + diff_line;
         if (diff_line.includes(" destroyed")) return "- " + diff_line;
         if (diff_line.includes(" updated") || diff_line.includes(" replaced")) return "! " + diff_line;
-        if (diff_line.includes(" been")) return "# " + diff_line;
-        return diff_line;
+        return "# " + diff_line;
       });
 
     // Create a collapsible summary of changes if any.
@@ -84,7 +83,7 @@ ${changed_lines.join("\n").substring(0, 12000)}
   const comment_output = `
 <details><summary>${comment_summary}</br>
 
-###### ${context.workflow} by @${context.actor} via [${context.eventName}](${check_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at}.</summary>
+###### ${context.workflow} by @${context.actor} via [${context.eventName}](${check_url}) at ${context.payload.pull_request?.updated_at || context.payload.comment?.updated_at || context.payload.merge_group?.head_commit.timestamp}.</summary>
 
 \`\`\`hcl
 ${process.env.tf_output}
@@ -109,9 +108,15 @@ ${comment_output}
   core.summary.addRaw(comment_body);
   core.summary.write();
 
+  // Determine PR number from non-'pull_request' or non-'issue_comment' events.
+  let pr_number = '';
+  if (context.eventName === "merge_group") {
+    pr_number = parseInt(context.ref.split("/pr-")[1]);
+  }
+
   // Check if the bot has commented on the PR using the TFPLAN identifier.
   const { data: list_comments } = await github.rest.issues.listComments({
-    issue_number: context.issue.number,
+    issue_number: context.issue.number || pr_number,
     owner: context.repo.owner,
     per_page: 100,
     repo: context.repo.repo,
@@ -139,7 +144,7 @@ ${comment_output}
       });
       const { data: pr_comment } = await github.rest.issues.createComment({
         ...comment_parameters,
-        issue_number: context.issue.number,
+        issue_number: context.issue.number || pr_number,
       });
       core.setOutput("id", pr_comment.id);
     } else {
@@ -152,7 +157,7 @@ ${comment_output}
   } else {
     const { data: pr_comment } = await github.rest.issues.createComment({
       ...comment_parameters,
-      issue_number: context.issue.number,
+      issue_number: context.issue.number || pr_number,
     });
     core.setOutput("id", pr_comment.id);
   }
