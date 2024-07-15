@@ -1,0 +1,383 @@
+name: OpenTofu/Terraform via Pull Request
+author: Rishav Dhar (@rdhar)
+description: GitHub Action to automate OpenTofu or Terraform (TF) CLI commands via pull request (PR) interaction.
+
+branding:
+  color: purple
+  icon: package
+
+inputs:
+  apply_require_approval:
+    description: Boolean flag to require PR review approval for TF apply commands or consider deployment protection rules.
+    default: false
+  backend_config_from_workspace:
+    description: Boolean flag to re-use TF `-workspace` as `-backend-config` argument, if supplied.
+    default: false
+  backend_config_prefix:
+    description: String prefix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied.
+  backend_config_suffix:
+    description: String suffix for TF `-backend-config` argument, if `-backend-config` (or `-workspace` and `backend_config_from_workspace`) is supplied.
+  cache_plugins:
+    description: Boolean flag to cache TF plugins for faster workflow runs (requires .terraform.lock.hcl file).
+    default: true
+  chdir_prefix:
+    description: String prefix for TF `-chdir` argument. This is a global argument that switches to a different directory.
+  cli_uses:
+    description: String name of TF CLI to use and override default assumption from wrapper environment variable.
+  command_input:
+    description: String input to run TF CLI command with arguments directly via workflow automation.
+  fmt_enable:
+    description: Boolean flag to enable TF fmt command and display diff of changes.
+    default: true
+  label_enable:
+    description: Boolean flag to enable PR label addition for each TF command run.
+    default: true
+  plan_outline:
+    description: Boolean flag to output TF plan outline of changes.
+    default: true
+  recreate_comment:
+    description: Boolean flag to recreate PR comment on update instead of editing the existing one.
+    default: true
+  validate_enable:
+    description: Boolean flag to enable TF validate command check.
+    default: false
+  var_file_from_workspace:
+    description: Boolean flag to re-use TF `-workspace` as `-var-file` argument, if supplied.
+    default: false
+  var_file_prefix:
+    description: String prefix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied.
+  var_file_suffix:
+    description: String suffix for TF `-var-file` argument, if `-var-file` (or `-workspace` and `var_file_from_workspace`) is supplied.
+
+outputs:
+  command:
+    description: JSON object of the parsed command.
+    value: ${{ steps.parsed.outputs.command }}
+  comment_id:
+    description: String ID of the PR comment created or updated by the workflow.
+    value: ${{ steps.pr_comment.outputs.id }}
+  comment_summary:
+    description: String summary of the PR comment created or updated by the workflow.
+    value: ${{ steps.pr_comment.outputs.summary }}
+  plan_id:
+    description: String ID of the TF plan file artifact's unique identifier.
+    value: ${{ steps.arguments.outputs.tf_plan_id }}
+  tf_fmt:
+    description: String output of the truncated TF fmt command.
+    value: ${{ steps.render.outputs.tf_fmt }}
+  tf_output:
+    description: String output of the truncated last TF command.
+    value: ${{ steps.render.outputs.tf_output }}
+
+runs:
+  using: composite
+  steps:
+    # On issue_comment, add commit status since it's not added automatically.
+    - name: Add commit status
+      id: commit
+      if: github.event.issue.pull_request
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      with:
+        retries: 3
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_commit_status.js`)({ github, context, core });
+
+    # For subsequent commits on the PR branch, automatically re-run the most
+    # recent "-tf=plan" comment instead of having to manually re-trigger it.
+    - name: Find comment
+      id: comment
+      if: github.event_name == 'pull_request' && inputs.command_input == ''
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      with:
+        retries: 3
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/find_comment.js`)({ github, context, core });
+
+    # Add PR comment reaction to indicate that the workflow is processing it.
+    - name: Add reaction
+      id: reaction
+      if: steps.comment.outcome == 'success' || steps.commit.outcome == 'success'
+      env:
+        comment_id: ${{ github.event.comment.id || steps.comment.outputs.id }}
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      with:
+        result-encoding: string
+        retries: 3
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_reaction.js`)({ github, context, core });
+
+    # Split and trim the PR comment, then parse it as an array of objects.
+    # E.g., {tf:apply, chdir:path/to/dir, auto-approve:true}.
+    - name: Parse command
+      id: parsed
+      if: steps.comment.outcome == 'success' || steps.commit.outcome == 'success' || inputs.command_input != ''
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        comment_body: ${{ github.event.comment.body || steps.comment.outputs.body || inputs.command_input }}
+      with:
+        result-encoding: string
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/parse_command.js`)({ core });
+
+    # If the PR doesn't have one already, add a colored PR label to indicate
+    # which TF commands have attempted to run on the PR branch.
+    # E.g., "tf:plan", "tf:apply", "tf:force-unlock", etc.
+    - name: Add PR label
+      if: (!contains(join(github.event.pull_request.labels.*.name), format('tf:{0}', fromJSON(steps.parsed.outputs.command)['tf']))) && inputs.label_enable == 'true'
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        label: ${{ fromJSON(steps.parsed.outputs.command)['tf'] }}
+      with:
+        retries: 3
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/add_pr_label.js`)({ github, context });
+
+    # If apply_require_approval is set to "true", then verify that the PR
+    # review state is approved. If not, then exit the workflow with a failure.
+    - name: Check PR approval
+      if: inputs.apply_require_approval == 'true' && fromJSON(steps.parsed.outputs.command)['tf'] == 'apply'
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      with:
+        retries: 3
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/check_pr_approval.js`)({ github, context, core });
+
+    # Get the PR number from non-`pull_request` or non-`issue_comment` events.
+    - name: Get PR number
+      if: github.event_name != 'pull_request' && github.event_name != 'issue_comment'
+      shell: bash
+      run: |
+        if [ "${{ github.event_name }}" == "merge_group" ]; then
+          echo "PR_NUMBER=$(echo $GITHUB_REF | grep -oP 'pr-\K\d+')" >> $GITHUB_ENV
+        fi
+
+    # For all supplied TF arguments, process each one in the format "-key=value".
+    # E.g., "-chdir=path/to/dir", "-auto-approve", etc.
+    - name: Process TF arguments
+      id: arguments
+      env:
+        arg_auto_approve: ${{ fromJSON(steps.parsed.outputs.command)['auto-approve'] }}
+        arg_backend_config: ${{ inputs.backend_config_from_workspace == 'true' && fromJSON(steps.parsed.outputs.command)['workspace'] || fromJSON(steps.parsed.outputs.command)['backend-config'] }}
+        arg_backend: ${{ fromJSON(steps.parsed.outputs.command)['backend'] }}
+        arg_chdir: ${{ format('{0}{1}', inputs.chdir_prefix, fromJSON(steps.parsed.outputs.command)['chdir']) }}
+        arg_cloud: ${{ fromJSON(steps.parsed.outputs.command)['cloud'] }}
+        arg_compact_warnings: ${{ fromJSON(steps.parsed.outputs.command)['compact-warnings'] }}
+        arg_concise: ${{ fromJSON(steps.parsed.outputs.command)['concise'] }}
+        arg_destroy: ${{ fromJSON(steps.parsed.outputs.command)['destroy'] }}
+        arg_from_module: ${{ fromJSON(steps.parsed.outputs.command)['from-module'] }}
+        arg_get: ${{ fromJSON(steps.parsed.outputs.command)['get'] }}
+        arg_ignore_remote_version: ${{ fromJSON(steps.parsed.outputs.command)['ignore-remote-version'] }}
+        arg_lock_timeout: ${{ fromJSON(steps.parsed.outputs.command)['lock-timeout'] }}
+        arg_lock: ${{ fromJSON(steps.parsed.outputs.command)['lock'] }}
+        arg_lockfile: ${{ fromJSON(steps.parsed.outputs.command)['lockfile'] }}
+        arg_no_tests: ${{ fromJSON(steps.parsed.outputs.command)['no-tests'] }}
+        arg_or_create: ${{ fromJSON(steps.parsed.outputs.command)['or-create'] }}
+        arg_parallelism: ${{ fromJSON(steps.parsed.outputs.command)['parallelism'] }}
+        arg_plugin_dir: ${{ fromJSON(steps.parsed.outputs.command)['plugin-dir'] }}
+        arg_refresh_only: ${{ fromJSON(steps.parsed.outputs.command)['refresh-only'] }}
+        arg_refresh: ${{ fromJSON(steps.parsed.outputs.command)['refresh'] }}
+        arg_replace: ${{ fromJSON(steps.parsed.outputs.command)['replace'] }}
+        arg_target: ${{ fromJSON(steps.parsed.outputs.command)['target'] }}
+        arg_test_directory: ${{ fromJSON(steps.parsed.outputs.command)['test-directory'] }}
+        arg_tf_cli: ${{ inputs.cli_uses || (env.TOFU_CLI_PATH && 'tofu') || 'terraform' }}
+        arg_tf: ${{ fromJSON(steps.parsed.outputs.command)['tf'] }}
+        arg_upgrade: ${{ fromJSON(steps.parsed.outputs.command)['upgrade'] }}
+        arg_var_file: ${{ inputs.var_file_from_workspace == 'true' && fromJSON(steps.parsed.outputs.command)['workspace'] || fromJSON(steps.parsed.outputs.command)['var-file'] }}
+        arg_workspace: ${{ fromJSON(steps.parsed.outputs.command)['workspace'] }}
+      shell: bash
+      run: |
+        # Iterate over all environment variables prefixed with "arg_".
+        env | grep arg_ | while read -r line; do
+          # Set the variable name from the string before the first equals sign.
+          name=$(echo "$line" | cut -d= -f1)
+          # Set the argument key from the variable after removing the "arg_"
+          # prefix and replacing underscores with dashes.
+          # E.g., "arg_chdir=path/to/dir" becomes "var-file".
+          key=$(echo "$name" | sed 's/^arg_//' | sed 's/_/-/g')
+          # Set the argument value from the variable after the first equals sign
+          # and replacing spaces with escaped spaces to prevent splitting.
+          # E.g., "arg_var_file=path/to/dir name" becomes "path/to/dir\ name".
+          value=$(echo "$line" | cut -d= -f2- | sed 's/ /\\ /g')
+
+          # If the argument value is "true", then treat its key as a flag.
+          # E.g., "arg_auto_approve=true" becomes "-auto-approve".
+          if [ "$value" == "true" ]; then
+            echo "$name=-$key" >> $GITHUB_OUTPUT
+          # If the argument value is non-empty, then pass it as-is.
+          # E.g., "arg_chdir=path/to/dir" becomes "-chdir=path/to/dir".
+          elif [ -n "$value" ]; then
+            # If it contains one or more commas, then split on commas and
+            # pass each value as a separate argument with the same key.
+            # E.g., "arg_target=resource.address1,resource.address2" becomes
+            # "-target=resource.address1 -target=resource.address2".
+            if [ "$value" == "${value/,/}" ]; then
+              echo "$name=-$key=$value" >> $GITHUB_OUTPUT
+            else
+              echo "$name=-$key=${value//,/ -${key}=}" >> $GITHUB_OUTPUT
+            fi
+          fi
+        done
+        echo "TF_CLI_ARGS=-no-color" >> $GITHUB_ENV
+        echo "TF_CLI_USES=$arg_tf_cli" >> $GITHUB_ENV
+        echo "TF_IN_AUTOMATION=true" >> $GITHUB_ENV
+        echo "TF_INPUT=false" >> $GITHUB_ENV
+
+        # Store the path to the TF plan file for artifact upload/download.
+        echo "tf_cwd=$arg_chdir" >> $GITHUB_OUTPUT
+        # Store a combination of the PR number and TF command arguments
+        # for use as a unique identifier to reference the TF plan file.
+        echo "tf_plan_id=$(echo ${{ github.event.number || github.event.issue.number || env.PR_NUMBER }}$arg_backend_config$arg_chdir$arg_var_file$arg_workspace$arg_destroy$arg_tf_cli-tfplan | sed 's/[[:space:][:punct:]]/-/g')" >> $GITHUB_OUTPUT
+        # If "-backend-config" argument is present, then include any prefix and suffix.
+        if [ -n "$arg_backend_config" ]; then echo "arg_backend_config=-backend-config=${{ inputs.backend_config_prefix }}$arg_backend_config${{ inputs.backend_config_suffix }}" >> $GITHUB_OUTPUT; fi
+        # If "-var-file" argument is present, then include any prefix and suffix.
+        if [ -n "$arg_var_file" ]; then echo "arg_var_file=-var-file=${{ inputs.var_file_prefix }}$arg_var_file${{ inputs.var_file_suffix }}" >> $GITHUB_OUTPUT; fi
+        # If "-tf=apply" is run without "-auto-approve", then ignore "-var-file"
+        # argument so the that the TF plan file is used.
+        if [ -z "$arg_auto_approve" ] && [ "$arg_tf" == "apply" ]; then echo "arg_var_file=" >> $GITHUB_OUTPUT; fi
+        # If "-auto-approve" is not supplied, then set it to read from "tfplan".
+        if [ -z "$arg_auto_approve" ]; then echo "arg_auto_approve=tfplan" >> $GITHUB_OUTPUT; fi
+
+    - name: Cache TF plugins
+      id: cache_plugins
+      if: inputs.cache_plugins == 'true'
+      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      with:
+        key: ${{ runner.os }}-${{ env.TF_CLI_USES }}-${{ hashFiles(format('{0}/.terraform.lock.hcl', steps.arguments.outputs.tf_cwd)) }}
+        path: |
+          ~/.terraform.d/plugin-cache
+          ${{ steps.arguments.outputs.tf_cwd }}/.terraform
+
+    - name: TF init
+      if: steps.cache_plugins.outputs.cache-hit != 'true'
+      id: init
+      shell: bash
+      run: ${{ env.TF_CLI_USES }} ${{ steps.arguments.outputs.arg_chdir }} init ${{ steps.arguments.outputs.arg_backend }} ${{ steps.arguments.outputs.arg_backend_config }} ${{ steps.arguments.outputs.arg_cloud }} ${{ steps.arguments.outputs.arg_from_module }} ${{ steps.arguments.outputs.arg_get }} ${{ steps.arguments.outputs.arg_ignore_remote_version }} ${{ steps.arguments.outputs.arg_lock }} ${{ steps.arguments.outputs.arg_lock_timeout }} ${{ steps.arguments.outputs.arg_lockfile }} ${{ steps.arguments.outputs.arg_plugin_dir }} ${{ steps.arguments.outputs.arg_upgrade }}
+
+    - name: TF validate
+      if: inputs.validate_enable == 'true'
+      id: validate
+      shell: bash
+      run: ${{ env.TF_CLI_USES }} ${{ steps.arguments.outputs.arg_chdir }} validate ${{ steps.arguments.outputs.arg_no_tests }} ${{ steps.arguments.outputs.arg_test_directory }}
+
+    - name: TF fmt
+      id: fmt
+      if: inputs.fmt_enable == 'true'
+      shell: bash
+      run: ${{ env.TF_CLI_USES }} ${{ steps.arguments.outputs.arg_chdir }} fmt -check -diff -recursive
+      continue-on-error: true
+
+    # If a TF workspace is specified, then select it or create a new one.
+    - name: TF workspace
+      id: workspace
+      if: fromJSON(steps.parsed.outputs.command)['workspace'] != ''
+      shell: bash
+      run: ${{ env.TF_CLI_USES }} ${{ steps.arguments.outputs.arg_chdir }} workspace select ${{ steps.arguments.outputs.arg_or_create }} ${{ fromJSON(steps.parsed.outputs.command)['workspace'] }}
+
+    - name: TF plan
+      id: plan
+      if: fromJSON(steps.parsed.outputs.command)['tf'] == 'plan'
+      shell: bash
+      run: ${{ env.TF_CLI_USES }} ${{ steps.arguments.outputs.arg_chdir }} plan -out=tfplan ${{ steps.arguments.outputs.arg_compact_warnings }} ${{ steps.arguments.outputs.arg_concise }} ${{ steps.arguments.outputs.arg_destroy }} ${{ steps.arguments.outputs.arg_lock }} ${{ steps.arguments.outputs.arg_lock_timeout }} ${{ steps.arguments.outputs.arg_parallelism }} ${{ steps.arguments.outputs.arg_refresh }} ${{ steps.arguments.outputs.arg_refresh_only }} ${{ steps.arguments.outputs.arg_replace }} ${{ steps.arguments.outputs.arg_target }} ${{ steps.arguments.outputs.arg_var_file }}
+
+    # If "-tf=plan" is successful, then upload the TF plan file as a zipped
+    # repository artifact with a unique identifier for later use.
+    - name: Upload TF plan file
+      if: fromJSON(steps.parsed.outputs.command)['tf'] == 'plan' && steps.plan.outputs.exitcode == 0
+      uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
+      with:
+        name: ${{ steps.arguments.outputs.tf_plan_id }}
+        overwrite: true
+        path: ${{ steps.arguments.outputs.tf_cwd }}/tfplan
+
+    # If "-tf=apply" is run without "-auto-approve", then get the download link
+    # for the most recently uploaded, matching TF plan file artifact.
+    - name: Get TF plan file
+      id: artifact_url
+      if: fromJSON(steps.parsed.outputs.command)['tf'] == 'apply' && fromJSON(steps.parsed.outputs.command)['auto-approve'] == ''
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
+      with:
+        result-encoding: string
+        retries: 3
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/get_tf_plan_file.js`)({ github, context, core });
+
+    # Download and unzip the TF plan file to the specified working directory.
+    - name: Download and unzip TF plan file
+      if: fromJSON(steps.parsed.outputs.command)['tf'] == 'apply' && fromJSON(steps.parsed.outputs.command)['auto-approve'] == ''
+      shell: bash
+      run: wget -O "${{ steps.arguments.outputs.tf_plan_id }}" "${{ steps.artifact_url.outputs.link }}" && unzip "${{ steps.arguments.outputs.tf_plan_id }}" -d "${{ steps.arguments.outputs.tf_cwd }}"
+
+    - name: TF apply
+      id: apply
+      if: fromJSON(steps.parsed.outputs.command)['tf'] == 'apply'
+      shell: bash
+      run: ${{ env.TF_CLI_USES }} ${{ steps.arguments.outputs.arg_chdir }} apply ${{ steps.arguments.outputs.arg_compact_warnings }} ${{ steps.arguments.outputs.arg_destroy }} ${{ steps.arguments.outputs.arg_lock }} ${{ steps.arguments.outputs.arg_lock_timeout }} ${{ steps.arguments.outputs.arg_parallelism }} ${{ steps.arguments.outputs.arg_refresh }} ${{ steps.arguments.outputs.arg_refresh_only }} ${{ steps.arguments.outputs.arg_replace }} ${{ steps.arguments.outputs.arg_target }} ${{ steps.arguments.outputs.arg_var_file }} ${{ steps.arguments.outputs.arg_auto_approve }}
+
+    - name: TF force-unlock
+      id: force_unlock
+      if: fromJSON(steps.parsed.outputs.command)['tf'] == 'force-unlock'
+      shell: bash
+      run: ${{ env.TF_CLI_USES }} ${{ steps.arguments.outputs.arg_chdir }} force-unlock -force ${{ fromJSON(steps.parsed.outputs.command)['lock-id'] }}
+
+    # Render TF output with reduced verbosity for PR comment legibility.
+    - name: Render TF output
+      id: render
+      if: ${{ (success() || failure()) && (steps.apply.outputs.stderr || steps.apply.outputs.stdout || steps.plan.outputs.stderr || steps.plan.outputs.stdout || steps.force_unlock.outputs.stderr || steps.force_unlock.outputs.stdout || steps.workspace.outputs.stderr || steps.fmt.outputs.stdout || steps.validate.outputs.stderr || steps.init.outputs.stderr) }}
+      shell: bash
+      run: |
+        # Remove lines related to fetching the state of resources and truncate
+        # before the last 48000 characters to capture the final change summary.
+        tf_output_raw=$(cat <<'EOTF'
+        ${{ steps.apply.outputs.stderr || steps.apply.outputs.stdout || steps.plan.outputs.stderr || steps.plan.outputs.stdout || steps.force_unlock.outputs.stderr || steps.force_unlock.outputs.stdout || steps.workspace.outputs.stderr || steps.validate.outputs.stderr || steps.init.outputs.stderr }}
+        EOTF
+        )
+        echo 'tf_output<<EOTF' >> $GITHUB_OUTPUT
+        echo "$tf_output_raw" |
+          grep -vE ': Creating...|: Creation complete after|: Destroying...|: Destruction complete after|: Modifications complete after|: Modifying...|: Provisioning with|: Read complete after|: Reading...|: Refreshing state...|: Still creating...|: Still destroying...|: Still modifying...|: Still reading...|. This may take a few moments...' |
+          tail -c 48000 >> $GITHUB_OUTPUT
+        echo 'EOTF' >> $GITHUB_OUTPUT
+
+        # This time, truncate after the first 6000 characters instead.
+        tf_fmt_raw=$(cat <<'EOTF'
+        ${{ steps.fmt.outputs.stdout }}
+        EOTF
+        )
+        echo 'tf_fmt<<EOTF' >> $GITHUB_OUTPUT
+        echo "$tf_fmt_raw" | head -c 6000 >> $GITHUB_OUTPUT
+        echo 'EOTF' >> $GITHUB_OUTPUT
+
+    # Add or update PR comment with rendered TF output before exiting.
+    - name: Comment TF output
+      id: pr_comment
+      if: ${{ (success() || failure()) && steps.render.outcome == 'success' }}
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        matrix: ${{ toJSON(matrix) }}
+        recreate_comment: ${{ inputs.recreate_comment }}
+        run_attempt: ${{ github.run_attempt }}
+        tf_chdir: ${{ steps.arguments.outputs.tf_cwd }}
+        tf_command: ${{ steps.parsed.outputs.command }}
+        tf_fmt: ${{ steps.render.outputs.tf_fmt }}
+        tf_output: ${{ steps.render.outputs.tf_output }}
+        tf_plan_id: ${{ steps.arguments.outputs.tf_plan_id }}
+        tf_plan_outline: ${{ steps.plan.outputs.exitcode == 0 && inputs.plan_outline }}
+      with:
+        retries: 3
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/comment_tf_output.js`)({ github, context, core, exec });
+
+    # Remove PR comment reaction to indicate that the workflow has ended.
+    - name: Remove reaction
+      if: ${{ (success() || failure()) && steps.reaction.outcome == 'success' }}
+      env:
+        comment_id: ${{ github.event.comment.id || steps.comment.outputs.id }}
+        reaction_id: ${{ steps.reaction.outputs.id }}
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      with:
+        retries: 3
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/remove_reaction.js`)({ github, context });
+
+    # On issue_comment, update commit status with the job status before exiting.
+    - name: Update commit status
+      if: ${{ (success() || failure()) && github.event.issue.pull_request }}
+      uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+      env:
+        sha: ${{ steps.commit.outputs.sha }}
+        job_status: ${{ job.status }}
+      with:
+        retries: 3
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/update_commit_status.js`)({ github, context });
