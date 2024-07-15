@@ -352,14 +352,17 @@ ${tf_fmt_output}
 </details>`
         : "";
 
-      const comment_outline = output_plan_outline.length
-        ? `<details><summary>Outline of changes.</summary>
+      const comment_outline =
+        process.env.arg_command === "plan" &&
+        /^true$/i.test(process.env.plan_outline) &&
+        output_plan_outline.length
+          ? `<details><summary>Outline of changes.</summary>
 
 \`\`\`diff
 ${output_plan_outline}
 \`\`\`
 </details>`
-        : "";
+          : "";
 
       const comment_details = `
 \`\`\`hcl
