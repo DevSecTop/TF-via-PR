@@ -343,23 +343,29 @@ module.exports = async ({ context, core, exec, github }) => {
 ${tf_cli_input}
 \`\`\``;
 
-      const comment_fmt = tf_fmt_output.length
-        ? `<details><summary>Format diff check.</summary>
+      const comment_fmt =
+        process.env.arg_command === "plan" &&
+        /^true$/i.test(process.env.fmt_enable) &&
+        tf_fmt_output.length
+          ? `<details><summary>Format diff check.</summary>
 
 \`\`\`diff
 ${tf_fmt_output}
 \`\`\`
 </details>`
-        : "";
+          : "";
 
-      const comment_outline = output_plan_outline.length
-        ? `<details><summary>Outline of changes.</summary>
+      const comment_outline =
+        process.env.arg_command === "plan" &&
+        /^true$/i.test(process.env.plan_outline) &&
+        output_plan_outline.length
+          ? `<details><summary>Outline of changes.</summary>
 
 \`\`\`diff
 ${output_plan_outline}
 \`\`\`
 </details>`
-        : "";
+          : "";
 
       const comment_details = `
 \`\`\`hcl
