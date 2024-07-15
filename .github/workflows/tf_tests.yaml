@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cli_uses: [tofu, terraform]
+        cli_tool: [tofu, terraform]
         test:
           - 10_fail_invalid_resource_type
           - 11_fail_data_source_error
@@ -22,43 +22,33 @@ jobs:
           - 52_pass_format_diff
 
     permissions:
-      actions: read # Required for workflow query and artifact download.
-      checks: write # Required for adding summary to check status.
-      contents: read # Required for repository checkout.
+      actions: read # Required for downloading artifact.
+      checks: write # Required for adding status summary.
+      contents: read # Required for checking out repository.
       pull-requests: write # Required for commenting on PR.
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Setup TF (via tenv)
-        env:
-          CLI_USES: ${{ matrix.cli_uses }}
-          CLI_VERSION: ~> 1.7.0
-        run: |
-          VERSION=$(curl --silent https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
-          curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${VERSION}_amd64.deb"
-          sudo dpkg -i "tenv_${VERSION}_amd64.deb"
-          tenv $CLI_USES install "$CLI_VERSION" && tenv update-path
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Provision TF
         id: tf
         continue-on-error: true
         uses: ./
         with:
-          chdir_prefix: tests/
-          cli_uses: ${{ matrix.cli_uses }}
-          command_input: ${{ format('-tf={0} -chdir={1}', github.event.action != 'closed' && 'plan' || 'apply', matrix.test) }}
-          cache_plugins: false
+          tf_cli_tool: ${{ matrix.cli_tool }}
+          tf_cli_version: ~> 1.7.0
+          arg_command: ${{ github.event.action != 'closed' && 'plan' || 'apply' }}
+          arg_chdir: tests/${{ matrix.test }}
 
-      - name: Echo TF
-        run: |
-          echo "command: ${{ steps.tf.outputs.command }}"
-          echo "comment_id: ${{ steps.tf.outputs.comment_id }}"
-          echo "comment_summary: ${{ steps.tf.outputs.comment_summary }}"
-          echo "plan_id: ${{ steps.tf.outputs.plan_id }}"
-          echo "tf_fmt: ${{ steps.tf.outputs.tf_fmt }}"
-          echo "tf_output: ${{ steps.tf.outputs.tf_output }}"
+      # - name: Echo TF
+      #   run: |
+      #     echo "command: ${{ steps.tf.outputs.command }}"
+      #     echo "comment_id: ${{ steps.tf.outputs.comment_id }}"
+      #     echo "comment_summary: ${{ steps.tf.outputs.comment_summary }}"
+      #     echo "plan_id: ${{ steps.tf.outputs.plan_id }}"
+      #     echo "tf_fmt: ${{ steps.tf.outputs.tf_fmt }}"
+      #     echo "tf_output: ${{ steps.tf.outputs.tf_output }}"
 
       - name: Echo github-script context
         if: always()
