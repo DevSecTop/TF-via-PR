@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Authenticate AWS
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
@@ -45,8 +45,9 @@ jobs:
       - name: Provision TF
         uses: ./
         with:
-          command_input: ${{ format('-tf={0} -chdir=stacks/sample_instance -var-file=env/{1}.tfvars', github.event.action != 'closed' && 'plan -lock=false' || 'apply', matrix.context) }}
-          cache_plugins: false
+          arg_command: ${{ github.event.action != 'closed' && 'plan' || 'apply' }}
+          arg_chdir: stacks/sample_instance
+          arg_var_file: ${{ format('env/{0}.tfvars', matrix.context) }}
 
   Bucket:
     runs-on: ubuntu-latest
@@ -59,7 +60,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
       - name: Authenticate AWS
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
@@ -75,5 +76,6 @@ jobs:
       - name: Provision TF
         uses: ./
         with:
-          command_input: ${{ format('-tf={0} -chdir=stacks/sample_bucket -backend-config=backend/{1}.tfbackend', github.event.action != 'closed' && 'plan -lock=false' || 'apply', matrix.context) }}
-          cache_plugins: false
+          arg_command: ${{ github.event.action != 'closed' && 'plan' || 'apply' }}
+          arg_chdir: stacks/sample_bucket
+          arg_backend_config: ${{ format('backend/{0}.tfbackend', matrix.context) }}
