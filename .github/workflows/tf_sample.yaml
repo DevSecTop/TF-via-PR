@@ -27,7 +27,7 @@ jobs:
       matrix:
         context: [dev, stg]
 
-    environment: ${{ format('{0}', github.event.pull_request.merged && matrix.context || '') }}
+    environment: ${{ format('sample_instance/{0}', github.event.pull_request.merged && matrix.context || '') }}
 
     steps:
       - name: Checkout repository
@@ -60,7 +60,7 @@ jobs:
       matrix:
         context: [dev, stg]
 
-    environment: ${{ format('{0}', github.event.pull_request.merged && matrix.context || '') }}
+    environment: ${{ format('sample_bucket/{0}', github.event.pull_request.merged && matrix.context || '') }}
 
     steps:
       - name: Checkout repository
