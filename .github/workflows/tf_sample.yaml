@@ -18,16 +18,17 @@ env:
   TF_VAR_PREFIX: sample
 
 jobs:
-  Instance:
+  TF:
     runs-on: ubuntu-latest
     if: github.event.action != 'closed' || github.event.pull_request.merged
 
     strategy:
       fail-fast: false
       matrix:
-        context: [dev, stg]
+        dir: [sample_bucket, sample_instance]
+        env: [dev, stg]
 
-    environment: ${{ format('{0}', github.event.pull_request.merged && matrix.context || '') }}
+    environment: ${{ github.event.pull_request.merged && format('{0}/{1}', matrix.dir, matrix.env) || '' }}
 
     steps:
       - name: Checkout repository
@@ -48,38 +49,6 @@ jobs:
         uses: ./
         with:
           arg_command: ${{ github.event.action != 'closed' && 'plan' || 'apply' }}
-          arg_chdir: stacks/sample_instance
-          arg_var_file: ${{ format('env/{0}.tfvars', matrix.context) }}
-
-  Bucket:
-    runs-on: ubuntu-latest
-    if: github.event.action != 'closed' || github.event.pull_request.merged
-
-    strategy:
-      fail-fast: false
-      matrix:
-        context: [dev, stg]
-
-    environment: ${{ format('{0}', github.event.pull_request.merged && matrix.context || '') }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-
-      - name: Authenticate AWS
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE }}
-
-      - name: Setup TF
-        uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8 # v3.1.1
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Provision TF
-        uses: ./
-        with:
-          arg_command: ${{ github.event.action != 'closed' && 'plan' || 'apply' }}
-          arg_chdir: stacks/sample_bucket
-          arg_backend_config: ${{ format('backend/{0}.tfbackend', matrix.context) }}
+          arg_chdir: stacks/${{ matrix.dir }}
+          arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
+          arg_backend_config: ${{ contains(matrix.dir, 'bucket') && format('backend/{0}.tfbackend', matrix.env) || '' }}
