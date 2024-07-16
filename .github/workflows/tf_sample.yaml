@@ -49,6 +49,6 @@ jobs:
         uses: ./
         with:
           arg_command: ${{ github.event.action != 'closed' && 'plan' || 'apply' }}
-          arg_chdir: ${{ matrix.dir }}
+          arg_chdir: stacks/${{ matrix.dir }}
           arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
           arg_backend_config: ${{ contains(matrix.dir, 'bucket') && format('backend/{0}.tfbackend', matrix.env) || '' }}
