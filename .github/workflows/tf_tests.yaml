@@ -10,6 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.action != 'closed' || github.event.pull_request.merged
 
+    permissions:
+      actions: read # Required for downloading artifact.
+      checks: write # Required for adding status summary.
+      contents: read # Required for checking out repository.
+      pull-requests: write # Required for commenting on PR.
+
     strategy:
       fail-fast: false
       matrix:
@@ -20,12 +26,6 @@ jobs:
           - 50_pass_one
           - 51_pass_character_limit
           - 52_pass_format_diff
-
-    permissions:
-      actions: read # Required for downloading artifact.
-      checks: write # Required for adding status summary.
-      contents: read # Required for checking out repository.
-      pull-requests: write # Required for commenting on PR.
 
     steps:
       - name: Checkout repository
