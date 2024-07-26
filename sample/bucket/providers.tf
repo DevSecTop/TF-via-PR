@@ -16,8 +16,8 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Stack     = basename(abspath(path.root)) # E.g., "sample_bucket".
-      Terraform = terraform.workspace          # E.g., "default".
+      Stack     = basename(abspath(path.root))
+      Terraform = terraform.workspace
     }
   }
 }

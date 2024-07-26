@@ -3,14 +3,14 @@ name: TF Sample
 on:
   pull_request:
     types: [opened, reopened, synchronize, closed]
-    paths: [.github/workflows/tf_sample.yaml, stacks/**]
+    paths: [.github/workflows/tf_sample.yaml, sample/**]
 
 permissions:
-  actions: read # Required for workflow query and artifact download.
-  checks: write # Required for adding summary to check status.
-  contents: read # Required for repository checkout.
-  id-token: write # Required for assuming AWS role via OIDC provider.
-  pull-requests: write # Required for commenting on PR.
+  actions: read # Required to download repository artifact.
+  checks: write # Required to add status summary.
+  contents: read # Required to checkout repository.
+  id-token: write # Required to authenticate via OIDC.
+  pull-requests: write # Required to add PR comment and label.
 
 env:
   AWS_REGION: us-east-1
@@ -20,12 +20,11 @@ env:
 jobs:
   TF:
     runs-on: ubuntu-latest
-    if: github.event.action != 'closed' || github.event.pull_request.merged
 
     strategy:
       fail-fast: false
       matrix:
-        dir: [sample_bucket, sample_instance]
+        dir: [bucket, instance]
         env: [dev, stg]
 
     environment: ${{ github.event.pull_request.merged && format('{0}/{1}', matrix.dir, matrix.env) || '' }}
@@ -48,7 +47,8 @@ jobs:
       - name: Provision TF
         uses: ./
         with:
-          arg_command: ${{ github.event.action != 'closed' && 'plan' || 'apply' }}
-          arg_chdir: stacks/${{ matrix.dir }}
-          arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
+          arg_chdir: sample/${{ matrix.dir }}
+          arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg_backend_config: ${{ contains(matrix.dir, 'bucket') && format('backend/{0}.tfbackend', matrix.env) || '' }}
+          arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
+          arg_workspace: ${{ matrix.env }}

@@ -1,3 +1,3 @@
 bucket = "tmp-workflow-tfstates"
-key    = "stg.tfstate"
+key    = "dev/sample_bucket.tfstate"
 region = "us-east-1"

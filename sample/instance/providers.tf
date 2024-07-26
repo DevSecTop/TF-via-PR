@@ -34,8 +34,8 @@ provider "aws" {
 
   default_tags {
     tags = merge({
-      Stack     = basename(abspath(path.root)) # E.g., "sample_instance".
-      Terraform = terraform.workspace          # E.g., "default".
+      Stack     = basename(abspath(path.root))
+      Terraform = terraform.workspace
       }, local.tags[terraform.workspace]
     )
   }
