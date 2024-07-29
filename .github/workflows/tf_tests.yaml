@@ -18,13 +18,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        cli_tool: [tofu, terraform]
-        test:
-          # - fail_invalid_resource_type
-          # - fail_data_source_error
-          # - pass_one
+        tool: [tofu, terraform]
+        path:
+          - fail_invalid_resource_type
+          - fail_data_source_error
+          - pass_one
           - pass_character_limit
-          # - pass_format_diff
+          - pass_format_diff
 
     steps:
       - name: Echo github
@@ -45,8 +45,8 @@ jobs:
         uses: ./
         with:
           arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
-          arg_chdir: tests/${{ matrix.test }}
-          tf_tool: ${{ matrix.cli_tool }}
+          arg_chdir: tests/${{ matrix.path }}
+          tf_tool: ${{ matrix.tool }}
           tf_version: ~> 1.7.0
 
       - name: Echo TF
