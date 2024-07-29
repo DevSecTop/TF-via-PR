@@ -36,3 +36,4 @@ jobs:
           arg_command: ${{ github.event_name == 'merge_group' && 'apply' || 'plan' }}
           arg_var_file: env/${{ matrix.deployment }}.tfvars
           arg_workspace: ${{ matrix.deployment }}
+          arg_lock: false
