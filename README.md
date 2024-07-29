@@ -22,7 +22,7 @@
     <img alt="Screenshot of PR comment example with multiple command arguments." src="assets/screenshot_light.png">
   </picture>
   <figcaption>
-    </br>Screenshot of PR comment example with multiple command arguments.
+    </br><em>Screenshot of PR comment example with multiple command arguments.</em>
   </figcaption>
 </figure>
 
@@ -93,9 +93,9 @@ jobs:
 
 The following functional workflow examples demonstrate common use-cases, while a comprehensive list of inputs is documented [below](#parameters).
 
-- [Trigger](.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS authentication.
-- [Trigger](.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in matrix strategy.
-- [Trigger](.github/examples/pr_tenv.yaml) on `pull_request` (plan or apply) event with [tenv proxy](https://tofuutils.github.io/tenv/) to avoid TF wrapper.
+- [Trigger](.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS **authentication**.
+- [Trigger](.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in **matrix** strategy.
+- [Trigger](.github/examples/pr_tenv.yaml) on `pull_request` (plan or apply) event with [tenv proxy](https://tofuutils.github.io/tenv/) to avoid TF **wrapper**.
 
 ## Parameters
 

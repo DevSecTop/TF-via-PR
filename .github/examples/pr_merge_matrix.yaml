@@ -20,6 +20,8 @@ jobs:
       matrix:
         deployment: [dev, qa, prod]
 
+    environment: ${{ github.event_name == 'merge_group' && matrix.deployment || '' }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,5 +35,4 @@ jobs:
           arg_chdir: directory/path
           arg_command: ${{ github.event_name == 'merge_group' && 'apply' || 'plan' }}
           arg_var_file: env/${{ matrix.deployment }}.tfvars
-          # arg_var_file: ${{ format('env/{0}.tfvars', matrix.deployment) }}
           arg_workspace: ${{ matrix.deployment }}
