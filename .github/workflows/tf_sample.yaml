@@ -1,5 +1,6 @@
 ---
 name: TF Sample
+
 on:
   pull_request:
     paths: [.github/workflows/tf_sample.yaml, sample/**]
@@ -51,6 +52,7 @@ jobs:
           arg_chdir: sample/${{ matrix.dir }}
           arg_command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
           arg_backend_config: ${{ contains(matrix.dir, 'bucket') && format('backend/{0}.tfbackend', matrix.env) || '' }}
-          arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
+          arg_var_file: ${{ contains(matrix.dir, 'instance') }} && env/${{ matrix.env }}.tfvars
+          # arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
           arg_workspace: ${{ matrix.env }}
           arg_or_create: true
