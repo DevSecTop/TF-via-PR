@@ -7,56 +7,50 @@ branding:
   icon: package
 
 inputs:
-  tf_cli_tool:
-    description: String name of the TF CLI tool to use and override default assumption from wrapper environment variable.
-    required: false
-    default: "terraform"
-  tf_cli_version:
-    description: String version constraint of the TF CLI tool to install and use.
-    required: false
-    default: ""
-  fmt_enable:
-    description: Boolean flag to enable TF fmt command and display diff of changes.
-    required: false
-    default: "true"
-  validate_enable:
-    description: Boolean flag to enable TF validate command check.
-    required: false
-    default: "false"
+  # Input parameters.
   cache_plugins:
     description: Boolean flag to cache TF plugins for faster workflow runs (requires .terraform.lock.hcl file).
     required: false
     default: "false"
-  label_pr:
-    description: Boolean flag to add PR label of TF CLI command to run.
-    required: false
-    default: "true"
   comment_pr:
-    description: Boolean flag to add PR comment of TF CLI command output.
+    description: Boolean flag to add PR comment of TF command output.
     required: false
     default: "true"
+  fmt_enable:
+    description: Boolean flag to enable TF fmt command and display diff of changes.
+    required: false
+    default: "true"
+  label_pr:
+    description: Boolean flag to add PR label of TF command to run.
+    required: false
+    default: "true"
+  outline_enable:
+    description: Boolean flag to add an outline diff of TF plan file.
+    required: false
+    default: "true"
+  tf_tool:
+    description: String name of the TF tool to use and override default assumption from wrapper environment variable.
+    required: false
+    default: "terraform"
+  tf_version:
+    description: String version constraint of the TF tool to install and use.
+    required: false
+    default: ""
   update_comment:
     description: Boolean flag to update existing PR comment instead of creating a new comment and deleting the old one.
     required: false
     default: "false"
-  plan_outline:
-    description: Boolean flag to add an outline diff of TF plan.
+  validate_enable:
+    description: Boolean flag to enable TF validate command check.
     required: false
-    default: "true"
+    default: "false"
 
-  arg_command:
-    description: String name of the TF CLI command to run (either 'plan', 'apply' or 'force-unlock').
-    required: false
-    default: "plan"
-  arg_chdir:
-    description: String path to the working directory where the TF CLI command should be run.
+  # TF arguments.
+  arg_auto_approve:
+    description: Boolean flag to toggle skipping of interactive approval of plan before applying.
     required: false
     default: ""
   arg_backend:
-    description: Boolean flag to toggle TF backend initialization.
-    required: false
-    default: ""
-  arg_cloud:
     description: Boolean flag to toggle TF backend initialization.
     required: false
     default: ""
@@ -64,6 +58,46 @@ inputs:
     description: Comma-separated string list of file path(s) to the backend configuration.
     required: false
     default: ""
+  arg_backup:
+    description: Boolean flag to toggle backup of the existing state file before modifying.
+    required: false
+    default: ""
+  arg_chdir:
+    description: String path to the working directory where the TF command should be run.
+    required: false
+    default: ""
+  arg_check:
+    description: Boolean flag to toggle checking of file formatting with appropriate exit code.
+    required: false
+    default: ""
+  arg_cloud:
+    description: Boolean flag to toggle TF backend initialization.
+    required: false
+    default: ""
+  arg_command:
+    description: String name of the TF command to run (either 'plan' or 'apply').
+    required: false
+    default: "plan"
+  arg_compact_warnings:
+    description: Boolean flag to toggle compact output for warnings.
+    required: false
+    default: ""
+  arg_concise:
+    description: Boolean flag to toggle skipping of refresh log lines.
+    required: false
+    default: ""
+  arg_destroy:
+    description: Boolean flag to toggle destruction of all managed objects.
+    required: false
+    default: ""
+  arg_detailed_exitcode:
+    description: String to set the detailed exit code mode.
+    required: false
+    default: ""
+  arg_diff:
+    description: Boolean flag to toggle display diff of formatting changes.
+    required: false
+    default: "true"
   arg_force_copy:
     description: Boolean flag to toggle suppression of prompts about copying state data.
     required: false
@@ -72,8 +106,56 @@ inputs:
     description: String path to copy contents from the given module source into the target directory.
     required: false
     default: ""
+  arg_generate_config_out:
+    description: String path to write the generated configuration.
+    required: false
+    default: ""
   arg_get:
     description: Boolean flag to toggle downloading of modules for the configuration.
+    required: false
+    default: ""
+  arg_ignore_remote_version:
+    description: Boolean flag to toggle checking if the local and remote TF versions use compatible state representations.
+    required: false
+    default: ""
+  arg_json:
+    description: Boolean flag to toggle JSON output format.
+    required: false
+    default: ""
+  arg_list:
+    description: Boolean flag to toggle listing of files whose formatting differs.
+    required: false
+    default: "false"
+  arg_lock:
+    description: Boolean flag to toggle state locking during state operations.
+    required: false
+    default: ""
+  arg_lock_timeout:
+    description: String duration to retry a state lock.
+    required: false
+    default: ""
+  arg_lockfile:
+    description: String to set dependency lockfile mode.
+    required: false
+    default: ""
+  arg_migrate_state:
+    description: Boolean flag to toggle reconfiguration of the backend, attempting to migrate any existing state.
+    required: false
+    default: ""
+  arg_no_tests:
+    description: Boolean flag to toggle validation of test files.
+    required: false
+    default: ""
+  arg_or_create:
+    description: Boolean flag to toggle workspace creation if it doesn't exist.
+    required: false
+    default: ""
+  arg_out:
+    description: String path to write the generated plan.
+    required: false
+    default: "tfplan"
+  arg_parallelism:
+    description: String number to limit the number of concurrent operations.
     required: false
     default: ""
   arg_plugin_dir:
@@ -84,133 +166,20 @@ inputs:
     description: Boolean flag to toggle reconfiguration of the backend, ignoring any saved configuration.
     required: false
     default: ""
-  arg_migrate_state:
-    description: Boolean flag to toggle reconfiguration of the backend, attempting to migrate any existing state.
-    required: false
-    default: ""
-  arg_upgrade:
-    description: Boolean flag to toggle upgrading the latest module and provider versions allowed within configured constraints.
-    required: false
-    default: ""
-  arg_lockfile:
-    description: String to set dependency lockfile mode.
-    required: false
-    default: ""
-  arg_ignore_remote_version:
-    description: Boolean flag to toggle checking if the local and remote TF versions use compatible state representations.
-    required: false
-    default: ""
-
-  arg_refresh_only:
-    description: Boolean flag to toggle checking of remote objects still match the current configuration without proposing any actions to undo external changes.
-    required: false
-    default: ""
-  arg_refresh:
-    description: Boolean flag to skip checking of external changes to remote objects.
-    required: false
-    default: ""
-  arg_replace:
-    description: Comma-separated string list of resource addresses to replace.
-    required: false
-    default: ""
-  arg_target:
-    description: Comma-separated string list of resource addresses to target.
-    required: false
-    default: ""
-  arg_var:
-    description: Comma-separated string list of variables to set in the format 'key=value'.
-    required: false
-    default: ""
-  arg_var_file:
-    description: Comma-separated string list of file path(s) to the variable configuration.
-    required: false
-    default: ""
-  arg_concise:
-    description: Boolean flag to toggle skipping of refresh log lines.
-    required: false
-    default: ""
-  arg_detailed_exitcode:
-    description: String to set the detailed exit code mode.
-    required: false
-    default: ""
-  arg_generate_config_out:
-    description: String path to write the generated configuration.
-    required: false
-    default: ""
-  arg_out:
-    description: String path to write the generated plan.
-    required: false
-    default: "tfplan"
-
-  arg_workspace:
-    description: String name of the workspace to select or create.
-    required: false
-    default: ""
-  arg_or_create:
-    description: Boolean flag to toggle workspace creation if it doesn't exist.
-    required: false
-    default: ""
-
-  arg_json:
-    description: Boolean flag to toggle JSON output format.
-    required: false
-    default: ""
-  arg_no_tests:
-    description: Boolean flag to toggle validation of test files.
-    required: false
-    default: ""
-  arg_test_directory:
-    description: String path to the test directory.
-    required: false
-    default: ""
-
-  arg_list:
-    description: Boolean flag to toggle listing of files whose formatting differs.
-    required: false
-    default: "false"
-  arg_write:
-    description: Boolean flag to toggle writing of formatted files.
-    required: false
-    default: "false"
-  arg_diff:
-    description: Boolean flag to toggle display diff of formatting changes.
-    required: false
-    default: "true"
-  arg_check:
-    description: Boolean flag to toggle checking of file formatting with appropriate exit code.
-    required: false
-    default: ""
   arg_recursive:
     description: Boolean flag to toggle recursive processing of directories.
     required: false
     default: "true"
-
-  arg_auto_approve:
-    description: Boolean flag to toggle skipping of interactive approval of plan before applying.
+  arg_refresh:
+    description: Boolean flag to skip checking of external changes to remote objects.
     required: false
     default: ""
-  arg_backup:
-    description: Boolean flag to toggle backup of the existing state file before modifying.
+  arg_refresh_only:
+    description: Boolean flag to toggle checking of remote objects still match the current configuration without proposing any actions to undo external changes.
     required: false
     default: ""
-  arg_compact_warnings:
-    description: Boolean flag to toggle compact output for warnings.
-    required: false
-    default: ""
-  arg_destroy:
-    description: Boolean flag to toggle destruction of all managed objects.
-    required: false
-    default: ""
-  arg_lock:
-    description: Boolean flag to toggle state locking during state operations.
-    required: false
-    default: ""
-  arg_lock_timeout:
-    description: String duration to retry a state lock.
-    required: false
-    default: ""
-  arg_parallelism:
-    description: String number to limit the number of concurrent operations.
+  arg_replace:
+    description: Comma-separated string list of resource addresses to replace.
     required: false
     default: ""
   arg_state:
@@ -221,78 +190,111 @@ inputs:
     description: String path to write state.
     required: false
     default: ""
+  arg_target:
+    description: Comma-separated string list of resource addresses to target.
+    required: false
+    default: ""
+  arg_test_directory:
+    description: String path to the test directory.
+    required: false
+    default: ""
+  arg_upgrade:
+    description: Boolean flag to toggle upgrading the latest module and provider versions allowed within configured constraints.
+    required: false
+    default: ""
+  arg_var:
+    description: Comma-separated string list of variables to set in the format 'key=value'.
+    required: false
+    default: ""
+  arg_var_file:
+    description: Comma-separated string list of file path(s) to the variable configuration.
+    required: false
+    default: ""
+  arg_workspace:
+    description: String name of the workspace to select or create.
+    required: false
+    default: ""
+  arg_write:
+    description: Boolean flag to toggle writing of formatted files.
+    required: false
+    default: "false"
 
-# outputs:
-#   command:
-#     description: JSON object of the parsed command.
-#     value: ${{ steps.parsed.outputs.command }}
-#   comment_id:
-#     description: String ID of the PR comment created or updated by the workflow.
-#     value: ${{ steps.pr_comment.outputs.id }}
-#   comment_summary:
-#     description: String summary of the PR comment created or updated by the workflow.
-#     value: ${{ steps.pr_comment.outputs.summary }}
-#   plan_id:
-#     description: String ID of the TF plan file artifact's unique identifier.
-#     value: ${{ steps.arguments.outputs.tf_plan_id }}
-#   tf_fmt:
-#     description: String output of the truncated TF fmt command.
-#     value: ${{ steps.render.outputs.tf_fmt }}
-#   tf_output:
-#     description: String output of the truncated last TF command.
-#     value: ${{ steps.render.outputs.tf_output }}
+outputs:
+  check_id:
+    description: String output of the workflow check run ID.
+    value: ${{ steps.tf.outputs.check_id }}
+  comment_id:
+    description: String output of the PR comment ID.
+    value: ${{ steps.tf.outputs.comment_id }}
+  fmt_result:
+    description: String output of the TF fmt command.
+    value: ${{ steps.tf.outputs.fmt_result }}
+  header:
+    description: String output of the TF command input.
+    value: ${{ steps.tf.outputs.header }}
+  identifier:
+    description: String output of the TF run's unique identifier.
+    value: ${{ steps.tf.outputs.identifier }}
+  last_result:
+    description: String output of the last TF command.
+    value: ${{ steps.tf.outputs.last_result }}
+  outline:
+    description: String outline of the TF plan.
+    value: ${{ steps.tf.outputs.outline }}
+  summary:
+    description: String summary of the last TF command.
+    value: ${{ steps.tf.outputs.summary }}
 
 runs:
   using: composite
-
   steps:
     - name: Cache TF plugins
       id: cache_plugins
-      if: inputs.cache_plugins == 'true'
+      if: inputs.cache_plugins == 'true' && hashFiles(format('{0}/.terraform.lock.hcl', inputs.arg_chdir))
       uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
       with:
-        key: ${{ runner.os }}-${{ inputs.tf_cli_tool }}-${{ inputs.tf_cli_version }}-${{ hashFiles(format('{0}/.terraform.lock.hcl', inputs.arg_chdir)) }}
+        key: ${{ runner.os }}-${{ inputs.tf_tool }}-${{ inputs.tf_version }}-${{ hashFiles(format('{0}/.terraform.lock.hcl', inputs.arg_chdir)) }}
         path: |
-          ~/.terraform.d/plugin-cache
+          ~/.terraform.d
           ${{ inputs.arg_chdir }}/.terraform
 
     - name: Install TF via tenv
-      if: inputs.tf_cli_version != ''
+      if: inputs.tf_version != ''
       env:
-        TF_CLI_TOOL: ${{ inputs.tf_cli_tool }}
-        TF_CLI_VERSION: ${{ inputs.tf_cli_version }}
+        TF_TOOL: ${{ inputs.tf_tool }}
+        TF_VERSION: ${{ inputs.tf_version }}
       shell: bash
       run: |
         VERSION=$(curl --no-progress-meter --location https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
         curl --remote-name --no-progress-meter --location "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${VERSION}_amd64.deb"
         sudo dpkg --install "tenv_${VERSION}_amd64.deb"
-        tenv "$TF_CLI_TOOL" install "$TF_CLI_VERSION"
+        tenv "$TF_TOOL" install "$TF_VERSION"
         tenv update-path
 
-    - name: Command TF CLI
+    - name: Command TF
       id: tf
       uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
       env:
-        # TF CLI environment variables
-        TF_CLI_ARGS: -no-color
-        TF_IN_AUTOMATION: true
-        TF_INPUT: false
-        MATRIX: ${{ toJSON(matrix) }}
-
-        # Input parameters
+        # Input parameters.
         cache_hit: ${{ steps.cache_plugins.outputs.cache-hit }}
         comment_pr: ${{ inputs.comment_pr }}
         fmt_enable: ${{ inputs.fmt_enable }}
         label_pr: ${{ inputs.label_pr }}
-        plan_outline: ${{ inputs.plan_outline }}
-        tf_cli_tool: ${{ inputs.tf_cli_tool }}
+        outline_enable: ${{ inputs.outline_enable }}
+        tf_tool: ${{ inputs.tf_tool }}
         update_comment: ${{ inputs.update_comment }}
         validate_enable: ${{ inputs.validate_enable }}
 
-        # TF CLI arguments
+        # TF environment variables.
+        TF_CLI_ARGS: ${{ env.TF_CLI_ARGS != '' && format('{0} -no-color', env.TF_CLI_ARGS) || '-no-color' }}
+        TF_IN_AUTOMATION: true
+        TF_INPUT: false
+        MATRIX: ${{ toJSON(matrix) }}
+
+        # TF arguments.
         arg_auto_approve: ${{ inputs.arg_auto_approve != '' && format('-auto-approve={0}', inputs.arg_auto_approve) || '' }}
-        arg_backend_config: ${{ inputs.arg_backend_config != '' && format('-backend-config={0}', inputs.arg_backend_config) || '' }}
         arg_backend: ${{ inputs.arg_backend != '' && format('-backend={0}', inputs.arg_backend) || '' }}
+        arg_backend_config: ${{ inputs.arg_backend_config != '' && format('-backend-config={0}', inputs.arg_backend_config) || '' }}
         arg_backup: ${{ inputs.arg_backup != '' && format('-backup={0}', inputs.arg_backup) || '' }}
         arg_chdir: ${{ inputs.arg_chdir != '' && format('-chdir={0}', inputs.arg_chdir) || '' }}
         arg_check: ${{ inputs.arg_check != '' && format('-check={0}', inputs.arg_check) || '' }}
@@ -310,8 +312,8 @@ runs:
         arg_ignore_remote_version: ${{ inputs.arg_ignore_remote_version != '' && format('-ignore-remote-version={0}', inputs.arg_ignore_remote_version) || '' }}
         arg_json: ${{ inputs.arg_json != '' && format('-json={0}', inputs.arg_json) || '' }}
         arg_list: ${{ inputs.arg_list != '' && format('-list={0}', inputs.arg_list) || '' }}
-        arg_lock_timeout: ${{ inputs.arg_lock_timeout != '' && format('-lock-timeout={0}', inputs.arg_lock_timeout) || '' }}
         arg_lock: ${{ inputs.arg_lock != '' && format('-lock={0}', inputs.arg_lock) || '' }}
+        arg_lock_timeout: ${{ inputs.arg_lock_timeout != '' && format('-lock-timeout={0}', inputs.arg_lock_timeout) || '' }}
         arg_lockfile: ${{ inputs.arg_lockfile != '' && format('-lockfile={0}', inputs.arg_lockfile) || '' }}
         arg_migrate_state: ${{ inputs.arg_migrate_state != '' && format('-migrate-state={0}', inputs.arg_migrate_state) || '' }}
         arg_no_tests: ${{ inputs.arg_no_tests != '' && format('-no-tests={0}', inputs.arg_no_tests) || '' }}
@@ -321,27 +323,28 @@ runs:
         arg_plugin_dir: ${{ inputs.arg_plugin_dir != '' && format('-plugin-dir={0}', inputs.arg_plugin_dir) || '' }}
         arg_reconfigure: ${{ inputs.arg_reconfigure != '' && format('-reconfigure={0}', inputs.arg_reconfigure) || '' }}
         arg_recursive: ${{ inputs.arg_recursive != '' && format('-recursive={0}', inputs.arg_recursive) || '' }}
-        arg_refresh_only: ${{ inputs.arg_refresh_only != '' && format('-refresh-only={0}', inputs.arg_refresh_only) || '' }}
         arg_refresh: ${{ inputs.arg_refresh != '' && format('-refresh={0}', inputs.arg_refresh) || '' }}
+        arg_refresh_only: ${{ inputs.arg_refresh_only != '' && format('-refresh-only={0}', inputs.arg_refresh_only) || '' }}
         arg_replace: ${{ inputs.arg_replace != '' && format('-replace={0}', inputs.arg_replace) || '' }}
-        arg_state_out: ${{ inputs.arg_state_out != '' && format('-state-out={0}', inputs.arg_state_out) || '' }}
         arg_state: ${{ inputs.arg_state != '' && format('-state={0}', inputs.arg_state) || '' }}
+        arg_state_out: ${{ inputs.arg_state_out != '' && format('-state-out={0}', inputs.arg_state_out) || '' }}
         arg_target: ${{ inputs.arg_target != '' && format('-target={0}', inputs.arg_target) || '' }}
         arg_test_directory: ${{ inputs.arg_test_directory != '' && format('-test-directory={0}', inputs.arg_test_directory) || '' }}
         arg_upgrade: ${{ inputs.arg_upgrade != '' && format('-upgrade={0}', inputs.arg_upgrade) || '' }}
-        arg_var_file: ${{ inputs.arg_var_file != '' && format('-var-file={0}', inputs.arg_var_file) || '' }}
         arg_var: ${{ inputs.arg_var != '' && format('-var={0}', inputs.arg_var) || '' }}
+        arg_var_file: ${{ inputs.arg_var_file != '' && format('-var-file={0}', inputs.arg_var_file) || '' }}
         arg_workspace: ${{ inputs.arg_workspace }}
+        arg_workspace_alt: ${{ inputs.arg_workspace != '' && format('-workspace={0}', inputs.arg_workspace) || '' }}
         arg_write: ${{ inputs.arg_write != '' && format('-write={0}', inputs.arg_write) || '' }}
       with:
-        result-encoding: string
         retries: 3
-        script: await require(`${process.env.GITHUB_ACTION_PATH}/scripts/tf.js`)({ context, core, exec, github });
+        result-encoding: string
+        script: await require(`${process.env.GITHUB_ACTION_PATH}/action.js`)({ context, core, exec, github });
 
     - name: Upload TF plan file
       if: inputs.arg_command == 'plan'
       uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # v4.3.4
       with:
-        name: ${{ steps.tf.outputs.tf_identifier }}
+        name: ${{ steps.tf.outputs.identifier }}
         path: ${{ inputs.arg_chdir }}/${{ inputs.arg_out }}
         overwrite: true
