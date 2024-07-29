@@ -1,5 +1,6 @@
 ---
 name: TF Tests
+
 on:
   pull_request:
     paths: [.github/workflows/tf_tests.yaml, tests/**]
@@ -44,8 +45,8 @@ jobs:
         id: tf
         uses: ./
         with:
-          arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg_chdir: tests/${{ matrix.path }}
+          arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           tf_tool: ${{ matrix.tool }}
           tf_version: ~> 1.7.0
 

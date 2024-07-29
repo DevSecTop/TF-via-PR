@@ -27,10 +27,9 @@ jobs:
       fail-fast: false
       matrix:
         dir: [bucket, instance]
-        env: [dev, stg]
+        env: [dev, qa]
 
-    environment: ${{ github.event_name == 'pull_request' && matrix.env || '' }}
-    # environment: ${{ github.event_name == 'push' && format('{0}/{1}', matrix.dir, matrix.env) || '' }}
+    environment: ${{ github.event_name == 'push' && format('{0}/{1}', matrix.dir, matrix.env) || '' }}
 
     steps:
       - name: Checkout repository
