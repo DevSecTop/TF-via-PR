@@ -26,11 +26,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # dir: [bucket, instance]
-        dir: [instance]
+        dir: [bucket, instance]
         env: [dev, stg]
 
-    environment: ${{ github.event_name == 'push' && format('{0}/{1}', matrix.dir, matrix.env) || '' }}
+    environment: ${{ github.event_name == 'pull_request' && matrix.env || '' }}
+    # environment: ${{ github.event_name == 'push' && format('{0}/{1}', matrix.dir, matrix.env) || '' }}
 
     steps:
       - name: Checkout repository
@@ -53,7 +53,6 @@ jobs:
           arg_chdir: sample/${{ matrix.dir }}
           arg_command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
           arg_backend_config: ${{ contains(matrix.dir, 'bucket') && format('backend/{0}.tfbackend', matrix.env) || '' }}
-          arg_var_file: env/${{ matrix.env }}.tfvars
-          # arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
+          arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
           arg_workspace: ${{ matrix.env }}
           arg_or_create: true
