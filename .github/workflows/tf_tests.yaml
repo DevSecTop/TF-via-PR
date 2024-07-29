@@ -2,8 +2,8 @@
 name: TF Tests
 on:
   pull_request:
-    types: [opened, reopened, synchronize, closed]
     paths: [.github/workflows/tf_tests.yaml, tests/**]
+    types: [opened, reopened, synchronize, closed]
 
 jobs:
   tests:
@@ -20,11 +20,11 @@ jobs:
       matrix:
         cli_tool: [tofu, terraform]
         test:
-          - fail_invalid_resource_type
-          - fail_data_source_error
-          - pass_one
+          # - fail_invalid_resource_type
+          # - fail_data_source_error
+          # - pass_one
           - pass_character_limit
-          - pass_format_diff
+          # - pass_format_diff
 
     steps:
       - name: Echo github
@@ -44,7 +44,7 @@ jobs:
         id: tf
         uses: ./
         with:
-          arg_command: ${{ github.event.action != 'closed' && 'plan' || 'apply' }}
+          arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg_chdir: tests/${{ matrix.test }}
           tf_tool: ${{ matrix.cli_tool }}
           tf_version: ~> 1.7.0

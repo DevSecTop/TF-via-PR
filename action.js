@@ -132,13 +132,14 @@ module.exports = async ({ context, core, exec, github }) => {
         ],
         [
           "select",
-          process.env.arg_workspace_alt,
           process.env.arg_chdir,
+          process.env.arg_workspace_alt,
+          process.env.arg_or_create,
           process.env.arg_backend_config,
           process.env.arg_var_file,
           process.env.arg_destroy,
         ],
-        4
+        5
       );
     }
 
