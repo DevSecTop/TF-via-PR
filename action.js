@@ -127,8 +127,8 @@ module.exports = async ({ context, core, exec, github }) => {
           process.env.arg_chdir,
           "workspace",
           "select",
-          process.env.arg_workspace,
           process.env.arg_or_create,
+          process.env.arg_workspace,
         ],
         [
           "select",
