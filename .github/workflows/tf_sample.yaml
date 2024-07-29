@@ -25,10 +25,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dir: [bucket]
-        env: [stg]
-        # dir: [bucket, instance]
-        # env: [dev, stg]
+        dir: [bucket, instance]
+        env: [dev, stg]
 
     environment: ${{ github.event_name == 'push' && format('{0}/{1}', matrix.dir, matrix.env) || '' }}
 
