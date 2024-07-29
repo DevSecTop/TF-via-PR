@@ -95,7 +95,7 @@ The following functional workflow examples demonstrate common use-cases, while a
 
 - [Trigger](.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS **authentication**.
 - [Trigger](.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in **matrix** strategy.
-- [Trigger](.github/examples/pr_tenv.yaml) on `pull_request` (plan or apply) event with [tenv proxy](https://tofuutils.github.io/tenv/) to avoid TF **wrapper**.
+- [Trigger](.github/examples/pr_tenv.yaml) on `pull_request` (plan or apply) event with [tenv](https://tofuutils.github.io/tenv/) to avoid TF **wrapper**.
 
 ## Parameters
 
