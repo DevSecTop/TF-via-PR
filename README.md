@@ -17,12 +17,12 @@
 
 <figure>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="/assets/screenshot_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="/assets/screenshot_light.png">
-    <img alt="Screenshot of the author's TF command in a PR comment followed by github-action bot's TF output response in the next comment." src="/assets/screenshot_dark.png">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_light.png">
+    <img alt="Screenshot of PR comment example with multiple command arguments." src="assets/screenshot_light.png">
   </picture>
   <figcaption>
-    </br><a href="https://github.com/devsectop/tf-via-pr/pull/166" title="View the PR conversation referenced in the screenshot.">View PR:</a> Screenshot of TF command in a PR comment followed by github-action bot's TF output response in the next comment.
+    </br>Screenshot of PR comment example with multiple command arguments.
   </figcaption>
 </figure>
 
@@ -30,7 +30,7 @@
 
 ### What does it do?
 
-<details><summary>Configure OpenTofu/Terraform to <code>plan</code> and <code>apply</code> changes automatically via PR trigger events.</summary>
+<details><summary>Configure OpenTofu/Terraform to run multiple commands automatically via PR trigger events.</summary>
 
 - Both [Hashicorp][terraform_io] `terraform` and [OpenTofu][opentofu_org] `tofu` CLIs are supported, with the latter offering an open-source and backwards-compatible drop-in replacement for the former.
 - Prerequisite commands like `init` are run automatically, along with user-configurable options for workspace, var-file, backend-config, and [more](#parameters).
@@ -93,9 +93,9 @@ jobs:
 
 The following functional workflow examples demonstrate common use-cases, while a comprehensive list of inputs is documented [below](#parameters).
 
-- Trigger on `pull_request` (plan) and `push` (apply) events with Terraform and AWS authentication.
-- Trigger on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in matrix strategy.
-- Trigger on `pull_request` (plan or apply) event with [tenv proxy](https://tofuutils.github.io/tenv/) to avoid wrapper.
+- [Trigger](.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS authentication.
+- [Trigger](.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in matrix strategy.
+- [Trigger](.github/examples/pr_tenv.yaml) on `pull_request` (plan or apply) event with [tenv proxy](https://tofuutils.github.io/tenv/) to avoid TF wrapper.
 
 ## Parameters
 
