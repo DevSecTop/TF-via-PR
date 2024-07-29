@@ -1,0 +1,27 @@
+---
+name: Trigger on pull_request (plan or apply) event with tenv proxy to avoid TF wrapper.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+jobs:
+  tf:
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read # Required to download repository artifact.
+      checks: write # Required to add status summary.
+      contents: read # Required to checkout repository.
+      pull-requests: write # Required to add PR comment and label.
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Provision TF
+        uses: devsectop/tf-via-pr@v11
+        with:
+          arg_chdir: directory/path
+          arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
+          tf_version: ~> 1.8.0

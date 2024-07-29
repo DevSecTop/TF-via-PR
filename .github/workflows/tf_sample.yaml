@@ -1,34 +1,35 @@
 ---
 name: TF Sample
+
 on:
   pull_request:
-    types: [opened, reopened, synchronize, closed]
-    paths: [.github/workflows/tf_sample.yaml, stacks/**]
-
-permissions:
-  actions: read # Required for workflow query and artifact download.
-  checks: write # Required for adding summary to check status.
-  contents: read # Required for repository checkout.
-  id-token: write # Required for assuming AWS role via OIDC provider.
-  pull-requests: write # Required for commenting on PR.
+    paths: [.github/workflows/tf_sample.yaml, sample/**]
+  push:
+    branches: [main]
 
 env:
   AWS_REGION: us-east-1
-  TF_VERSION: ~> 1.7.0
+  TF_VERSION: ~> 1.8.0
   TF_VAR_PREFIX: sample
 
 jobs:
   TF:
     runs-on: ubuntu-latest
-    if: github.event.action != 'closed' || github.event.pull_request.merged
+
+    permissions:
+      actions: read # Required to download repository artifact.
+      checks: write # Required to add status summary.
+      contents: read # Required to checkout repository.
+      id-token: write # Required to authenticate via OIDC.
+      pull-requests: write # Required to add PR comment and label.
 
     strategy:
       fail-fast: false
       matrix:
-        dir: [sample_bucket, sample_instance]
-        env: [dev, stg]
+        dir: [bucket, instance]
+        env: [dev, qa]
 
-    environment: ${{ github.event.pull_request.merged && format('{0}/{1}', matrix.dir, matrix.env) || '' }}
+    environment: ${{ github.event_name == 'push' && format('{0}/{1}', matrix.dir, matrix.env) || '' }}
 
     steps:
       - name: Checkout repository
@@ -41,14 +42,17 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE }}
 
       - name: Setup TF
-        uses: hashicorp/setup-terraform@651471c36a6092792c552e8b1bef71e592b462d8 # v3.1.1
+        uses: opentofu/setup-opentofu@ae80d4ecaab946d8f5ff18397fbf6d0686c6d46a # v1.0.3
         with:
-          terraform_version: ${{ env.TF_VERSION }}
+          tofu_version: ${{ env.TF_VERSION }}
 
       - name: Provision TF
         uses: ./
         with:
-          arg_command: ${{ github.event.action != 'closed' && 'plan' || 'apply' }}
-          arg_chdir: stacks/${{ matrix.dir }}
-          arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
+          arg_chdir: sample/${{ matrix.dir }}
+          arg_command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
           arg_backend_config: ${{ contains(matrix.dir, 'bucket') && format('backend/{0}.tfbackend', matrix.env) || '' }}
+          arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
+          arg_workspace: ${{ matrix.env }}
+          arg_or_create: true
+          arg_lock: false

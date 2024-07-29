@@ -1,11 +1,7 @@
 terraform {
   required_version = "~> 1.0"
 
-  backend "s3" {
-    bucket = "tmp-workflow-tfstates"
-    key    = "sample_instance.tfstate"
-    region = "us-east-1"
-  }
+  backend "s3" {}
 
   required_providers {
     aws = {
@@ -23,8 +19,8 @@ locals {
     dev = {
       Environment = "Development"
     }
-    stg = {
-      Environment = "Staging"
+    qa = {
+      Environment = "Quality Assurance"
     }
   }
 }
@@ -34,8 +30,8 @@ provider "aws" {
 
   default_tags {
     tags = merge({
-      Stack     = basename(abspath(path.root)) # E.g., "sample_instance".
-      Terraform = terraform.workspace          # E.g., "default".
+      Stack     = basename(abspath(path.root))
+      Terraform = terraform.workspace
       }, local.tags[terraform.workspace]
     )
   }
