@@ -48,7 +48,7 @@ jobs:
           arg_chdir: tests/${{ matrix.path }}
           arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           tf_tool: ${{ matrix.tool }}
-          tf_version: ~> 1.7.0
+          tf_version: ~> 1.8.0
 
       - name: Echo TF
         run: |
