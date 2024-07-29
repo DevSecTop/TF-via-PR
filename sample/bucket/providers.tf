@@ -11,13 +11,28 @@ terraform {
   }
 }
 
+locals {
+  tags = {
+    default = {
+      Environment = "Undefined"
+    }
+    dev = {
+      Environment = "Development"
+    }
+    qa = {
+      Environment = "Quality Assurance"
+    }
+  }
+}
+
 provider "aws" {
   region = var.aws_region
 
   default_tags {
-    tags = {
+    tags = merge({
       Stack     = basename(abspath(path.root))
       Terraform = terraform.workspace
-    }
+      }, local.tags[terraform.workspace]
+    )
   }
 }

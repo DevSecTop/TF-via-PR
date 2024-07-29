@@ -23,8 +23,8 @@ locals {
     dev = {
       Environment = "Development"
     }
-    stg = {
-      Environment = "Staging"
+    qa = {
+      Environment = "Quality Assurance"
     }
   }
 }
