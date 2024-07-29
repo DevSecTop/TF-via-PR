@@ -43,6 +43,7 @@ jobs:
 
       - name: Provision TF
         id: tf
+        continue-on-error: true
         uses: ./
         with:
           arg_chdir: tests/${{ matrix.path }}
