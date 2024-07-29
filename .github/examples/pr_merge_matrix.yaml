@@ -1,0 +1,37 @@
+---
+name: Trigger on pull_request (plan) and merge_group (apply) events with OpenTofu in matrix strategy.
+
+on:
+  pull_request:
+  merge_group:
+
+jobs:
+  tf:
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read # Required to download repository artifact.
+      checks: write # Required to add status summary.
+      contents: read # Required to checkout repository.
+      pull-requests: write # Required to add PR comment and label.
+
+    strategy:
+      fail-fast: false
+      matrix:
+        deployment: [dev, qa, prod]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup TF
+        uses: opentofu/setup-opentofu@v1
+
+      - name: Provision TF
+        uses: devsectop/tf-via-pr@v11
+        with:
+          arg_chdir: directory/path
+          arg_command: ${{ github.event_name == 'merge_group' && 'apply' || 'plan' }}
+          arg_var_file: env/${{ matrix.deployment }}.tfvars
+          # arg_var_file: ${{ format('env/{0}.tfvars', matrix.deployment) }}
+          arg_workspace: ${{ matrix.deployment }}
