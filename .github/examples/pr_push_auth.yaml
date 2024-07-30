@@ -35,3 +35,4 @@ jobs:
         with:
           arg_chdir: directory/path
           arg_command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
+          arg_lock: ${{ github.event_name == 'push' && 'true' || 'false' }}
