@@ -68,10 +68,10 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      actions: read
-      checks: write
-      contents: read
-      pull-requests: write
+      actions: read # Required to download repository artifact.
+      checks: write # Required to add status summary.
+      contents: read # Required to checkout repository.
+      pull-requests: write # Required to add PR comment and label.
 
     steps:
       - uses: actions/checkout@v4
