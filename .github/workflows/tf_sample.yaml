@@ -5,6 +5,7 @@ on:
   pull_request:
     paths: [.github/workflows/tf_sample.yaml, sample/**]
   push:
+    paths: [.github/workflows/tf_sample.yaml, sample/**]
     branches: [main]
 
 env:
