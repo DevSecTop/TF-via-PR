@@ -75,13 +75,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
       - uses: devsectop/tf-via-pr@v11
         with:
-          arg_command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
           arg_chdir: sample/directory/path
-          arg_workspace: development
+          arg_command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
+          arg_lock: ${{ github.event_name == 'push' && 'true' || 'false' }}
           arg_var_file: env/dev.tfvars
-          tf_version: ~> 1.8.0
+          arg_workspace: development
 ```
 
 > [!TIP]
