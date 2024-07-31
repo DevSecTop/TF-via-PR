@@ -24,6 +24,9 @@ module.exports = async ({ context, core, exec, github }) => {
     pr_number = parseInt(context.ref.split("/pr-")[1]);
   }
 
+  // Check for Tofu CLI path.
+  process.env.tf_tool = process.env.TOFU_CLI_PATH ? "tofu" : process.env.tf_tool;
+
   // Unique identifier of the TF run for later retrieval.
   const tf_identifier = [
     pr_number,
