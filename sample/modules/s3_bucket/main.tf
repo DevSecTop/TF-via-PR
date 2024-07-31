@@ -1,23 +1,22 @@
-# Create an S3 bucket.
-resource "aws_s3_bucket" "sample" {
-  bucket_prefix = var.PREFIX
+# Create an S3 bucket with versioning.
+module "s3_bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = var.source_version
 
-  tags = {
-    Name = join("-", [var.PREFIX, "bucket"])
-  }
-}
+  bucket_prefix = var.name_prefix
+  acl           = "private"
 
-# Set versioning on the S3 bucket.
-resource "aws_s3_bucket_versioning" "sample" {
-  bucket = aws_s3_bucket.sample.id
+  control_object_ownership = true
+  force_destroy            = true
+  object_ownership         = "ObjectWriter"
 
-  versioning_configuration {
-    status = var.bucket_versioning
+  versioning = {
+    enabled = var.versioning
   }
 }
 
 # Output the ID of the S3 bucket.
 output "id" {
-  description = "ID of the sample S3 bucket."
-  value       = aws_s3_bucket.sample.id
+  description = "String ID of the S3 bucket."
+  value       = module.s3_bucket.s3_bucket_id
 }
