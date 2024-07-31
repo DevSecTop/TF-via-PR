@@ -1,9 +1,10 @@
 # Create a sample S3 bucket with versioning.
 module "sample_bucket" {
-  source = "../modules/s3_bucket"
+  source         = "../modules/s3_bucket"
+  source_version = var.s3_source_version
 
-  PREFIX            = var.PREFIX
-  bucket_versioning = var.bucket_versioning
+  name_prefix = var.s3_name_prefix
+  versioning  = var.s3_versioning
 }
 
 # Output the ID of the sample S3 bucket.
