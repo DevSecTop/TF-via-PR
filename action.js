@@ -5,10 +5,8 @@ module.exports = async ({ context, core, exec, github }) => {
   const fmt_result_limit = 6e3;
 
   // Get PR number from event trigger for unique identifier.
-  let pr_number = 0;
-  if (context.eventName === "pull_request") {
-    pr_number = context.issue.number;
-  } else if (context.eventName === "push") {
+  let pr_number;
+  if (context.eventName === "push") {
     const { data: list_prs_of_commit } =
       await github.rest.repos.listPullRequestsAssociatedWithCommit({
         commit_sha: context.sha,
@@ -22,6 +20,8 @@ module.exports = async ({ context, core, exec, github }) => {
     pr_number = pr.number;
   } else if (context.eventName === "merge_group") {
     pr_number = parseInt(context.ref.split("/pr-")[1]);
+  } else {
+    pr_number = context.issue.number || 0;
   }
 
   // Check for Tofu CLI path.
