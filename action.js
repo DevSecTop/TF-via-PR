@@ -29,13 +29,13 @@ module.exports = async ({ context, core, exec, github }) => {
 
   // Unique identifier of the TF run for later retrieval.
   const tf_identifier = [
+    process.env.tf_tool,
     pr_number,
     process.env.arg_chdir,
     process.env.arg_workspace_alt,
     process.env.arg_backend_config,
     process.env.arg_var_file,
     process.env.arg_destroy,
-    process.env.tf_tool,
     process.env.arg_out,
   ]
     .filter((arg) => arg)
