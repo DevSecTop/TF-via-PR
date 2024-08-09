@@ -40,7 +40,7 @@ module.exports = async ({ context, core, exec, github }) => {
   ]
     .filter((arg) => arg)
     .map((arg) => String(arg).replace(/[^a-zA-Z0-9]/g, "-"))
-    .join("-");
+    .join(".");
   core.setOutput("identifier", tf_identifier);
 
   // Capture TF command input and outputs.
