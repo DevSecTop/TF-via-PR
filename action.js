@@ -29,18 +29,18 @@ module.exports = async ({ context, core, exec, github }) => {
 
   // Unique identifier of the TF run for later retrieval.
   const tf_identifier = [
+    process.env.tf_tool,
     pr_number,
     process.env.arg_chdir,
     process.env.arg_workspace_alt,
     process.env.arg_backend_config,
     process.env.arg_var_file,
     process.env.arg_destroy,
-    process.env.tf_tool,
     process.env.arg_out,
   ]
     .filter((arg) => arg)
     .map((arg) => String(arg).replace(/[^a-zA-Z0-9]/g, "-"))
-    .join("-");
+    .join(".");
   core.setOutput("identifier", tf_identifier);
 
   // Capture TF command input and outputs.
