@@ -289,7 +289,7 @@ module.exports = async ({ context, core, exec, github }) => {
           repo: context.repo.repo,
         });
 
-        // Download and unzip the TF plan artifact.
+        // Download, unzip and decrypt the TF plan artifact.
         await exec.exec("curl", [
           "--no-progress-meter",
           "--location",
@@ -301,6 +301,19 @@ module.exports = async ({ context, core, exec, github }) => {
           tf_identifier,
           "-d",
           process.env.arg_chdir.replace(/^-chdir=/, ""),
+        ]);
+        await exec.exec("TEMP_FILE=$(mktemp)");
+        await exec.exec("printf", ["%s", `"${process.env.encrypt_passphrase}"`, `>"$TEMP_FILE"`]);
+        await exec.exec("openssl", [
+          "enc",
+          "-aes-256-ctr",
+          "-d",
+          "-in",
+          `${process.env.arg_chdir.replace(/^-chdir=/, "")}/tfplan`,
+          "-out",
+          `${process.env.arg_chdir.replace(/^-chdir=/, "")}/tfplan`,
+          "-pass",
+          "file:$TEMP_FILE",
         ]);
       }
 

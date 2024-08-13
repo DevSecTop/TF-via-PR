@@ -16,6 +16,10 @@ inputs:
     description: Boolean flag to add PR comment of TF command output.
     required: false
     default: "true"
+  encrypt_passphrase:
+    description: String passphrase to encrypt the TF plan file.
+    required: false
+    default: ""
   fmt_enable:
     description: Boolean flag to enable TF fmt command and display diff of changes.
     required: false
@@ -278,6 +282,7 @@ runs:
         # Input parameters.
         cache_hit: ${{ steps.cache_plugins.outputs.cache-hit }}
         comment_pr: ${{ inputs.comment_pr }}
+        encrypt_passphrase: ${{ inputs.encrypt_passphrase }}
         fmt_enable: ${{ inputs.fmt_enable }}
         label_pr: ${{ inputs.label_pr }}
         outline_enable: ${{ inputs.outline_enable }}
@@ -340,6 +345,19 @@ runs:
         retries: 3
         result-encoding: string
         script: await require(`${process.env.GITHUB_ACTION_PATH}/action.js`)({ context, core, exec, github });
+
+    # OpenSSL 3.0.2-0ubuntu1.17 https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md#tools
+    # Encrypt https://docs.openssl.org/3.0/man1/openssl-enc/
+    # Passphrase https://docs.openssl.org/3.0/man1/openssl-passphrase-options/
+    - name: Encrypt TF plan file
+      if: inputs.encrypt_passphrase != ''
+      env:
+        encrypt_passphrase: ${{ inputs.encrypt_passphrase }}
+      shell: bash
+      run: |
+        TEMP_FILE=$(mktemp)
+        printf %s "$encrypt_passphrase" >"$TEMP_FILE"
+        openssl enc -aes-256-ctr -in "${{ inputs.arg_chdir }}/${{ inputs.arg_out }}" -out "${{ inputs.arg_chdir }}/${{ inputs.arg_out }}" -pass file:"$TEMP_FILE"
 
     - name: Upload TF plan file
       if: inputs.arg_command == 'plan'
