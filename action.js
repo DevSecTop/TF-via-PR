@@ -309,9 +309,15 @@ module.exports = async ({ context, core, exec, github }) => {
           "-aes-256-ctr",
           "-d",
           "-in",
-          `${process.env.arg_chdir.replace(/^-chdir=/, "")}/tfplan`,
+          `${process.env.arg_chdir.replace(/^-chdir=/, "")}/${process.env.arg_out.replace(
+            /^-out=/,
+            ""
+          )}`,
           "-out",
-          `${process.env.arg_chdir.replace(/^-chdir=/, "")}/tfplan`,
+          `${process.env.arg_chdir.replace(/^-chdir=/, "")}/${process.env.arg_out.replace(
+            /^-out=/,
+            ""
+          )}`,
           "-pass",
           "file:$TEMP_FILE",
         ]);
