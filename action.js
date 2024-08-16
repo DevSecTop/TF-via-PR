@@ -83,7 +83,9 @@ module.exports = async ({ context, core, exec, github }) => {
   // Function to execute TF commands.
   const exec_tf = async (input_arguments, input_header, input_header_slice) => {
     const arguments = input_arguments.filter((arg) => arg);
-    const header = input_header.filter((arg) => arg);
+    const header = input_header.filter(
+      (arg) => arg && !JSON.parse(process.env.hide_args).includes(arg)
+    );
     cli_input = header.concat(arguments.slice(input_header_slice)).join(" ");
     cli_result = "";
     core.setOutput("header", cli_input);
