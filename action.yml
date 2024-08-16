@@ -20,6 +20,10 @@ inputs:
     description: Boolean flag to enable TF fmt command and display diff of changes.
     required: false
     default: "true"
+  hide_args:
+    description: String list of TF arguments to hide from the command input.
+    required: false
+    default: ""
   label_pr:
     description: Boolean flag to add PR label of TF command to run.
     required: false
@@ -279,6 +283,7 @@ runs:
         cache_hit: ${{ steps.cache_plugins.outputs.cache-hit }}
         comment_pr: ${{ inputs.comment_pr }}
         fmt_enable: ${{ inputs.fmt_enable }}
+        hide_args: ${{ toJSON(inputs.hide_args) }}
         label_pr: ${{ inputs.label_pr }}
         outline_enable: ${{ inputs.outline_enable }}
         tf_tool: ${{ inputs.tf_tool }}

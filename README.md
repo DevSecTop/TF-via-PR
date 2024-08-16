@@ -107,6 +107,7 @@ The following functional workflow examples demonstrate common use-cases, while a
 | `cache_plugins`</br>Default: false   | Boolean flag to cache TF plugins for faster workflow runs (requires .terraform.lock.hcl file).         |
 | `comment_pr`</br>Default: true       | Boolean flag to add PR comment of TF command output.                                                   |
 | `fmt_enable`</br>Default: true       | Boolean flag to enable TF fmt command and display diff of changes.                                     |
+| `hide_args`</br>Example: [arg_var]   | String list of TF arguments to hide from the command input.                                            |
 | `label_pr`</br>Default: true         | Boolean flag to add PR label of TF command to run.                                                     |
 | `outline_enable`</br>Default: true   | Boolean flag to add an outline diff of TF plan file.                                                   |
 | `tf_tool`</br>Default: terraform     | String name of the TF tool to use and override default assumption from wrapper environment variable.   |

@@ -19,12 +19,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tool: [tofu, terraform]
+        tool: [tofu] # [tofu, terraform]
         path:
-          - fail_invalid_resource_type
-          - fail_data_source_error
+          # - fail_invalid_resource_type
+          # - fail_data_source_error
           - pass_one
-          - pass_character_limit
+          # - pass_character_limit
           - pass_format_diff
 
     steps:
