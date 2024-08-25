@@ -43,7 +43,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE }}
 
       - name: Setup TF
-        uses: opentofu/setup-opentofu@ae80d4ecaab946d8f5ff18397fbf6d0686c6d46a # v1.0.3
+        uses: opentofu/setup-opentofu@12f4debbf681675350b6cd1f0ff8ecfbda62027b # v1.0.4
         with:
           tofu_version: ${{ env.TF_VERSION }}
 
