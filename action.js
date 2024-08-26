@@ -305,7 +305,7 @@ module.exports = async ({ context, core, exec, github }) => {
 
         // Decrypt the TF plan file if encrypted.
         if (process.env.encrypt_passphrase) {
-          await exec.exec("TEMP_FILE=$(mktemp)");
+          await exec.exec("/bin/bash", ["TEMP_FILE=$(mktemp)"]);
           await exec.exec("printf", ["%s", process.env.encrypt_passphrase, `> "$TEMP_FILE"`]);
           await exec.exec("openssl", [
             "enc",
