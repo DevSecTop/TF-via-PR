@@ -56,6 +56,6 @@ jobs:
           arg_backend_config: ${{ contains(matrix.dir, 'bucket') && format('backend/{0}.tfbackend', matrix.env) || '' }}
           arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
           arg_workspace: ${{ matrix.env }}
+          encrypt_passphrase: ${{ secrets.TF_ENCRYPTION }}
           arg_or_create: true
           cache_plugins: true
-          encrypt_passphrase: ${{ secrets.TF_ENCRYPTION }}
