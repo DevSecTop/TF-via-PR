@@ -51,6 +51,7 @@ jobs:
           arg_lock: ${{ github.event.pull_request.merged && 'true' || 'false' }}
           tf_tool: ${{ matrix.tool }}
           tf_version: ~> 1.8.0
+          encrypt_passphrase: ${{ secrets.TF_ENCRYPTION }}
 
       - name: Echo TF
         run: |
