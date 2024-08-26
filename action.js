@@ -290,12 +290,13 @@ module.exports = async ({ context, core, exec, github }) => {
         });
 
         // Download and unzip the TF plan artifact.
-        await exec.exec("curl", [
-          "--no-progress-meter",
-          "--location",
-          download_artifact.url,
-          "--output",
-          tf_identifier,
+        await exec.exec("/bin/bash", [
+          "-c",
+          `curl --no-progress-meter --location ${download_artifact.url} --output ${tf_identifier}`,
+        ]);
+        await exec.exec("/bin/bash", [
+          "-c",
+          `unzip ${tf_identifier} -d ${process.env.arg_chdir.replace(/^-chdir=/, "")}`,
         ]);
         await exec.exec("unzip", [
           tf_identifier,
@@ -305,37 +306,23 @@ module.exports = async ({ context, core, exec, github }) => {
 
         // Decrypt the TF plan file if encrypted.
         if (process.env.encrypt_passphrase) {
-          await exec.exec("/bin/bash", ["-c", "TEMP_FILE=$(mktemp)"]);
-          await exec.exec("printf", ["%s", process.env.encrypt_passphrase, `> "$TEMP_FILE"`]);
-          await exec.exec("openssl", [
-            "enc",
-            "-aes-256-ctr",
-            "-pbkdf2",
-            "-salt",
-            "-in",
-            [
-              process.env.arg_chdir.replace(/^-chdir=/, ""),
-              process.env.arg_out.replace(/^-out=/, ""),
-            ].join("/"),
-            "-out",
-            [
-              process.env.arg_chdir.replace(/^-chdir=/, ""),
-              `${process.env.arg_out.replace(/^-out=/, "")}.decrypted`,
-            ].join("/"),
-            "-pass",
-            "file:$TEMP_FILE",
-            "-d",
-          ]);
+          const working_directory = [
+            process.env.arg_chdir.replace(/^-chdir=/, ""),
+            process.env.arg_out.replace(/^-out=/, ""),
+          ].join("/");
 
-          await exec.exec("mv", [
-            [
-              process.env.arg_chdir.replace(/^-chdir=/, ""),
-              `${process.env.arg_out.replace(/^-out=/, "")}.decrypted`,
-            ].join("/"),
-            [
-              process.env.arg_chdir.replace(/^-chdir=/, ""),
-              process.env.arg_out.replace(/^-out=/, ""),
-            ].join("/"),
+          await exec.exec("/bin/bash", ["-c", "TEMP_FILE=$(mktemp)"]);
+          await exec.exec("/bin/bash", [
+            "-c",
+            `printf %s "${process.env.encrypt_passphrase}" > "$TEMP_FILE"`,
+          ]);
+          await exec.exec("/bin/bash", [
+            "-c",
+            `openssl enc -aes-256-ctr -pbkdf2 -salt -in "${working_directory}" -out "${working_directory}.decrypted" -pass file:"$TEMP_FILE" -d`,
+          ]);
+          await exec.exec("/bin/bash", [
+            "-c",
+            `mv ${working_directory}.decrypted ${working_directory}`,
           ]);
         }
       }
