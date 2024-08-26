@@ -306,10 +306,9 @@ module.exports = async ({ context, core, exec, github }) => {
             process.env.arg_out.replace(/^-out=/, ""),
           ].join("/");
 
-          await exec.exec("/bin/bash", ["-c", "TEMP_FILE=$(mktemp)"]);
           await exec.exec("/bin/bash", [
             "-c",
-            `printf %s "${process.env.encrypt_passphrase}" > "$TEMP_FILE"`,
+            `export TEMP_FILE=$(mktemp) && printf %s "${process.env.encrypt_passphrase}" > "$TEMP_FILE"`,
           ]);
           await exec.exec("/bin/bash", [
             "-c",
