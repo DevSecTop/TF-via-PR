@@ -100,7 +100,7 @@ The following functional workflow examples demonstrate common use-cases, while a
 
 ### How does encryption work?
 
-Before the workflow uploads the TF plan file as an artifact, it can be encrypted with a passphrase to prevent exposure of sensitive data using `encrypt_passphrase` input with a secret. This is done with [OpenSSL](https://docs.openssl.org/master/man1/openssl-enc/)'s symmetric stream counter mode encryption with salt and pbkdf2.
+Before the workflow uploads the TF plan file as an artifact, it can be encrypted with a passphrase to prevent exposure of sensitive data using `encrypt_passphrase` input with a secret (e.g., `${{ secrets.KEY }}`). This is done with [OpenSSL](https://docs.openssl.org/master/man1/openssl-enc/)'s symmetric stream counter mode encryption with salt and pbkdf2.
 
 In order to locally decrypt the TF plan file, use the following command (noting the whitespace prefix to prevent recording the command in shell history):
 
