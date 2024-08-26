@@ -21,10 +21,10 @@ jobs:
       matrix:
         tool: [tofu, terraform]
         path:
-          # - fail_invalid_resource_type
-          # - fail_data_source_error
-          # - pass_one
-          # - pass_character_limit
+          - fail_invalid_resource_type
+          - fail_data_source_error
+          - pass_one
+          - pass_character_limit
           - pass_format_diff
 
     steps:
@@ -47,11 +47,10 @@ jobs:
         uses: ./
         with:
           arg_chdir: tests/${{ matrix.path }}
-          arg_command: apply
+          arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg_lock: ${{ github.event.pull_request.merged && 'true' || 'false' }}
           tf_tool: ${{ matrix.tool }}
           tf_version: ~> 1.8.0
-          encrypt_passphrase: ${{ secrets.TF_ENCRYPTION }}
 
       - name: Echo TF
         run: |
