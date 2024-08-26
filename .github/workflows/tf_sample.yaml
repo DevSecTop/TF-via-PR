@@ -57,3 +57,5 @@ jobs:
           arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
           arg_workspace: ${{ matrix.env }}
           arg_or_create: true
+          cache_plugins: true
+          encrypt_passphrase: ${{ secrets.TF_ENCRYPTION }}

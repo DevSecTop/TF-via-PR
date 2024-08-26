@@ -302,6 +302,42 @@ module.exports = async ({ context, core, exec, github }) => {
           "-d",
           process.env.arg_chdir.replace(/^-chdir=/, ""),
         ]);
+
+        // Decrypt the TF plan file if encrypted.
+        if (process.env.encrypt_passphrase) {
+          await exec.exec("TEMP_FILE=$(mktemp)");
+          await exec.exec("printf", ["%s", process.env.encrypt_passphrase, `> "$TEMP_FILE"`]);
+          await exec.exec("openssl", [
+            "enc",
+            "-aes-256-ctr",
+            "-pbkdf2",
+            "-salt",
+            "-in",
+            [
+              process.env.arg_chdir.replace(/^-chdir=/, ""),
+              process.env.arg_out.replace(/^-out=/, ""),
+            ].join("/"),
+            "-out",
+            [
+              process.env.arg_chdir.replace(/^-chdir=/, ""),
+              `${process.env.arg_out.replace(/^-out=/, "")}.decrypted`,
+            ].join("/"),
+            "-pass",
+            "file:$TEMP_FILE",
+            "-d",
+          ]);
+
+          await exec.exec("mv", [
+            [
+              process.env.arg_chdir.replace(/^-chdir=/, ""),
+              `${process.env.arg_out.replace(/^-out=/, "")}.decrypted`,
+            ].join("/"),
+            [
+              process.env.arg_chdir.replace(/^-chdir=/, ""),
+              process.env.arg_out.replace(/^-out=/, ""),
+            ].join("/"),
+          ]);
+        }
       }
 
       if (/^true$/i.test(process.env.outline_enable)) {
