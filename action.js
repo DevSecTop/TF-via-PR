@@ -292,11 +292,11 @@ module.exports = async ({ context, core, exec, github }) => {
         // Download and unzip the TF plan artifact.
         await exec.exec("/bin/bash", [
           "-c",
-          `curl --no-progress-meter --location ${download_artifact.url} --output ${tf_identifier}`,
+          `curl --no-progress-meter --location "${download_artifact.url}" --output "${tf_identifier}"`,
         ]);
         await exec.exec("/bin/bash", [
           "-c",
-          `unzip ${tf_identifier} -d ${process.env.arg_chdir.replace(/^-chdir=/, "")}`,
+          `unzip "${tf_identifier}" -d "${process.env.arg_chdir.replace(/^-chdir=/, "")}"`,
         ]);
 
         // Decrypt the TF plan file if encrypted.
