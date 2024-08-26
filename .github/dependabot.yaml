@@ -7,12 +7,12 @@ updates:
     schedule:
       interval: daily
 
-  - package-ecosystem: terraform
+  - package-ecosystem: opentofu # https://github.com/opentofu/opentofu/issues/1236
     directories:
       - /sample/bucket
       - /sample/instance
     schedule:
-      interval: daily
+      interval: weekly
     groups:
       terraform:
         patterns:
