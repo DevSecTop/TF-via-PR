@@ -298,11 +298,6 @@ module.exports = async ({ context, core, exec, github }) => {
           "-c",
           `unzip ${tf_identifier} -d ${process.env.arg_chdir.replace(/^-chdir=/, "")}`,
         ]);
-        await exec.exec("unzip", [
-          tf_identifier,
-          "-d",
-          process.env.arg_chdir.replace(/^-chdir=/, ""),
-        ]);
 
         // Decrypt the TF plan file if encrypted.
         if (process.env.encrypt_passphrase) {
