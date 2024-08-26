@@ -305,14 +305,22 @@ module.exports = async ({ context, core, exec, github }) => {
             process.env.arg_chdir.replace(/^-chdir=/, ""),
             process.env.arg_out.replace(/^-out=/, ""),
           ].join("/");
+          let temp_file = "";
 
+          await exec.exec("/bin/bash", ["-c", "mktemp"], {
+            listeners: {
+              stdout: (data) => {
+                temp_file += data.toString().trim();
+              },
+            },
+          });
           await exec.exec("/bin/bash", [
             "-c",
-            `export TEMP_FILE=$(mktemp) && printf %s "${process.env.encrypt_passphrase}" > "$TEMP_FILE"`,
+            `printf %s "${process.env.encrypt_passphrase}" > "${temp_file}"`,
           ]);
           await exec.exec("/bin/bash", [
             "-c",
-            `openssl enc -aes-256-ctr -pbkdf2 -salt -in "${working_directory}" -out "${working_directory}.decrypted" -pass file:"$TEMP_FILE" -d`,
+            `openssl enc -aes-256-ctr -pbkdf2 -salt -in "${working_directory}" -out "${working_directory}.decrypted" -pass file:"${temp_file}" -d`,
           ]);
           await exec.exec("/bin/bash", [
             "-c",

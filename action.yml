@@ -353,7 +353,8 @@ runs:
         working_directory: ${{ inputs.arg_chdir }}/${{ inputs.arg_out }}
       shell: bash
       run: |
-        export TEMP_FILE=$(mktemp) && printf %s "$encrypt_passphrase" > "$TEMP_FILE"
+        TEMP_FILE=$(mktemp)
+        printf %s "$encrypt_passphrase" > "$TEMP_FILE"
         openssl enc -aes-256-ctr -pbkdf2 -salt -in "$working_directory" -out "$working_directory.encrypted" -pass file:"$TEMP_FILE"
         mv "$working_directory.encrypted" "$working_directory"
 
