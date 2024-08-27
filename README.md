@@ -16,14 +16,15 @@
 > Overview: [Highlights](#highlights) · [Usage](#usage) · [Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
 <figure>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_light.png">
-    <img alt="Screenshot of PR comment example with multiple command arguments." src="assets/screenshot_light.png">
-  </picture>
-  <figcaption>
-    </br><em>Screenshot of PR comment example with multiple command arguments.</em>
-  </figcaption>
+  <a href="assets/screenshot_light.png" target="_blank">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
+      <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_light.png">
+      <img alt="Screenshot of PR comment example with multiple command arguments." src="assets/screenshot_light.png">
+    </picture>
+    <figcaption>
+      </br><em>Screenshot of PR comment example with multiple command arguments.</em>
+    </figcaption>
 </figure>
 
 ## Highlights
