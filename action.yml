@@ -16,7 +16,7 @@ inputs:
     description: Boolean flag to add PR comment of TF command output.
     required: false
     default: "true"
-  compare_plans:
+  plan_parity:
     description: Boolean flag to compare previous TF plan file with current plan before applying.
     required: false
     default: "false"
