@@ -16,6 +16,10 @@ inputs:
     description: Boolean flag to add PR comment of TF command output.
     required: false
     default: "true"
+  compare_plans:
+    description: Boolean flag to compare previous TF plan file with current plan before applying.
+    required: false
+    default: "false"
   encrypt_passphrase:
     description: String passphrase to encrypt the TF plan file.
     required: false
