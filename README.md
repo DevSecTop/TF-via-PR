@@ -16,14 +16,15 @@
 > Overview: [Highlights](#highlights) · [Usage](#usage) · [Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
 <figure>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
-    <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_light.png">
-    <img alt="Screenshot of PR comment example with multiple command arguments." src="assets/screenshot_light.png">
-  </picture>
-  <figcaption>
-    </br><em>Screenshot of PR comment example with multiple command arguments.</em>
-  </figcaption>
+  <a href="assets/screenshot_light.png" target="_blank">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
+      <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_light.png">
+      <img alt="Screenshot of PR comment example with multiple command arguments." src="assets/screenshot_light.png">
+    </picture>
+    <figcaption>
+      </br><em>Screenshot of PR comment example with multiple command arguments.</em>
+    </figcaption>
 </figure>
 
 ## Highlights
@@ -96,24 +97,35 @@ The following functional workflow examples demonstrate common use-cases, while a
 
 - [Trigger](.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS **authentication**.
 - [Trigger](.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in **matrix** strategy.
-- [Trigger](.github/examples/pr_tenv.yaml) on `pull_request` (plan or apply) event with [tenv](https://tofuutils.github.io/tenv/) to avoid TF **wrapper**.
+- [Trigger](.github/examples/pr_tenv.yaml) on `pull_request` (plan or apply) event with [tenv](https://tofuutils.github.io/tenv/) to avoid TF **wrapper** on **self-hosted** runners.
+
+### How does encryption work?
+
+Before the workflow uploads the TF plan file as an artifact, it can be encrypted with a passphrase to prevent exposure of sensitive data using `encrypt_passphrase` input with a secret (e.g., `${{ secrets.KEY }}`). This is done with [OpenSSL](https://docs.openssl.org/master/man1/openssl-enc/)'s symmetric stream counter mode encryption with salt and pbkdf2.
+
+In order to locally decrypt the TF plan file, use the following command (noting the whitespace prefix to prevent recording the command in shell history):
+
+```sh
+ openssl enc -aes-256-ctr -pbkdf2 -salt -in <tfplan> -out <tfplan.decrypted> -pass pass:<passphrase> -d
+```
 
 ## Parameters
 
 ### Inputs - Configuration
 
-| Name                                 | Description                                                                                            |
-| ------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| `cache_plugins`</br>Default: false   | Boolean flag to cache TF plugins for faster workflow runs (requires .terraform.lock.hcl file).         |
-| `comment_pr`</br>Default: true       | Boolean flag to add PR comment of TF command output.                                                   |
-| `fmt_enable`</br>Default: true       | Boolean flag to enable TF fmt command and display diff of changes.                                     |
-| `hide_args`</br>Example: [arg_var]   | String list of TF arguments to hide from the command input.                                            |
-| `label_pr`</br>Default: true         | Boolean flag to add PR label of TF command to run.                                                     |
-| `outline_enable`</br>Default: true   | Boolean flag to add an outline diff of TF plan file.                                                   |
-| `tf_tool`</br>Default: terraform     | String name of the TF tool to use and override default assumption from wrapper environment variable.   |
-| `tf_version`</br>Example: ~> 1.8.0   | String version constraint of the TF tool to install and use.                                           |
-| `update_comment`</br>Default: false  | Boolean flag to update existing PR comment instead of creating a new comment and deleting the old one. |
-| `validate_enable`</br>Default: false | Boolean flag to enable TF validate command check.                                                      |
+| Name                                                   | Description                                                                                            |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `cache_plugins`</br>Default: `false`                   | Boolean flag to cache TF plugins for faster workflow runs (requires .terraform.lock.hcl file).         |
+| `comment_pr`</br>Default: `true`                       | Boolean flag to add PR comment of TF command output.                                                   |
+| `encrypt_passphrase`</br>Example: `${{ secrets.KEY }}` | String passphrase to encrypt the TF plan file.                                                         |
+| `fmt_enable`</br>Default: `true`                       | Boolean flag to enable TF fmt command and display diff of changes.                                     |
+| `hide_args`</br>Example: [arg_var]                     | String list of TF arguments to hide from the command input.                                            |
+| `label_pr`</br>Default: `true`                         | Boolean flag to add PR label of TF command to run.                                                     |
+| `plan_parity`</br>Default: `false`                     | Boolean flag to compare the TF plan file with a newly-generated one to prevent stale apply.            |
+| `tf_tool`</br>Default: `terraform`                     | String name of the TF tool to use and override default assumption from wrapper environment variable.   |
+| `tf_version`</br>Example: `~>` 1.8.0                   | String version constraint of the TF tool to install and use.                                           |
+| `update_comment`</br>Default: `false`                  | Boolean flag to update existing PR comment instead of creating a new comment and deleting the old one. |
+| `validate_enable`</br>Default: `false`                 | Boolean flag to enable TF validate command check.                                                      |
 
 ### Inputs - Arguments
 

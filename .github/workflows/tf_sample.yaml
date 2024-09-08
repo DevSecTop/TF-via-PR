@@ -41,6 +41,7 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE }}
+          role-session-name: devsectop-tf-via-pr-${{ github.run_id }}-${{ github.run_attempt}}
 
       - name: Setup TF
         uses: opentofu/setup-opentofu@12f4debbf681675350b6cd1f0ff8ecfbda62027b # v1.0.4
@@ -57,3 +58,5 @@ jobs:
           arg_var_file: ${{ contains(matrix.dir, 'instance') && format('env/{0}.tfvars', matrix.env) || '' }}
           arg_workspace: ${{ matrix.env }}
           arg_or_create: true
+          cache_plugins: true
+          encrypt_passphrase: ${{ secrets.TF_ENCRYPTION }}
