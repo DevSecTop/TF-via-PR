@@ -47,7 +47,7 @@ jobs:
         uses: ./
         with:
           arg_chdir: tests/${{ matrix.path }}
-          arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
+          arg_command: apply # ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg_lock: ${{ github.event.pull_request.merged && 'true' || 'false' }}
           tf_tool: ${{ matrix.tool }}
           tf_version: ~> 1.8.0
