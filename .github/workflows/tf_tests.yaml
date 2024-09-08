@@ -46,6 +46,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
+          plan_parity: true
           arg_chdir: tests/${{ matrix.path }}
           arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg_lock: ${{ github.event.pull_request.merged && 'true' || 'false' }}

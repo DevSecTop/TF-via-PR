@@ -247,30 +247,61 @@ module.exports = async ({ context, core, exec, github }) => {
         3
       );
 
-      if (/^true$/i.test(process.env.outline_enable)) {
-        result_outline = cli_result
-          .split("\n")
-          .filter((line) => line.startsWith("  # "))
-          .map((line) => {
-            const diff_line = line.slice(4);
-            if (diff_line.includes(" created")) return "+ " + diff_line;
-            if (diff_line.includes(" destroyed")) return "- " + diff_line;
-            if (diff_line.includes(" updated") || diff_line.includes(" replaced"))
-              return "! " + diff_line;
-            return "# " + diff_line;
-          })
-          .join("\n");
-        if (result_outline?.length >= result_outline_limit) {
-          result_outline = result_outline.substring(0, result_outline_limit) + "…";
-        }
-        core.setOutput("outline", result_outline);
+      result_outline = cli_result
+        .split("\n")
+        .filter((line) => line.startsWith("  # "))
+        .map((line) => {
+          const diff_line = line.slice(4);
+          if (diff_line.includes(" created")) return "+ " + diff_line;
+          if (diff_line.includes(" destroyed")) return "- " + diff_line;
+          if (diff_line.includes(" updated") || diff_line.includes(" replaced"))
+            return "! " + diff_line;
+          return "# " + diff_line;
+        })
+        .join("\n");
+      if (result_outline?.length >= result_outline_limit) {
+        result_outline = result_outline.substring(0, result_outline_limit) + "…";
       }
+      core.setOutput("outline", result_outline);
     }
 
     // TF apply.
     if (process.env.arg_command === "apply") {
       // Download the TF plan file if not auto-approved.
       if (!/^true$/i.test(process.env.auto_approve)) {
+        // TF plan anew for later comparison if plan_parity is enabled.
+        if (/^true$/i.test(process.env.plan_parity)) {
+          await exec_tf(
+            [
+              process.env.arg_chdir,
+              "plan",
+              process.env.arg_out + ".new",
+              process.env.arg_var_file,
+              process.env.arg_destroy,
+              process.env.arg_compact_warnings,
+              process.env.arg_concise,
+              process.env.arg_detailed_exitcode,
+              process.env.arg_generate_config_out,
+              process.env.arg_json,
+              process.env.arg_lock_timeout,
+              process.env.arg_lock,
+              process.env.arg_parallelism,
+              process.env.arg_refresh_only,
+              process.env.arg_refresh,
+              process.env.arg_replace,
+              process.env.arg_target,
+              process.env.arg_var,
+            ],
+            [
+              "plan",
+              process.env.arg_chdir,
+              process.env.arg_workspace_alt,
+              process.env.arg_backend_config,
+            ],
+            3
+          );
+        }
+
         process.env.arg_auto_approve = process.env.arg_out.replace(/^-out=/, "");
         process.env.arg_var_file = process.env.arg_var = "";
 
@@ -327,9 +358,8 @@ module.exports = async ({ context, core, exec, github }) => {
             `mv ${working_directory}.decrypted ${working_directory}`,
           ]);
         }
-      }
 
-      if (/^true$/i.test(process.env.outline_enable)) {
+        // Generate an outline of the TF plan.
         await exec_tf(
           [process.env.arg_chdir, "show", process.env.arg_out.replace(/^-out=/, "")],
           [
@@ -354,6 +384,53 @@ module.exports = async ({ context, core, exec, github }) => {
             return "# " + diff_line;
           })
           .join("\n");
+
+        // Compare normalized output of the old TF plan with the new one.
+        // If they match, then replace the old TF plan with the new one to avoid stale apply.
+        // Otherwise, proceed with the stale apply.
+        if (/^true$/i.test(process.env.plan_parity)) {
+          await exec_tf(
+            [process.env.arg_chdir, "show", process.env.arg_out.replace(/^-out=/, "") + ".new"],
+            [
+              "show",
+              process.env.arg_chdir,
+              process.env.arg_workspace_alt,
+              process.env.arg_backend_config,
+              process.env.arg_var_file,
+              process.env.arg_destroy,
+            ],
+            2
+          );
+
+          const result_outline_old = result_outline.split("\n").sort().join("\n");
+          const result_outline_new = cli_result
+            .split("\n")
+            .filter((line) => line.startsWith("  # "))
+            .map((line) => {
+              const diff_line = line.slice(4);
+              if (diff_line.includes(" created")) return "+ " + diff_line;
+              if (diff_line.includes(" destroyed")) return "- " + diff_line;
+              if (diff_line.includes(" updated") || diff_line.includes(" replaced"))
+                return "! " + diff_line;
+              return "# " + diff_line;
+            })
+            .sort()
+            .join("\n");
+
+          if (result_outline_old === result_outline_new) {
+            await exec.exec("/bin/bash", [
+              "-c",
+              `mv ${process.env.arg_chdir.replace(/^-chdir=/, "")}/${process.env.arg_out.replace(
+                /^-out=/,
+                ""
+              )}.new ${process.env.arg_chdir.replace(/^-chdir=/, "")}/${process.env.arg_out.replace(
+                /^-out=/,
+                ""
+              )}`,
+            ]);
+          }
+        }
+
         if (result_outline?.length >= result_outline_limit) {
           result_outline = result_outline.substring(0, result_outline_limit) + "…";
         }
@@ -423,8 +500,8 @@ module.exports = async ({ context, core, exec, github }) => {
     // Render the TF fmt command output.
     const output_fmt =
       process.env.arg_command === "plan" &&
-      /^true$/i.test(process.env.fmt_enable) &&
-      fmt_result?.length
+        /^true$/i.test(process.env.fmt_enable) &&
+        fmt_result?.length
         ? `<details><summary>Format diff check.</summary>
 
 \`\`\`diff
@@ -456,11 +533,10 @@ ${output_outline}
 <!-- main -->
 <details><summary>${result_summary}</br>
 
-###### ${context.workflow} by @${context.actor} via [${context.eventName}](${check_url}) at ${
-      context.payload.pull_request?.updated_at ||
+###### ${context.workflow} by @${context.actor} via [${context.eventName}](${check_url}) at ${context.payload.pull_request?.updated_at ||
       context.payload.head_commit?.timestamp ||
       context.payload.merge_group?.head_commit.timestamp
-    }.
+      }.
 </summary>
 
 \`\`\`hcl
