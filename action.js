@@ -247,24 +247,22 @@ module.exports = async ({ context, core, exec, github }) => {
         3
       );
 
-      if (/^true$/i.test(process.env.outline_enable)) {
-        result_outline = cli_result
-          .split("\n")
-          .filter((line) => line.startsWith("  # "))
-          .map((line) => {
-            const diff_line = line.slice(4);
-            if (diff_line.includes(" created")) return "+ " + diff_line;
-            if (diff_line.includes(" destroyed")) return "- " + diff_line;
-            if (diff_line.includes(" updated") || diff_line.includes(" replaced"))
-              return "! " + diff_line;
-            return "# " + diff_line;
-          })
-          .join("\n");
-        if (result_outline?.length >= result_outline_limit) {
-          result_outline = result_outline.substring(0, result_outline_limit) + "…";
-        }
-        core.setOutput("outline", result_outline);
+      result_outline = cli_result
+        .split("\n")
+        .filter((line) => line.startsWith("  # "))
+        .map((line) => {
+          const diff_line = line.slice(4);
+          if (diff_line.includes(" created")) return "+ " + diff_line;
+          if (diff_line.includes(" destroyed")) return "- " + diff_line;
+          if (diff_line.includes(" updated") || diff_line.includes(" replaced"))
+            return "! " + diff_line;
+          return "# " + diff_line;
+        })
+        .join("\n");
+      if (result_outline?.length >= result_outline_limit) {
+        result_outline = result_outline.substring(0, result_outline_limit) + "…";
       }
+      core.setOutput("outline", result_outline);
     }
 
     // TF apply.
@@ -329,36 +327,35 @@ module.exports = async ({ context, core, exec, github }) => {
         }
       }
 
-      if (/^true$/i.test(process.env.outline_enable)) {
-        await exec_tf(
-          [process.env.arg_chdir, "show", process.env.arg_out.replace(/^-out=/, "")],
-          [
-            "show",
-            process.env.arg_chdir,
-            process.env.arg_workspace_alt,
-            process.env.arg_backend_config,
-            process.env.arg_var_file,
-            process.env.arg_destroy,
-          ],
-          2
-        );
-        result_outline = cli_result
-          .split("\n")
-          .filter((line) => line.startsWith("  # "))
-          .map((line) => {
-            const diff_line = line.slice(4);
-            if (diff_line.includes(" created")) return "+ " + diff_line;
-            if (diff_line.includes(" destroyed")) return "- " + diff_line;
-            if (diff_line.includes(" updated") || diff_line.includes(" replaced"))
-              return "! " + diff_line;
-            return "# " + diff_line;
-          })
-          .join("\n");
-        if (result_outline?.length >= result_outline_limit) {
-          result_outline = result_outline.substring(0, result_outline_limit) + "…";
-        }
-        core.setOutput("outline", result_outline);
+      await exec_tf(
+        [process.env.arg_chdir, "show", process.env.arg_out.replace(/^-out=/, "")],
+        [
+          "show",
+          process.env.arg_chdir,
+          process.env.arg_workspace_alt,
+          process.env.arg_backend_config,
+          process.env.arg_var_file,
+          process.env.arg_destroy,
+        ],
+        2
+      );
+      result_outline = cli_result
+        .split("\n")
+        .filter((line) => line.startsWith("  # "))
+        .map((line) => {
+          const diff_line = line.slice(4);
+          if (diff_line.includes(" created")) return "+ " + diff_line;
+          if (diff_line.includes(" destroyed")) return "- " + diff_line;
+          if (diff_line.includes(" updated") || diff_line.includes(" replaced"))
+            return "! " + diff_line;
+          return "# " + diff_line;
+        })
+        .join("\n");
+      if (result_outline?.length >= result_outline_limit) {
+        result_outline = result_outline.substring(0, result_outline_limit) + "…";
       }
+      core.setOutput("outline", result_outline);
+
 
       await exec_tf(
         [
@@ -423,8 +420,8 @@ module.exports = async ({ context, core, exec, github }) => {
     // Render the TF fmt command output.
     const output_fmt =
       process.env.arg_command === "plan" &&
-      /^true$/i.test(process.env.fmt_enable) &&
-      fmt_result?.length
+        /^true$/i.test(process.env.fmt_enable) &&
+        fmt_result?.length
         ? `<details><summary>Format diff check.</summary>
 
 \`\`\`diff
@@ -456,11 +453,10 @@ ${output_outline}
 <!-- main -->
 <details><summary>${result_summary}</br>
 
-###### ${context.workflow} by @${context.actor} via [${context.eventName}](${check_url}) at ${
-      context.payload.pull_request?.updated_at ||
+###### ${context.workflow} by @${context.actor} via [${context.eventName}](${check_url}) at ${context.payload.pull_request?.updated_at ||
       context.payload.head_commit?.timestamp ||
       context.payload.merge_group?.head_commit.timestamp
-    }.
+      }.
 </summary>
 
 \`\`\`hcl

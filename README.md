@@ -120,7 +120,6 @@ In order to locally decrypt the TF plan file, use the following command (noting 
 | `encrypt_passphrase`</br>Example: `${{ secrets.KEY }}` | String passphrase to encrypt the TF plan file.                                                         |
 | `fmt_enable`</br>Default: `true`                       | Boolean flag to enable TF fmt command and display diff of changes.                                     |
 | `label_pr`</br>Default: `true`                         | Boolean flag to add PR label of TF command to run.                                                     |
-| `outline_enable`</br>Default: `true`                   | Boolean flag to add an outline diff of TF plan file.                                                   |
 | `tf_tool`</br>Default: `terraform`                     | String name of the TF tool to use and override default assumption from wrapper environment variable.   |
 | `tf_version`</br>Example: `~>` 1.8.0                   | String version constraint of the TF tool to install and use.                                           |
 | `update_comment`</br>Default: `false`                  | Boolean flag to update existing PR comment instead of creating a new comment and deleting the old one. |

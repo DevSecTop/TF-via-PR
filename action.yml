@@ -32,10 +32,6 @@ inputs:
     description: Boolean flag to add PR label of TF command to run.
     required: false
     default: "true"
-  outline_enable:
-    description: Boolean flag to add an outline diff of TF plan file.
-    required: false
-    default: "true"
   tf_tool:
     description: String name of the TF tool to use and override default assumption from wrapper environment variable.
     required: false
@@ -289,7 +285,6 @@ runs:
         encrypt_passphrase: ${{ inputs.encrypt_passphrase }}
         fmt_enable: ${{ inputs.fmt_enable }}
         label_pr: ${{ inputs.label_pr }}
-        outline_enable: ${{ inputs.outline_enable }}
         tf_tool: ${{ inputs.tf_tool }}
         update_comment: ${{ inputs.update_comment }}
         validate_enable: ${{ inputs.validate_enable }}
