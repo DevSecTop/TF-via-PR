@@ -282,6 +282,7 @@ runs:
         # Input parameters.
         cache_hit: ${{ steps.cache_plugins.outputs.cache-hit }}
         comment_pr: ${{ inputs.comment_pr }}
+        plan_parity: ${{ inputs.plan_parity }}
         encrypt_passphrase: ${{ inputs.encrypt_passphrase }}
         fmt_enable: ${{ inputs.fmt_enable }}
         label_pr: ${{ inputs.label_pr }}
