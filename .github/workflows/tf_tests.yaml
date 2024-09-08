@@ -46,12 +46,12 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
+          plan_parity: true
           arg_chdir: tests/${{ matrix.path }}
-          arg_command: apply # ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
+          arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg_lock: ${{ github.event.pull_request.merged && 'true' || 'false' }}
           tf_tool: ${{ matrix.tool }}
           tf_version: ~> 1.8.0
-          plan_parity: true
 
       - name: Echo TF
         run: |
