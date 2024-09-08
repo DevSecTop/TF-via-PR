@@ -17,7 +17,7 @@ inputs:
     required: false
     default: "true"
   plan_parity:
-    description: Boolean flag to compare previous TF plan file with current plan before applying.
+    description: Boolean flag to compare previous TF plan file with current plan before applying in a queue.
     required: false
     default: "false"
   encrypt_passphrase:
