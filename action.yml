@@ -16,10 +16,6 @@ inputs:
     description: Boolean flag to add PR comment of TF command output.
     required: false
     default: "true"
-  plan_parity:
-    description: Boolean flag to compare the TF plan file with a newly-generated one to prevent stale apply.
-    required: false
-    default: "false"
   encrypt_passphrase:
     description: String passphrase to encrypt the TF plan file.
     required: false
@@ -32,6 +28,10 @@ inputs:
     description: Boolean flag to add PR label of TF command to run.
     required: false
     default: "true"
+  plan_parity:
+    description: Boolean flag to compare the TF plan file with a newly-generated one to prevent stale apply.
+    required: false
+    default: "false"
   tf_tool:
     description: String name of the TF tool to use and override default assumption from wrapper environment variable.
     required: false
@@ -282,10 +282,10 @@ runs:
         # Input parameters.
         cache_hit: ${{ steps.cache_plugins.outputs.cache-hit }}
         comment_pr: ${{ inputs.comment_pr }}
-        plan_parity: ${{ inputs.plan_parity }}
         encrypt_passphrase: ${{ inputs.encrypt_passphrase }}
         fmt_enable: ${{ inputs.fmt_enable }}
         label_pr: ${{ inputs.label_pr }}
+        plan_parity: ${{ inputs.plan_parity }}
         tf_tool: ${{ inputs.tf_tool }}
         update_comment: ${{ inputs.update_comment }}
         validate_enable: ${{ inputs.validate_enable }}
