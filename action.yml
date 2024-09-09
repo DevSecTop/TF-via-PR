@@ -16,10 +16,6 @@ inputs:
     description: Boolean flag to add PR comment of TF command output.
     required: false
     default: "true"
-  plan_parity:
-    description: Boolean flag to compare the TF plan file with a newly-generated one to prevent stale apply.
-    required: false
-    default: "false"
   encrypt_passphrase:
     description: String passphrase to encrypt the TF plan file.
     required: false
@@ -36,6 +32,14 @@ inputs:
     description: Boolean flag to add PR label of TF command to run.
     required: false
     default: "true"
+  plan_parity:
+    description: Boolean flag to compare the TF plan file with a newly-generated one to prevent stale apply.
+    required: false
+    default: "false"
+  tenv_version:
+    description: String version tag of the tenv tool to install and use.
+    required: false
+    default: ""
   tf_tool:
     description: String name of the TF tool to use and override default assumption from wrapper environment variable.
     required: false
@@ -269,13 +273,16 @@ runs:
     - name: Install TF via tenv
       if: inputs.tf_version != ''
       env:
+        TENV_VERSION: ${{ inputs.tenv_version }}
         TF_TOOL: ${{ inputs.tf_tool }}
         TF_VERSION: ${{ inputs.tf_version }}
       shell: bash
       run: |
-        VERSION=$(curl --no-progress-meter --location https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
-        curl --remote-name --no-progress-meter --location "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${VERSION}_amd64.deb"
-        sudo dpkg --install "tenv_${VERSION}_amd64.deb"
+        if [ -z "$TENV_VERSION" ]; then
+          TENV_VERSION=$(curl --no-progress-meter --location https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
+        fi
+        curl --remote-name --no-progress-meter --location "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${TENV_VERSION}_amd64.deb"
+        sudo dpkg --install "tenv_${TENV_VERSION}_amd64.deb"
         tenv "$TF_TOOL" install "$TF_VERSION"
         tenv update-path
 
@@ -286,11 +293,11 @@ runs:
         # Input parameters.
         cache_hit: ${{ steps.cache_plugins.outputs.cache-hit }}
         comment_pr: ${{ inputs.comment_pr }}
-        plan_parity: ${{ inputs.plan_parity }}
         encrypt_passphrase: ${{ inputs.encrypt_passphrase }}
         fmt_enable: ${{ inputs.fmt_enable }}
         hide_args: ${{ toJSON(inputs.hide_args) }}
         label_pr: ${{ inputs.label_pr }}
+        plan_parity: ${{ inputs.plan_parity }}
         tf_tool: ${{ inputs.tf_tool }}
         update_comment: ${{ inputs.update_comment }}
         validate_enable: ${{ inputs.validate_enable }}
