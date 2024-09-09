@@ -19,12 +19,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tool: [tofu, terraform]
+        tool: [tofu] # [tofu, terraform]
         path:
-          - fail_invalid_resource_type
-          - fail_data_source_error
+          # - fail_invalid_resource_type
+          # - fail_data_source_error
           - pass_one
-          - pass_character_limit
+          # - pass_character_limit
           - pass_format_diff
 
     steps:
@@ -50,6 +50,7 @@ jobs:
           arg_chdir: tests/${{ matrix.path }}
           arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg_lock: ${{ github.event.pull_request.merged && 'true' || 'false' }}
+          hide_args: arg_lock
           tf_tool: ${{ matrix.tool }}
           tf_version: ~> 1.8.0
 

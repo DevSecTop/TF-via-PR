@@ -119,6 +119,7 @@ In order to locally decrypt the TF plan file, use the following command (noting 
 | `comment_pr`</br>Default: `true`                       | Boolean flag to add PR comment of TF command output.                                                   |
 | `encrypt_passphrase`</br>Example: `${{ secrets.KEY }}` | String passphrase to encrypt the TF plan file.                                                         |
 | `fmt_enable`</br>Default: `true`                       | Boolean flag to enable TF fmt command and display diff of changes.                                     |
+| `hide_args`</br>Example: [arg_var]                     | String list of TF arguments to hide from the command input.                                            |
 | `label_pr`</br>Default: `true`                         | Boolean flag to add PR label of TF command to run.                                                     |
 | `plan_parity`</br>Default: `false`                     | Boolean flag to compare the TF plan file with a newly-generated one to prevent stale apply.            |
 | `tenv_version`</br>Example: `v3.1.0`                   | String version tag of the tenv tool to install and use.                                                |
