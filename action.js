@@ -78,6 +78,7 @@ module.exports = async ({ context, core, exec, github }) => {
       stdout: data_handler,
       stderr: data_handler,
     },
+    ignoreReturnCode: true,
   };
 
   // Function to execute TF commands.
