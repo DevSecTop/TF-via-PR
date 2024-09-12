@@ -102,6 +102,8 @@ module.exports = async ({ context, core, exec, github }) => {
           process.env.arg_chdir,
           "init",
           process.env.arg_backend_config,
+          process.env.arg_var_file,
+          process.env.arg_var,
           process.env.arg_backend,
           process.env.arg_cloud,
           process.env.arg_force_copy,
@@ -120,7 +122,6 @@ module.exports = async ({ context, core, exec, github }) => {
           "init",
           process.env.arg_chdir,
           process.env.arg_workspace_alt,
-          process.env.arg_var_file,
           process.env.arg_destroy,
         ],
         2
