@@ -89,8 +89,9 @@ module.exports = async ({ context, core, exec, github }) => {
     cli_result = "";
     core.setOutput("header", cli_input);
     const exitcode = await exec.exec(process.env.tf_tool, arguments, options);
-    // write code to output exitcode from the exec command
-    console.log("EXITCODE", exitcode.toString());
+    if (exitcode === 1) {
+      core.setFailed(`Failed with exit code ${exitcode}`);
+    }
   };
 
   try {
