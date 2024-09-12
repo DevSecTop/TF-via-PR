@@ -252,6 +252,15 @@ outputs:
   summary:
     description: String summary of the last TF command.
     value: ${{ steps.tf.outputs.summary }}
+  exitcode:
+    description: String exit code of the TF command.
+    value: ${{ steps.tf.outputs.exitcode }}
+  stderr:
+    description: String standard error output of the TF command.
+    value: ${{ steps.tf.outputs.stderr }}
+  stdout:
+    description: String standard output of the TF command.
+    value: ${{ steps.tf.outputs.stdout }}
 
 runs:
   using: composite
