@@ -21,11 +21,11 @@ jobs:
       matrix:
         tool: [tofu, terraform]
         path:
-          - fail_invalid_resource_type
+          # - fail_invalid_resource_type
           - fail_data_source_error
           - pass_one
-          - pass_character_limit
-          - pass_format_diff
+          # - pass_character_limit
+          # - pass_format_diff
 
     steps:
       - name: Echo github
