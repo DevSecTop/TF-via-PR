@@ -63,8 +63,8 @@ jobs:
           echo "identifier: ${{ steps.tf.outputs.identifier }}"
           echo "last_result: ${{ steps.tf.outputs.last_result }}"
           echo "outline: ${{ steps.tf.outputs.outline }}"
-          echo "stderr: ${{ steps.tf.outputs.stderr }}"
-          echo "summary: ${{ steps.tf.outputs.summary }}"
-          if [[ "${{ matrix.test }}" != "pass_character_limit" ]]; then
-            echo "stdout: ${{ steps.tf.outputs.stdout }}"
-          fi
+          # echo "stderr: ${{ steps.tf.outputs.stderr }}"
+          # echo "summary: ${{ steps.tf.outputs.summary }}"
+          # if [[ "${{ matrix.test }}" != "pass_character_limit" ]]; then
+          #   echo "stdout: ${{ steps.tf.outputs.stdout }}"
+          # fi
