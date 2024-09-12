@@ -73,7 +73,7 @@ module.exports = async ({ context, core, exec, github }) => {
     core.setOutput("summary", result_summary);
   };
 
-  const listeners = {
+  const options = {
     listeners: {
       stdout: data_handler,
       stderr: data_handler,
@@ -87,7 +87,7 @@ module.exports = async ({ context, core, exec, github }) => {
     cli_input = header.concat(arguments.slice(input_header_slice)).join(" ");
     cli_result = "";
     core.setOutput("header", cli_input);
-    await exec.exec(process.env.tf_tool, arguments, listeners);
+    await exec.exec(process.env.tf_tool, arguments, options);
   };
 
   try {
