@@ -177,16 +177,17 @@ In order to locally decrypt the TF plan file, use the following command (noting 
 
 ### Outputs
 
-| Name          | Description                                      |
-| ------------- | ------------------------------------------------ |
-| `check_id`    | String output of the workflow check run ID.      |
-| `comment_id`  | String output of the PR comment ID.              |
-| `fmt_result`  | String output of the TF fmt command.             |
-| `header`      | String output of the TF command input.           |
-| `identifier`  | String output of the TF run's unique identifier. |
-| `last_result` | String output of the last TF command.            |
-| `outline`     | String outline of the TF plan.                   |
-| `summary`     | String summary of the last TF command.           |
+| Name          | Description                                       |
+| ------------- | ------------------------------------------------- |
+| `check_id`    | String output of the workflow check run ID.       |
+| `comment_id`  | String output of the PR comment ID.               |
+| `exitcode`    | String output of the last TF command's exitcode. |
+| `fmt_result`  | String output of the TF fmt command.              |
+| `header`      | String output of the TF command input.            |
+| `identifier`  | String output of the TF run's unique identifier.  |
+| `last_result` | String output of the last TF command.             |
+| `outline`     | String outline of the TF plan.                    |
+| `summary`     | String summary of the last TF command.            |
 
 ## Security
 
