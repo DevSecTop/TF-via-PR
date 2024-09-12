@@ -449,7 +449,6 @@ module.exports = async ({ context, core, exec, github }) => {
           process.env.arg_destroy,
           process.env.arg_backup,
           process.env.arg_compact_warnings,
-          process.env.arg_detailed_exitcode,
           process.env.arg_json,
           process.env.arg_lock_timeout,
           process.env.arg_lock,
