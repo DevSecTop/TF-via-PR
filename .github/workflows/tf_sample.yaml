@@ -43,14 +43,10 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE }}
           role-session-name: devsectop-tf-via-pr-${{ github.run_id }}-${{ github.run_attempt}}
 
-      # - name: Setup TF
-      #   uses: opentofu/setup-opentofu@12f4debbf681675350b6cd1f0ff8ecfbda62027b # v1.0.4
-      #   with:
-      #     tofu_version: ${{ env.TF_VERSION }}
       - name: Setup TF
-        uses: hashicorp/setup-terraform@v3
+        uses: opentofu/setup-opentofu@12f4debbf681675350b6cd1f0ff8ecfbda62027b # v1.0.4
         with:
-          terraform_version: ${{ env.TF_VERSION }}
+          tofu_version: ${{ env.TF_VERSION }}
 
       - name: Provision TF
         uses: ./
@@ -63,5 +59,5 @@ jobs:
           arg_workspace: ${{ matrix.env }}
           arg_detailed_exitcode: true
           arg_or_create: true
-          # cache_plugins: true
+          cache_plugins: true
           encrypt_passphrase: ${{ secrets.TF_ENCRYPTION }}
