@@ -41,6 +41,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
 
+      - name: Setup TF
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ~> 1.8.0
+
       - name: Provision TF
         id: tf
         continue-on-error: true
@@ -50,8 +55,8 @@ jobs:
           arg_chdir: tests/${{ matrix.path }}
           arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg_lock: ${{ github.event.pull_request.merged && 'true' || 'false' }}
-          tf_tool: ${{ matrix.tool }}
-          tf_version: ~> 1.8.0
+          # tf_tool: ${{ matrix.tool }}
+          # tf_version: ~> 1.8.0
 
       - name: Echo TF
         run: |
