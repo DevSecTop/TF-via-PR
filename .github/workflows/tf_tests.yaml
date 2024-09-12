@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         tool: [tofu, terraform]
-        path:
+        test:
           - fail_invalid_resource_type
           - fail_data_source_error
           - pass_one
@@ -46,7 +46,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
-          arg_chdir: tests/${{ matrix.path }}
+          arg_chdir: tests/${{ matrix.test }}
           arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg_lock: ${{ github.event.pull_request.merged && 'true' || 'false' }}
           arg_detailed_exitcode: true
@@ -64,5 +64,7 @@ jobs:
           echo "last_result: ${{ steps.tf.outputs.last_result }}"
           echo "outline: ${{ steps.tf.outputs.outline }}"
           echo "stderr: ${{ steps.tf.outputs.stderr }}"
-          echo "stdout: ${{ steps.tf.outputs.stdout }}"
           echo "summary: ${{ steps.tf.outputs.summary }}"
+          if [[ "${{ matrix.test }}" != "pass_character_limit" ]]; then
+            echo "stdout: ${{ steps.tf.outputs.stdout }}"
+          fi
