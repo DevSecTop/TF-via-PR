@@ -63,3 +63,6 @@ jobs:
           echo "last_result: ${{ steps.tf.outputs.last_result }}"
           echo "outline: ${{ steps.tf.outputs.outline }}"
           echo "summary: ${{ steps.tf.outputs.summary }}"
+          echo "tf_exitcode: ${{ steps.tf.outputs.exitcode }}"
+          echo "tf_stderr: ${{ steps.tf.outputs.stderr }}"
+          echo "tf_stdout: ${{ steps.tf.outputs.stdout }}"
