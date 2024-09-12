@@ -234,8 +234,11 @@ outputs:
   comment_id:
     description: String output of the PR comment ID.
     value: ${{ steps.tf.outputs.comment_id }}
+  exitcode:
+    description: String output of the last TF command's exit code.
+    value: ${{ steps.tf.outputs.exitcode }}
   fmt_result:
-    description: String output of the TF fmt command.
+    description: String output of the TF fmt command (truncated).
     value: ${{ steps.tf.outputs.fmt_result }}
   header:
     description: String output of the TF command input.
@@ -244,11 +247,17 @@ outputs:
     description: String output of the TF run's unique identifier.
     value: ${{ steps.tf.outputs.identifier }}
   last_result:
-    description: String output of the last TF command.
+    description: String output of the last TF command (truncated).
     value: ${{ steps.tf.outputs.last_result }}
   outline:
     description: String outline of the TF plan.
     value: ${{ steps.tf.outputs.outline }}
+  stderr:
+    description: String output of the last TF command's standard error.
+    value: ${{ steps.tf.outputs.stderr }}
+  stdout:
+    description: String output of the last TF command's standard output.
+    value: ${{ steps.tf.outputs.stdout }}
   summary:
     description: String summary of the last TF command.
     value: ${{ steps.tf.outputs.summary }}

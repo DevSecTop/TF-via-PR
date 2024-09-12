@@ -20,7 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         tool: [tofu, terraform]
-        path:
+        test:
           - fail_invalid_resource_type
           - fail_data_source_error
           - pass_one
@@ -46,10 +46,10 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
-          plan_parity: true
-          arg_chdir: tests/${{ matrix.path }}
+          arg_chdir: tests/${{ matrix.test }}
           arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg_lock: ${{ github.event.pull_request.merged && 'true' || 'false' }}
+          arg_detailed_exitcode: true
           tf_tool: ${{ matrix.tool }}
           tf_version: ~> 1.8.0
 
@@ -57,9 +57,11 @@ jobs:
         run: |
           echo "check_id: ${{ steps.tf.outputs.check_id }}"
           echo "comment_id: ${{ steps.tf.outputs.comment_id }}"
+          echo "exitcode: ${{ steps.tf.outputs.exitcode }}"
           echo "fmt_result: ${{ steps.tf.outputs.fmt_result }}"
           echo "header: ${{ steps.tf.outputs.header }}"
           echo "identifier: ${{ steps.tf.outputs.identifier }}"
           echo "last_result: ${{ steps.tf.outputs.last_result }}"
           echo "outline: ${{ steps.tf.outputs.outline }}"
+          echo "stderr: ${{ steps.tf.outputs.stderr }}"
           echo "summary: ${{ steps.tf.outputs.summary }}"
