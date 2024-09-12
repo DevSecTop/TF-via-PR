@@ -1,5 +1,5 @@
 terraform {
-  required_version = "~> 1.0"
+  required_version = "~> 1.8.0"
 
   backend "s3" {
     bucket = "tmp-workflow-tfstates"
