@@ -54,7 +54,7 @@ jobs:
           tf_version: ~> 1.8.0
 
       - name: Echo TF
-        # continue-on-error: true
+        continue-on-error: true
         run: |
           echo "check_id: ${{ steps.tf.outputs.check_id }}"
           echo "comment_id: ${{ steps.tf.outputs.comment_id }}"
