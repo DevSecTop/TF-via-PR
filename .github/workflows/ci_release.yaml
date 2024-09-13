@@ -1,0 +1,26 @@
+---
+name: CI Release Tag
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  tag:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          persist-credentials: false
+
+      - name: Fetch major version tag and update it
+        shell: bash
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/}
+          MAJOR=${VERSION%%.*}
+          git config --global user.name 'Rishav Dhar'
+          git config --global user.email '19497993+rdhar@users.noreply.github.com'
+          git tag -fa "${MAJOR}" -m 'Update major version tag'
+          git push origin "${MAJOR}" --force
