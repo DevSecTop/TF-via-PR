@@ -14,8 +14,8 @@ env:
   TF_VAR_PREFIX: sample
 
 jobs:
-  TF:
-    runs-on: ubuntu-latest
+  iac:
+    runs-on: ubuntu-24.04
 
     permissions:
       actions: read # Required to download repository artifact.
@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          persist-credentials: false
 
       - name: Authenticate AWS
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
