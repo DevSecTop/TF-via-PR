@@ -121,6 +121,7 @@ In order to locally decrypt the TF plan file, use the following command (noting 
 | `fmt_enable`</br>Default: `true`                       | Boolean flag to enable TF fmt command and display diff of changes.                                     |
 | `label_pr`</br>Default: `true`                         | Boolean flag to add PR label of TF command to run.                                                     |
 | `plan_parity`</br>Default: `false`                     | Boolean flag to compare the TF plan file with a newly-generated one to prevent stale apply.            |
+| `tenv_arch`</br>Default: `arm64`                       | String architecture of the tenv tool to install and use.                                               |
 | `tenv_version`</br>Example: `v3.1.0`                   | String version tag of the tenv tool to install and use.                                                |
 | `tf_tool`</br>Default: `terraform`                     | String name of the TF tool to use and override default assumption from wrapper environment variable.   |
 | `tf_version`</br>Example: `~> 1.8.0`                   | String version constraint of the TF tool to install and use.                                           |
