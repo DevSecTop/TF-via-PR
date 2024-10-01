@@ -32,6 +32,10 @@ inputs:
     description: Boolean flag to compare the TF plan file with a newly-generated one to prevent stale apply.
     required: false
     default: "false"
+  tenv_arch:
+    description: String architecture of the tenv tool to install and use.
+    required: false
+    default: "amd64"
   tenv_version:
     description: String version tag of the tenv tool to install and use.
     required: false
@@ -278,16 +282,18 @@ runs:
     - name: Install TF via tenv
       if: inputs.tf_version != ''
       env:
+        TENV_ARCH: ${{ inputs.tenv_arch }}
         TENV_VERSION: ${{ inputs.tenv_version }}
         TF_TOOL: ${{ inputs.tf_tool }}
         TF_VERSION: ${{ inputs.tf_version }}
       shell: bash
       run: |
+        # If $TENV_VERSION is not set, then retrieve the latest version.
         if [ -z "$TENV_VERSION" ]; then
           TENV_VERSION=$(curl --no-progress-meter --location https://api.github.com/repos/tofuutils/tenv/releases/latest | jq -r .tag_name)
         fi
-        curl --remote-name --no-progress-meter --location "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${TENV_VERSION}_amd64.deb"
-        sudo dpkg --install "tenv_${TENV_VERSION}_amd64.deb"
+        curl --remote-name --no-progress-meter --location "https://github.com/tofuutils/tenv/releases/download/${TENV_VERSION}/tenv_${TENV_VERSION}_${TENV_ARCH}.deb"
+        sudo dpkg --install "tenv_${TENV_VERSION}_${TENV_ARCH}.deb"
         tenv "$TF_TOOL" install "$TF_VERSION"
         tenv update-path
 
