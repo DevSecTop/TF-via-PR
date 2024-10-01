@@ -35,7 +35,7 @@ inputs:
   tenv_arch:
     description: String architecture of the tenv tool to install and use.
     required: false
-    default: "arm64"
+    default: "amd64"
   tenv_version:
     description: String version tag of the tenv tool to install and use.
     required: false
