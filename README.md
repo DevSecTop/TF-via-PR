@@ -122,7 +122,7 @@ In order to locally decrypt the TF plan file, use the following command (noting 
 | `label_pr`</br>Default: `true`                         | Boolean flag to add PR label of TF command to run.                                                     |
 | `plan_parity`</br>Default: `false`                     | Boolean flag to compare the TF plan file with a newly-generated one to prevent stale apply.            |
 | `tenv_arch`</br>Default: `amd64`                       | String architecture of the tenv tool to install and use.                                               |
-| `tenv_version`</br>Example: `v3.1.0`                   | String version tag of the tenv tool to install and use.                                                |
+| `tenv_version`</br>Example: `v3.2.3`                   | String version tag of the tenv tool to install and use.                                                |
 | `tf_tool`</br>Default: `terraform`                     | String name of the TF tool to use and override default assumption from wrapper environment variable.   |
 | `tf_version`</br>Example: `~> 1.8.0`                   | String version constraint of the TF tool to install and use.                                           |
 | `update_comment`</br>Default: `false`                  | Boolean flag to update existing PR comment instead of creating a new comment and deleting the old one. |
