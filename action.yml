@@ -272,7 +272,7 @@ runs:
     - name: Cache TF plugins
       id: cache_plugins
       if: inputs.cache_plugins == 'true' && hashFiles(format('{0}/.terraform.lock.hcl', inputs.arg_chdir))
-      uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+      uses: actions/cache@2cdf405574d6ef1f33a1d12acccd3ae82f47b3f2 # v4.1.0
       with:
         key: ${{ runner.os }}-${{ inputs.tf_tool }}-${{ inputs.tf_version }}-${{ hashFiles(format('{0}/.terraform.lock.hcl', inputs.arg_chdir)) }}
         path: |
