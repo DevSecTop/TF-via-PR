@@ -273,7 +273,7 @@ module.exports = async ({ context, core, exec, github }) => {
     // TF apply.
     if (process.env.arg_command === "apply") {
       // Download the TF plan file if not auto-approved.
-      if (!/^true$/i.test(process.env.auto_approve)) {
+      if (!/^true$/i.test(process.env.arg_auto_approve)) {
         // TF plan anew for later comparison if plan_parity is enabled.
         if (/^true$/i.test(process.env.plan_parity)) {
           await exec_tf(
