@@ -11,10 +11,10 @@ data "aws_ami" "ubuntu" {
 
 # Create a sample EC2 instance.
 resource "aws_instance" "sample" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = var.instance_type
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = var.instance_type
   vpc_security_group_ids = ["sg-0f910049cea34d9ce"]
-  subnet_id     = "subnet-01ef465df13ebc0dc"
+  subnet_id              = "subnet-01ef465df13ebc0dc"
 
   tags = {
     Name = join("-", [var.PREFIX, "instance"])
