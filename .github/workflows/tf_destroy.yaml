@@ -1,0 +1,53 @@
+---
+name: TF Destroy Test
+
+on:
+  pull_request:
+    paths: [.github/workflows/tf_destroy.yaml]
+  push:
+    paths: [.github/workflows/tf_destroy.yaml]
+    branches: [main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+
+    permissions:
+      actions: read # Required to download repository artifact.
+      checks: write # Required to add status summary.
+      contents: read # Required to checkout repository.
+      pull-requests: write # Required to add PR comment and label.
+
+    env:
+      AWS_REGION: us-east-1
+      TF_VERSION: ~> 1.8.0
+      TF_VAR_PREFIX: sample
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+        with:
+          persist-credentials: false
+
+      - name: Authenticate AWS
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          role-session-name: devsectop-tf-via-pr-${{ github.run_id }}-${{ github.run_attempt}}
+
+      - name: Setup TF
+        uses: opentofu/setup-opentofu@12f4debbf681675350b6cd1f0ff8ecfbda62027b # v1.0.4
+        with:
+          tofu_version: ${{ env.TF_VERSION }}
+
+      - name: Provision TF
+        uses: ./
+        with:
+          arg_chdir: sample/instance
+          arg_command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
+          arg_lock: ${{ github.event_name == 'push' && 'true' || 'false' }}
+          arg_auto_approve: ${{ github.event_name == 'push' && 'true' || '' }}
+          arg_destroy: true
+          arg_var_file: env/dev.tfvars
+          arg_workspace: dev
