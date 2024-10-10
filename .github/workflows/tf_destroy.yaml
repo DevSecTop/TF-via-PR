@@ -16,6 +16,7 @@ jobs:
       actions: read # Required to download repository artifact.
       checks: write # Required to add status summary.
       contents: read # Required to checkout repository.
+      id-token: write # Required to authenticate via OIDC.
       pull-requests: write # Required to add PR comment and label.
 
     env:
