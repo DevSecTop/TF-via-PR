@@ -22,3 +22,12 @@
 ## Outputs
 
 - sample_bucket_id
+
+## Command
+
+```sh
+export TF_VAR_PREFIX=sample
+tofu init -upgrade -reconfigure -backend-config=backend/dev.tfbackend
+tofu workspace select dev
+tofu apply
+```
