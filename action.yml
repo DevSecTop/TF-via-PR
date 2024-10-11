@@ -320,6 +320,7 @@ runs:
 
         # TF arguments.
         arg_auto_approve: ${{ inputs.arg_auto_approve != '' && format('-auto-approve={0}', inputs.arg_auto_approve) || '' }}
+        arg_auto_approve_raw: ${{ inputs.arg_auto_approve }}
         arg_backend: ${{ inputs.arg_backend != '' && format('-backend={0}', inputs.arg_backend) || '' }}
         arg_backend_config: ${{ inputs.arg_backend_config != '' && format('-backend-config={0}', inputs.arg_backend_config) || '' }}
         arg_backup: ${{ inputs.arg_backup != '' && format('-backup={0}', inputs.arg_backup) || '' }}
