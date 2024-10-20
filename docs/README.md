@@ -117,7 +117,7 @@ unzip <tf.plan>
 
 <details open><summary>The default behavior of <code>comment-pr</code> is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</summary></br>
 
-[![PR comment revision history comparing plan and apply outputs.](assets/revisions.png)](https://github.com/DevSecTop/TF-via-PR/blob/main/docs/revisions.png?raw=true "View full-size image.")
+[![PR comment revision history comparing plan and apply outputs.](assets/revisions.png)](https://github.com/devsectop/tf-via-pr/blob/main/docs/revisions.png?raw=true "View full-size image.")
 </details>
 
 ### Inputs - Arguments
