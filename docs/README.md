@@ -33,37 +33,11 @@
   </tr>
 </table>
 
-Overview: [Usage Examples](#usage) · [Parameter In/Outputs](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
+Overview: [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
-<figure>
-  <a href="assets/screenshot_light.png" target="_blank">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
-      <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_light.png">
-      <img alt="Screenshot of PR comment example with multiple command arguments." src="assets/screenshot_light.png">
-    </picture>
-    <figcaption>
-      </br><em>Screenshot of PR comment example with multiple command arguments.</em>
-    </figcaption>
-</figure>
+<!-- show picture comment.png. upon hover, show revisions.png instead. -->
 
-### Who is it for?
-
-<details><summary>Best suited for DevOps and Platform engineers wanting to empower their teams to self-service scalably.</summary>
-
-- Each PR and associated workflow run holds a complete log of infrastructure changes for ease of collaborative debugging as well as audit compliance.
-- Removes the overhead of needing to maintain dedicated TF runners, containers or VMs like [Atlantis](https://www.runatlantis.io).
-</details>
-
-### What does it do?
-
-<details><summary>Configure Terraform/OpenTofu to run multiple commands automatically via PR trigger events.</summary>
-
-- Both [Hashicorp][terraform_io] `terraform` and [OpenTofu][opentofu_org] `tofu` CLIs are supported, with the latter offering an open-source and backwards-compatible drop-in replacement for the former.
-- Prerequisite commands like `init` are run automatically, along with user-configurable options for workspace, var-file, backend-config, and [more](#parameters).
-- Multiple TF commands can be run in parallel across different workspaces, directories, or files with matrix [strategy](#usage).
-
-</details>
+![comment.png](comment.png "PR comment with plan summary.") ![revisions.png](revisions.png "PR revisions with plan summary.")
 
 ## Usage
 
