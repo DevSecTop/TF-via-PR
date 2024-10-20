@@ -117,8 +117,8 @@ In order to locally decrypt the TF plan file, use the following command (noting 
 | Type     | Name                | Description                                                                                                    |
 | -------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
 | CLI      | `command`           | Command to run between: `plan` or `apply`.</br>Default: `plan`                                                 |
-| CLI      | `tool`              | Choose the tool to provision TF code.</br>Default: `terraform`                                                 |
 | CLI      | `working-directory` | Specify the working directory of TF code, alias of `arg-chdir`.</br>Example: `path/to/directory`               |
+| CLI      | `tool`              | Choose the tool to provision TF code.</br>Default: `terraform`                                                 |
 | Check    | `format`            | Check format of TF code.</br>Default: `false`                                                                  |
 | Check    | `validate`          | Check validation of TF code.</br>Default: `false`                                                              |
 | Check    | `plan-parity`       | Compare the plan file with a newly-generated one to prevent stale apply.</br>Default: `false`                  |
