@@ -8,7 +8,7 @@
 
 # Terraform/OpenTofu via Pull Request (TF-via-PR)
 
-<table>
+<table border="0">
   <tr>
     <th>
       <h3>What does it do?</h3>
