@@ -20,8 +20,8 @@
   <tr>
     <td>
       <ul>
+        <li>Plan and apply changes with CLI arguments and encrypted plan file to avoid configuration drift.</li>
         <li>Outline plan changes with diff syntax highlighting in PR comment and workflow summary.</li>
-        <li>Plan and apply changes using encrypted TF plan file artifact to avoid configuration drift.</li>
       </ul>
     </td>
     <td>
