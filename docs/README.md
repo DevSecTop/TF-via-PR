@@ -10,7 +10,7 @@
 
 > [!NOTE]
 >
-> GitHub Action to plan and apply Terraform/OpenTofu (TF) via pull request (PR) automation, using best practices for secure and scalable infrastructure-as-code (IaC) workflows.
+> GitHub Action to plan and apply Terraform/OpenTofu via PR automation, using best practices for secure and scalable infrastructure-as-code (IaC) workflows.
 >
 > Overview: [Highlights](#highlights) · [Usage](#usage) · [Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 

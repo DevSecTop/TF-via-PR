@@ -1,6 +1,6 @@
-name: OpenTofu/Terraform via Pull Request
+name: Terraform/OpenTofu via Pull Request
 author: Rishav Dhar (@rdhar)
-description: GitHub Action to plan and apply OpenTofu/Terraform (TF) via pull request (PR) automation.
+description: GitHub Action to plan and apply Terraform/OpenTofu via PR automation, using best practices for secure and scalable infrastructure-as-code (IaC) workflows.
 
 branding:
   color: purple
