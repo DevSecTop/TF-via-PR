@@ -10,7 +10,7 @@
 
 <details open><summary><h3>Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a></h3></summary></br>
 
-[![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://github.com/devsectop/tf-via-pr/blob/main/docs/assets/comment.png?raw=true "View full-size image.")
+[![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://github.com/devsectop/tf-via-pr/blob/main/.github/assets/comment.png?raw=true "View full-size image.")
 </details>
 
 <table>
@@ -137,7 +137,7 @@ unzip <tf.plan>
 
 <details open><summary>The default behavior of <code>comment-pr</code> is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</summary></br>
 
-[![PR comment revision history comparing plan and apply outputs.](/.github/assets/revisions.png)](https://github.com/devsectop/tf-via-pr/blob/main/docs/assets/revisions.png?raw=true "View full-size image.")
+[![PR comment revision history comparing plan and apply outputs.](/.github/assets/revisions.png)](https://github.com/devsectop/tf-via-pr/blob/main/.github/assets/revisions.png?raw=true "View full-size image.")
 </details>
 </br>
 
