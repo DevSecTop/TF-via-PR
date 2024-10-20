@@ -1,9 +1,9 @@
 [![Terraform Compatible](https://img.shields.io/badge/Terraform-Compatible-844FBA?logo=terraform&logoColor=white)](https://github.com/hashicorp/setup-terraform "Terraform Compatible.")
 [![OpenTofu Compatible](https://img.shields.io/badge/OpenTofu-Compatible-FFDA18?logo=opentofu&logoColor=white)](https://github.com/opentofu/setup-opentofu "OpenTofu Compatible.")
-¦
+*
 [![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr?logo=apache&label=License)](../LICENSE.txt "Apache License 2.0.")
 [![GitHub release tag](https://img.shields.io/github/v/release/devsectop/tf-via-pr?logo=semanticrelease&label=Release)](https://github.com/devsectop/tf-via-pr/releases "View all releases.")
-¦
+*
 [![GitHub repository stargazers](https://img.shields.io/github/stars/devsectop/tf-via-pr)](https://github.com/devsectop/tf-via-pr "Become a stargazer.")
 
 # Terraform/OpenTofu via Pull Request (TF-via-PR)
