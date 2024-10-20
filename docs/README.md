@@ -12,7 +12,7 @@
 <h3>Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a></h3>
 </summary></br>
 
-![PR comment of plan output with "Diff of changes" section expanded.](comment.png)
+[![PR comment of plan output with "Diff of changes" section expanded.](comment.png)](https://raw.githubusercontent.com/DevSecTop/TF-via-PR/refs/heads/docs--tidy-up/docs/comment.png "View full-size image.")
 </details>
 
 <table>
