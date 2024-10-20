@@ -13,7 +13,6 @@
 </summary></br>
 
 ![PR comment of plan output with "Diff of changes" section expanded.](comment.png)
-*PR comment of plan output with "Diff of changes" section expanded.*
 </details>
 
 <table>
