@@ -77,6 +77,7 @@ jobs:
 >
 > - Pin your workflow version to a specific release tag or SHA to harden your CI/CD pipeline [security](#security) against supply chain attacks.
 > - Environment variables can be passed in for cloud platform authentication (e.g., [configure-aws-credentials](https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions.") for short-lived credentials).
+</br>
 
 ### Where to find more examples?
 
@@ -100,6 +101,7 @@ The following workflows showcase common use cases, while a comprehensive list of
     </td>
   </tr>
 </table>
+</br>
 
 ### How does encryption work?
 
@@ -136,6 +138,7 @@ unzip <tf.plan>
 
 [![PR comment revision history comparing plan and apply outputs.](assets/revisions.png)](https://github.com/devsectop/tf-via-pr/blob/main/docs/assets/revisions.png?raw=true "View full-size image.")
 </details>
+</br>
 
 ### Inputs - Arguments
 
@@ -187,6 +190,7 @@ unzip <tf.plan>
 | `arg-workspace`           | `-workspace`                             |
 | `arg-write`               | `-write`                                 |
 </details>
+</br>
 
 ### Outputs
 
