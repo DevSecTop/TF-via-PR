@@ -1,7 +1,7 @@
 [![Terraform Compatible](https://img.shields.io/badge/Terraform-Compatible-844FBA?logo=terraform&logoColor=white)](https://github.com/hashicorp/setup-terraform "Terraform Compatible.")
 [![OpenTofu Compatible](https://img.shields.io/badge/OpenTofu-Compatible-FFDA18?logo=opentofu&logoColor=white)](https://github.com/opentofu/setup-opentofu "OpenTofu Compatible.")
 *
-[![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr?logo=apache&label=License)](../LICENSE.txt "Apache License 2.0.")
+[![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr?logo=apache&label=License)](LICENSE.txt "Apache License 2.0.")
 [![GitHub release tag](https://img.shields.io/github/v/release/devsectop/tf-via-pr?logo=semanticrelease&label=Release)](https://github.com/devsectop/tf-via-pr/releases "View all releases.")
 *
 [![GitHub repository stargazers](https://img.shields.io/github/stars/devsectop/tf-via-pr)](https://github.com/devsectop/tf-via-pr "Become a stargazer.")
@@ -10,7 +10,7 @@
 
 <details open><summary><h3>Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a></h3></summary></br>
 
-[![PR comment of plan output with "Diff of changes" section expanded.](assets/comment.png)](https://github.com/devsectop/tf-via-pr/blob/main/docs/assets/comment.png?raw=true "View full-size image.")
+[![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://github.com/devsectop/tf-via-pr/blob/main/docs/assets/comment.png?raw=true "View full-size image.")
 </details>
 
 <table>
@@ -137,7 +137,7 @@ unzip <tf.plan>
 
 <details open><summary>The default behavior of <code>comment-pr</code> is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</summary></br>
 
-[![PR comment revision history comparing plan and apply outputs.](assets/revisions.png)](https://github.com/devsectop/tf-via-pr/blob/main/docs/assets/revisions.png?raw=true "View full-size image.")
+[![PR comment revision history comparing plan and apply outputs.](/.github/assets/revisions.png)](https://github.com/devsectop/tf-via-pr/blob/main/docs/assets/revisions.png?raw=true "View full-size image.")
 </details>
 </br>
 
@@ -225,6 +225,6 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 
 ## License
 
-- This project is licensed under the permissive [Apache License 2.0](../LICENSE.txt "Apache License 2.0.").
+- This project is licensed under the permissive [Apache License 2.0](LICENSE.txt "Apache License 2.0.").
 - All works herein are my own, shared of my own volition, and [contributors](https://github.com/devsectop/tf-via-pr/graphs/contributors "Contributors.").
 - Copyright 2022-2024 [Rishav Dhar](https://github.com/rdhar "Rishav Dhar's GitHub profile.") — All wrongs reserved.
