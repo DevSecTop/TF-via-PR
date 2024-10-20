@@ -84,30 +84,21 @@ The following workflows showcase common use cases, while a comprehensive list of
 <table>
   <tr>
     <td>
-      <a href="/.github/examples/pr_push_auth.yaml">Trigger</a> on <code>pull_request</code> (plan) and <code>push</code> (apply) events with Terraform and AWS <strong>authentication</strong>.
+      <a href="/.github/examples/pr_push_auth.yaml">Run on</a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with Terraform and AWS <strong>authentication</strong>.
     </td>
     <td>
-      <a href="/.github/examples/pr_merge_matrix.yaml">Trigger</a> on <code>pull_request</code> (plan) and <code>merge_group</code> (apply) events with OpenTofu in <strong>matrix</strong> strategy.
+      <a href="/.github/examples/pr_merge_matrix.yaml">Run on</a> <code>pull_request</code> (plan) and <code>merge_group</code> (apply) events with OpenTofu in <strong>matrix</strong> strategy.
     </td>
   </tr>
   <tr>
     <td>
-      <a href="/.github/examples/pr_self_hosted.yaml">Trigger</a> on <code>pull_request</code> (plan or apply) event with Terraform and OpenTofu on <strong>self-hosted</strong> runner.
+      <a href="/.github/examples/pr_self_hosted.yaml">Run on</a> <code>pull_request</code> (plan or apply) event with Terraform and OpenTofu on <strong>self-hosted</strong> runner.
     </td>
     <td>
-      <a href="/.github/examples/schedule_refresh.yaml">Trigger</a> on <code>schedule</code> (cron) event with "fmt" and "validate" checks to identify <strong>configuration drift</strong>.
+      <a href="/.github/examples/schedule_refresh.yaml">Run on</a> <code>schedule</code> (cron) event with "fmt" and "validate" checks to identify <strong>configuration drift</strong>.
     </td>
   </tr>
 </table>
-
-| [Trigger](/.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS **authentication**. | [Trigger](/.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in **matrix** strategy. |
-| --- | --- |
-| [Trigger](/.github/examples/pr_self_hosted.yaml) on `pull_request` (plan or apply) event with Terraform and OpenTofu on **self-hosted** runner. | [Trigger](/.github/examples/schedule_refresh.yaml) on `schedule` (cron) event with "fmt" and "validate" checks to identify **configuration drift**. |
-
-<!-- - [Trigger](/.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS **authentication**.
-- [Trigger](/.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in **matrix** strategy.
-- [Trigger](/.github/examples/pr_self_hosted.yaml) on `pull_request` (plan or apply) event event with Terraform and OpenTofu on **self-hosted** runner.
-- [Trigger](/.github/examples/schedule_refresh.yaml) on `schedule` (cron) event with "fmt" and "validate" checks to identify **configuration drift**. -->
 
 ### How does encryption work?
 
