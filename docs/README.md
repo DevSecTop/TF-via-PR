@@ -37,6 +37,7 @@
     </td>
   </tr>
 </table>
+</br>
 
 ## Usage
 
@@ -111,6 +112,7 @@ unzip <tf.plan>
  openssl enc -aes-256-ctr -pbkdf2 -salt -in <tf.plan> -out tf.plan.decrypted -pass pass:"<passphrase>" -d
 <tf.tool> show tf.plan.decrypted
 ```
+</br>
 
 ## Parameters
 
@@ -194,10 +196,12 @@ unzip <tf.plan>
 | `comment-id` | ID of the PR comment.                         |
 | `exitcode`   | Exit code of the last TF command.             |
 | `identifier` | Unique name of the workflow run and artifact. |
+</br>
 
 ## Security
 
 View [security policy and reporting instructions](SECURITY.md).
+</br>
 
 ## Changelog
 
@@ -211,6 +215,7 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 > - [Raise an issue](https://github.com/devsectop/tf-via-pr/issues "Raise an issue.") to propose changes or report unexpected behavior.
 > - [Open a discussion](https://github.com/devsectop/tf-via-pr/discussions "Open a discussion.") to discuss broader topics or questions.
 > - [Become a stargazer](https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer.") if you find this project useful.
+</br>
 
 ## License
 
