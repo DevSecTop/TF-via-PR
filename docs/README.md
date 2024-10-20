@@ -33,11 +33,16 @@
   </tr>
 </table>
 
-Overview: [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
-<!-- show picture comment.png. upon hover, show revisions.png instead. -->
+<details open><summary>
+Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a>
+</summary>
 
-![comment.png](comment.png "PR comment with plan summary.") ![revisions.png](revisions.png "PR revisions with plan summary.")
+![PR comment of plan output with "Diff of changes" section expanded.](comment.png)
+*PR comment of plan output with "Diff of changes" section expanded.*
+</details>
+
+<!-- ![revisions.png](revisions.png "PR revisions with plan summary.") -->
 
 ## Usage
 
