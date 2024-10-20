@@ -1,0 +1,43 @@
+---
+name: Trigger on pull_request (plan or apply) event with Terraform and OpenTofu on self-hosted runner.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+jobs:
+  tf:
+    runs-on: self-hosted
+
+    permissions:
+      actions: read        # Required to identify workflow run.
+      checks: write        # Required to add status summary.
+      contents: read       # Required to checkout repository.
+      pull-requests: write # Required to add comment and label.
+
+    env:
+      tool: terraform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        if: env.tool == 'terraform'
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Setup OpenTofu
+        if: env.tool == 'tofu'
+        uses: opentofu/setup-opentofu@v1
+
+      - name: Install GitHub CLI
+        run: sudo apt update && sudo apt install gh -y
+
+      - name: Provision TF
+        uses: devsectop/tf-via-pr@v12
+        with:
+          command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
+          arg-lock: ${{ github.event.pull_request.merged }}
+          working-directory: path/to/directory
+          plan-encrypt: ${{ secrets.PASSPHRASE }}
+          tool: ${{ env.tool }}
