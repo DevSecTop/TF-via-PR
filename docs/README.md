@@ -124,7 +124,7 @@ unzip <tf.plan>
 > - Arguments are passed to the appropriate TF command(s) automatically, whether that's `init`, `workspace`, `validate`, `plan`, or `apply`.</br>
 > - For repeated arguments like `arg-var`, `arg-replace` and `arg-target`, use commas to separate multiple values (e.g., `arg-var: key1=value1,key2=value2`).
 
-<details open><summary>Toggle view of all available arguments.</summary>
+<details><summary>Toggle view of all available arguments.</summary>
 
 | Name                      | Description                              |
 | ------------------------- | ---------------------------------------- |
