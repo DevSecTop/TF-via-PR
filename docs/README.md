@@ -36,7 +36,7 @@
 
 <details open><summary>
 Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a>
-</summary>
+</summary></br>
 
 ![PR comment of plan output with "Diff of changes" section expanded.](comment.png)
 *PR comment of plan output with "Diff of changes" section expanded.*
