@@ -84,7 +84,7 @@ The functional workflow examples below showcase common use cases, while a compre
 - [Trigger](/.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS **authentication**.
 - [Trigger](/.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in **matrix** strategy.
 - [Trigger](/.github/examples/pr_self_hosted.yaml) on `pull_request` (plan or apply) event event with Terraform and OpenTofu on **self-hosted** runner.
-- [Trigger](/.github/examples/schedule_refresh.yaml) on `schedule` (cron) event with 'fmt' and 'validate' checks to identify **configuration drift**.
+- [Trigger](/.github/examples/schedule_refresh.yaml) on `schedule` (cron) event with "fmt" and "validate" checks to identify **configuration drift**.
 
 ### How does encryption work?
 
