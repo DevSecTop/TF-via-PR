@@ -203,8 +203,8 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 > All forms of **contribution are very welcome** and deeply appreciated for fostering open-source projects.
 >
 > - [Create a PR](https://github.com/devsectop/tf-via-pr/pulls "Create a pull request.") to contribute changes you'd like to see.
-> - [Raise an issue](https://github.com/devsectop/tf-via-pr/issues "Raise an issue.") to discuss proposed changes or report unexpected behavior.
-> - [Open a discussion](https://github.com/devsectop/tf-via-pr/discussions "Open a discussion.") to share ideas about where you'd like to see this project go.
+> - [Raise an issue](https://github.com/devsectop/tf-via-pr/issues "Raise an issue.") to propose changes or report unexpected behavior.
+> - [Open a discussion](https://github.com/devsectop/tf-via-pr/discussions "Open a discussion.") to discuss broader topics or questions.
 > - [Become a stargazer](https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer.") if you find this project useful.
 
 ## License
