@@ -1,58 +1,44 @@
-[![GitHub release tag](https://img.shields.io/github/v/release/devsectop/tf-via-pr?logo=semanticrelease&label=Release)](https://github.com/devsectop/tf-via-pr/releases)
-[![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr?logo=apache&label=License)](LICENSE)
-[![CodeQL](https://github.com/devsectop/tf-via-pr/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/devsectop/tf-via-pr/actions/workflows/github-code-scanning/codeql)
-[![GitHub repository stars count](https://img.shields.io/github/stars/devsectop/tf-via-pr)](https://github.com/devsectop/tf-via-pr/stargazers)
+[![Terraform Compatible](https://img.shields.io/badge/Terraform-Compatible-844FBA?logo=terraform&logoColor=white)](https://github.com/hashicorp/setup-terraform "Terraform Compatible.")
+[![OpenTofu Compatible](https://img.shields.io/badge/OpenTofu-Compatible-FFDA18?logo=opentofu&logoColor=white)](https://github.com/opentofu/setup-opentofu "OpenTofu Compatible.")
+*
+[![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr?logo=apache&label=License)](../LICENSE.txt "Apache License 2.0.")
+[![GitHub release tag](https://img.shields.io/github/v/release/devsectop/tf-via-pr?logo=semanticrelease&label=Release)](https://github.com/devsectop/tf-via-pr/releases "View all releases.")
+*
+[![GitHub repository stargazers](https://img.shields.io/github/stars/devsectop/tf-via-pr)](https://github.com/devsectop/tf-via-pr "Become a stargazer.")
 
-[![OpenTofu compatibility](https://img.shields.io/badge/OpenTofu-Compatible-FFDA18?logo=opentofu&logoColor=white)](https://github.com/opentofu/setup-opentofu)
-[![Terraform compatibility](https://img.shields.io/badge/Terraform-Compatible-844FBA?logo=terraform&logoColor=white)](https://github.com/hashicorp/setup-terraform)
-[![Static Badge](https://img.shields.io/badge/GitHub-Marketplace-2088FF?logo=githubactions&logoColor=white)](https://github.com/marketplace/actions/opentofu-terraform-via-pull-request)
+# Terraform/OpenTofu via Pull Request (TF-via-PR)
 
-# OpenTofu/Terraform via Pull Request
+<details open><summary>
+<h3>Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a></h3>
+</summary></br>
 
-> [!NOTE]
->
-> GitHub Action to plan and apply OpenTofu/Terraform (TF) via pull request (PR) automation.
->
-> Overview: [Highlights](#highlights) · [Usage](#usage) · [Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
-
-<figure>
-  <a href="assets/screenshot_light.png" target="_blank">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_dark.png">
-      <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_light.png">
-      <img alt="Screenshot of PR comment example with multiple command arguments." src="assets/screenshot_light.png">
-    </picture>
-    <figcaption>
-      </br><em>Screenshot of PR comment example with multiple command arguments.</em>
-    </figcaption>
-</figure>
-
-## Highlights
-
-### What does it do?
-
-<details><summary>Configure OpenTofu/Terraform to run multiple commands automatically via PR trigger events.</summary>
-
-- Both [Hashicorp][terraform_io] `terraform` and [OpenTofu][opentofu_org] `tofu` CLIs are supported, with the latter offering an open-source and backwards-compatible drop-in replacement for the former.
-- Prerequisite commands like `init` are run automatically, along with user-configurable options for workspace, var-file, backend-config, and [more](#parameters).
-- Multiple TF commands can be run in parallel across different workspaces, directories, or files with matrix [strategy](#usage).
+[![PR comment of plan output with "Diff of changes" section expanded.](comment.png)](https://raw.githubusercontent.com/DevSecTop/TF-via-PR/refs/heads/docs--tidy-up/docs/comment.png "View full-size image.")
 </details>
 
-</details>
-
-<details><summary>Retrieve TF plan file for apply, cache TF module plugins, and dynamically substitute input variables.</summary>
-
-- Store TF plan file as a repository artifact for later reference or for use in subsequent TF `apply` or `destroy` commands.
-- Use ".terraform.lock.hcl" file ([which should be included in version control](https://developer.hashicorp.com/terraform/language/files/dependency-lock#:~:text=include%20this%20file%20in%20your%20version%20control)) to cache TF plugins and associated dependencies for faster subsequent workflow runs.
-</details>
-
-### Who is it for?
-
-<details><summary>Best suited for DevOps and Platform engineers wanting to empower their teams to self-service scalably.</summary>
-
-- Each PR and associated workflow run holds a complete log of infrastructure changes for ease of collaborative debugging as well as audit compliance.
-- Removes the overhead of needing to maintain dedicated TF runners, containers or VMs like [Atlantis](https://www.runatlantis.io).
-</details>
+<table>
+  <tr>
+    <th>
+      <h3>What does it do?</h3>
+    </th>
+    <th>
+      <h3>Who is it for?</h3>
+    </th>
+  </tr>
+  <tr>
+    <td>
+      <ul>
+        <li>Plan and apply changes with CLI arguments and encrypted plan file to avoid configuration drift.</li>
+        <li>Outline diff changes within updated PR comment and matrix-friendly workflow summary, complete with log.</li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+        <li>DevOps and Platform engineers wanting to empower their teams to self-service scalably.</li>
+        <li>Maintainers looking to secure their pipeline without the overhead of containers or VMs.</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
 ## Usage
 
@@ -65,35 +51,37 @@ on:
     branches: [main]
 
 jobs:
-  tf:
+  provision:
     runs-on: ubuntu-latest
 
     permissions:
-      actions: read # Required to download repository artifact.
-      checks: write # Required to add status summary.
-      contents: read # Required to checkout repository.
-      pull-requests: write # Required to add PR comment and label.
+      actions: read        # Required to identify workflow run.
+      checks: write        # Required to add status summary.
+      contents: read       # Required to checkout repository.
+      pull-requests: write # Required to add comment and label.
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
-      - uses: devsectop/tf-via-pr@v11
+      - uses: actions/checkout@4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: devsectop/tf-via-pr@v12
         with:
-          arg_chdir: sample/directory/path
-          arg_command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
-          arg_lock: ${{ github.event_name == 'push' && 'true' || 'false' }}
-          arg_var_file: env/dev.tfvars
-          arg_workspace: development
+          # Only plan by default, or apply with lock on merge.
+          command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
+          arg-lock: ${{ github.event_name == 'push' }}
+          arg-var-file: env/dev.tfvars
+          arg_workspace: dev-use1
+          working-directory: path/to/directory
+          plan-encrypt: ${{ secrets.PASSPHRASE }}
 ```
 
 > [!TIP]
 >
 > - Pin your workflow version to a specific release tag or SHA to harden your CI/CD pipeline [security](#security) against supply chain attacks.
-> - Environment variables can be passed in for cloud provider authentication (e.g., [aws-actions/configure-aws-credentials][configure_aws_credentials] action can be used for short-lived credentials).
+> - Environment variables can be passed in for cloud platform authentication (e.g., [configure-aws-credentials](https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions.") for short-lived credentials).
 
 ### Where to find more examples?
 
-The following functional workflow examples demonstrate common use-cases, while a comprehensive list of inputs is documented [below](#parameters).
+The functional workflow examples below showcase common use cases, while a comprehensive list of inputs is also [documented](#parameters).
 
 - [Trigger](.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS **authentication**.
 - [Trigger](.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in **matrix** strategy.
@@ -101,96 +89,93 @@ The following functional workflow examples demonstrate common use-cases, while a
 
 ### How does encryption work?
 
-Before the workflow uploads the TF plan file as an artifact, it can be encrypted with a passphrase to prevent exposure of sensitive data using `encrypt_passphrase` input with a secret (e.g., `${{ secrets.KEY }}`). This is done with [OpenSSL](https://docs.openssl.org/master/man1/openssl-enc/)'s symmetric stream counter mode encryption with salt and pbkdf2.
+Before the workflow uploads the TF plan file as an artifact, it can be encrypted with a passphrase to prevent exposure of sensitive data using `plan-encrypt` input with a secret (e.g., `${{ secrets.PASSPHRASE }}`). This is done with [OpenSSL](https://docs.openssl.org/master/man1/openssl-enc/ "OpenSSL encryption documentation.")'s symmetric stream counter mode encryption with salt and pbkdf2.
 
-In order to locally decrypt the TF plan file, use the following command (noting the whitespace prefix to prevent recording the command in shell history):
+In order to locally decrypt the TF plan file, use the following commands after downloading the artifact (noting the whitespace before `openssl` to prevent recording the command in shell history):
 
-```sh
- openssl enc -aes-256-ctr -pbkdf2 -salt -in <tfplan> -out <tfplan.decrypted> -pass pass:"<passphrase>" -d
+```fish
+unzip <tf.plan>
+ openssl enc -aes-256-ctr -pbkdf2 -salt -in <tf.plan> -out tf.plan.decrypted -pass pass:"<passphrase>" -d
+<tf.tool> show tf.plan.decrypted
 ```
 
 ## Parameters
 
 ### Inputs - Configuration
 
-| Name                                                   | Description                                                                                            |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| `cache_plugins`</br>Default: `false`                   | Boolean flag to cache TF plugins for faster workflow runs (requires .terraform.lock.hcl file).         |
-| `comment_pr`</br>Default: `true`                       | Boolean flag to add PR comment of TF command output.                                                   |
-| `encrypt_passphrase`</br>Example: `${{ secrets.KEY }}` | String passphrase to encrypt the TF plan file.                                                         |
-| `fmt_enable`</br>Default: `true`                       | Boolean flag to enable TF fmt command and display diff of changes.                                     |
-| `label_pr`</br>Default: `true`                         | Boolean flag to add PR label of TF command to run.                                                     |
-| `plan_parity`</br>Default: `false`                     | Boolean flag to compare the TF plan file with a newly-generated one to prevent stale apply.            |
-| `tenv_arch`</br>Default: `amd64`                       | String architecture of the tenv tool to install and use.                                               |
-| `tenv_version`</br>Example: `v3.2.3`                   | String version tag of the tenv tool to install and use.                                                |
-| `tf_tool`</br>Default: `terraform`                     | String name of the TF tool to use and override default assumption from wrapper environment variable.   |
-| `tf_version`</br>Example: `~> 1.8.0`                   | String version constraint of the TF tool to install and use.                                           |
-| `update_comment`</br>Default: `false`                  | Boolean flag to update existing PR comment instead of creating a new comment and deleting the old one. |
-| `validate_enable`</br>Default: `false`                 | Boolean flag to enable TF validate command check.                                                      |
+| Type     | Name                | Description                                                                                                    |
+| -------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| CLI      | `command`           | Command to run between: `plan` or `apply`.</br>Default: `plan`                                                 |
+| CLI      | `working-directory` | Specify the working directory of TF code, alias of `arg-chdir`.</br>Example: `path/to/directory`               |
+| CLI      | `tool`              | Choose the tool to provision TF code.</br>Default: `terraform`                                                 |
+| Check    | `format`            | Check format of TF code.</br>Default: `false`                                                                  |
+| Check    | `validate`          | Check validation of TF code.</br>Default: `false`                                                              |
+| Check    | `plan-parity`       | Compare the plan file with a newly-generated one to prevent stale apply.</br>Default: `false`                  |
+| Security | `plan-encrypt`      | Encrypt plan file artifact with the given input.</br>Example: `${{ secrets.PASSPHRASE }}`                      |
+| Security | `token`             | Specify a GitHub token.</br>Default: `${{ github.token }}`                                                     |
+| UI       | `comment-pr`        | PR comment by: `update` existing comment, `recreate` and delete previous one, or `none`.</br>Default: `update` |
+| UI       | `label-pr`          | Add a PR label with the command input.</br>Default: `true`                                                     |
+| UI       | `hide-args`         | Hide comma-separated arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var`           |
 
 ### Inputs - Arguments
 
-| Name                              | Description                                                                                                                                     |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `arg_auto_approve`                | Boolean flag to toggle skipping of interactive approval of plan before applying.                                                                |
-| `arg_backend`                     | Boolean flag to toggle TF backend initialization.                                                                                               |
-| `arg_backend_config`              | Comma-separated string list of file path(s) to the backend configuration.                                                                       |
-| `arg_backup`                      | Boolean flag to toggle backup of the existing state file before modifying.                                                                      |
-| `arg_chdir`                       | String path to the working directory where the TF command should be run.                                                                        |
-| `arg_check`                       | Boolean flag to toggle checking of file formatting with appropriate exit code.                                                                  |
-| `arg_cloud`                       | Boolean flag to toggle TF backend initialization.                                                                                               |
-| `arg_command`</br>Default: plan   | String name of the TF command to run (either 'plan' or 'apply').                                                                                |
-| `arg_compact_warnings`            | Boolean flag to toggle compact output for warnings.                                                                                             |
-| `arg_concise`                     | Boolean flag to toggle skipping of refresh log lines.                                                                                           |
-| `arg_destroy`                     | Boolean flag to toggle destruction of all managed objects.                                                                                      |
-| `arg_detailed_exitcode`           | String to set the detailed exit code mode.                                                                                                      |
-| `arg_diff`</br>Default: true      | Boolean flag to toggle display diff of formatting changes.                                                                                      |
-| `arg_force_copy`                  | Boolean flag to toggle suppression of prompts about copying state data.                                                                         |
-| `arg_from_module`                 | String path to copy contents from the given module source into the target directory.                                                            |
-| `arg_generate_config_out`         | String path to write the generated configuration.                                                                                               |
-| `arg_get`                         | Boolean flag to toggle downloading of modules for the configuration.                                                                            |
-| `arg_ignore_remote_version`       | Boolean flag to toggle checking if the local and remote TF versions use compatible state representations.                                       |
-| `arg_json`                        | Boolean flag to toggle JSON output format.                                                                                                      |
-| `arg_list`</br>Default: false     | Boolean flag to toggle listing of files whose formatting differs.                                                                               |
-| `arg_lock`                        | Boolean flag to toggle state locking during state operations.                                                                                   |
-| `arg_lock_timeout`                | String duration to retry a state lock.                                                                                                          |
-| `arg_lockfile`                    | String to set dependency lockfile mode.                                                                                                         |
-| `arg_migrate_state`               | Boolean flag to toggle reconfiguration of the backend, attempting to migrate any existing state.                                                |
-| `arg_no_tests`                    | Boolean flag to toggle validation of test files.                                                                                                |
-| `arg_or_create`                   | Boolean flag to toggle workspace creation if it doesn't exist.                                                                                  |
-| `arg_out`</br>Default: tfplan     | String path to write the generated plan.                                                                                                        |
-| `arg_parallelism`                 | String number to limit the number of concurrent operations.                                                                                     |
-| `arg_plugin_dir`                  | Comma-separated string list of directory path(s) containing plugin binaries.                                                                    |
-| `arg_reconfigure`                 | Boolean flag to toggle reconfiguration of the backend, ignoring any saved configuration.                                                        |
-| `arg_recursive`</br>Default: true | Boolean flag to toggle recursive processing of directories.                                                                                     |
-| `arg_refresh`                     | Boolean flag to skip checking of external changes to remote objects.                                                                            |
-| `arg_refresh_only`                | Boolean flag to toggle checking of remote objects still match the current configuration without proposing any actions to undo external changes. |
-| `arg_replace`                     | Comma-separated string list of resource addresses to replace.                                                                                   |
-| `arg_state`                       | String path to read and save state.                                                                                                             |
-| `arg_state_out`                   | String path to write state.                                                                                                                     |
-| `arg_target`                      | Comma-separated string list of resource addresses to target.                                                                                    |
-| `arg_test_directory`              | String path to the test directory.                                                                                                              |
-| `arg_upgrade`                     | Boolean flag to toggle upgrading the latest module and provider versions allowed within configured constraints.                                 |
-| `arg_var`                         | Comma-separated string list of variables to set in the format 'key=value'.                                                                      |
-| `arg_var_file`                    | Comma-separated string list of file path(s) to the variable configuration.                                                                      |
-| `arg_workspace`                   | String name of the workspace to select or create.                                                                                               |
-| `arg_write`</br>Default: false    | Boolean flag to toggle writing of formatted files.                                                                                              |
+> [!NOTE]
+>
+> - Arguments are passed to the appropriate TF command(s) automatically, whether that's `init`, `workspace`, `validate`, `plan`, or `apply`.</br>
+> - For repeated arguments like `arg-var`, `arg-replace` and `arg-target`, use commas to separate multiple values (e.g., `arg-var: key1=value1,key2=value2`).
+
+<details><summary>Toggle view of all available arguments.</summary>
+
+| Name                      | Description                              |
+| ------------------------- | ---------------------------------------- |
+| `arg-auto-approve`        | `-auto-approve`                          |
+| `arg-backend-config`      | `-backend-config`                        |
+| `arg-backend`             | `-backend`                               |
+| `arg-backup`              | `-backup`                                |
+| `arg-chdir`               | `-chdir`                                 |
+| `arg-check`               | `-check`</br>Default: `true`             |
+| `arg-compact-warnings`    | `-compact-warnings`                      |
+| `arg-concise`             | `-concise`                               |
+| `arg-destroy`             | `-destroy`                               |
+| `arg-detailed-exitcode`   | `-detailed-exitcode`</br>Default: `true` |
+| `arg-diff`                | `-diff`</br>Default: `true`              |
+| `arg-force-copy`          | `-force-copy`                            |
+| `arg-from-module`         | `-from-module`                           |
+| `arg-generate-config-out` | `-generate-config-out`                   |
+| `arg-get`                 | `-get`                                   |
+| `arg-list`                | `-list`                                  |
+| `arg-lock-timeout`        | `-lock-timeout`                          |
+| `arg-lock`                | `-lock`                                  |
+| `arg-lockfile`            | `-lockfile`                              |
+| `arg-migrate-state`       | `-migrate-state`                         |
+| `arg-no-tests`            | `-no-tests`                              |
+| `arg-or-create`           | `-or-create`</br>Default: `true`         |
+| `arg-parallelism`         | `-parallelism`                           |
+| `arg-plugin-dir`          | `-plugin-dir`                            |
+| `arg-reconfigure`         | `-reconfigure`                           |
+| `arg-recursive`           | `-recursive`</br>Default: `true`         |
+| `arg-refresh-only`        | `-refresh-only`                          |
+| `arg-refresh`             | `-refresh`                               |
+| `arg-replace`             | `-replace`                               |
+| `arg-state-out`           | `-state-out`                             |
+| `arg-state`               | `-state`                                 |
+| `arg-target`              | `-target`                                |
+| `arg-test-directory`      | `-test-directory`                        |
+| `arg-upgrade`             | `-upgrade`                               |
+| `arg-var-file`            | `-var-file`                              |
+| `arg-var`                 | `-var`                                   |
+| `arg-workspace`           | `-workspace`                             |
+| `arg-write`               | `-write`                                 |
+</details>
 
 ### Outputs
 
-| Name          | Description                                             |
-| ------------- | ------------------------------------------------------- |
-| `check_id`    | String output of the workflow check run ID.             |
-| `comment_id`  | String output of the PR comment ID.                     |
-| `exitcode`    | String output of the last TF command's exit code.       |
-| `fmt_result`  | String output of the TF fmt command.                    |
-| `header`      | String output of the TF command input.                  |
-| `identifier`  | String output of the TF run's unique identifier.        |
-| `last_result` | String output of the last TF command.                   |
-| `outline`     | String outline of the TF plan.                          |
-| `stderr`      | String output of the last TF command's standard error.  |
-| `stdout`      | String output of the last TF command's standard output. |
-| `summary`     | String summary of the last TF command.                  |
+| Name         | Description                                   |
+| ------------ | --------------------------------------------- |
+| `check-id`   | ID of the check run.                          |
+| `comment-id` | ID of the PR comment.                         |
+| `exitcode`   | Exit code of the last TF command.             |
+| `identifier` | Unique name of the workflow run and artifact. |
 
 ## Security
 
@@ -205,17 +190,16 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 > All forms of **contribution are very welcome** and deeply appreciated for fostering open-source projects.
 >
 > - [Create a PR](https://github.com/devsectop/tf-via-pr/pulls "Create a pull request.") to contribute changes you'd like to see.
-> - [Raise an issue](https://github.com/devsectop/tf-via-pr/issues "Raise an issue.") to discuss proposed changes or report unexpected behavior.
-> - [Open a discussion](https://github.com/devsectop/tf-via-pr/discussions "Open a discussion.") to share ideas about where you'd like to see this project go.
+> - [Raise an issue](https://github.com/devsectop/tf-via-pr/issues "Raise an issue.") to propose changes or report unexpected behavior.
+> - [Open a discussion](https://github.com/devsectop/tf-via-pr/discussions "Open a discussion.") to discuss broader topics or questions.
 > - [Become a stargazer](https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer.") if you find this project useful.
 
 ## License
 
-- This project is licensed under the permissive [Apache License 2.0](LICENSE.txt "Apache License 2.0.").
+- This project is licensed under the permissive [Apache License 2.0](../LICENSE.txt "Apache License 2.0.").
 - All works herein are my own, shared of my own volition, and [contributors](https://github.com/devsectop/tf-via-pr/graphs/contributors "Contributors.").
 - Copyright 2022-2024 [Rishav Dhar](https://github.com/rdhar "Rishav Dhar's GitHub profile.") — All wrongs reserved.
 
-[configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [opentofu_org]: https://opentofu.org "Open-source Terraform-compatible IaC tool."
 [pr_example_1]: https://github.com/devsectop/tf-via-pr/pull/164 "Example PR for this use-case."
 [pr_example_2]: https://github.com/devsectop/tf-via-pr/pull/166 "Example PR for this use-case."
