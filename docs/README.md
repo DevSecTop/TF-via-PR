@@ -132,51 +132,54 @@ unzip <tf.plan>
 
 ### Inputs - Arguments
 
-| Name                              | Description                                                                                                                                     |
-| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `arg_auto_approve`                | Boolean flag to toggle skipping of interactive approval of plan before applying.                                                                |
-| `arg_backend`                     | Boolean flag to toggle TF backend initialization.                                                                                               |
-| `arg_backend_config`              | Comma-separated string list of file path(s) to the backend configuration.                                                                       |
-| `arg_backup`                      | Boolean flag to toggle backup of the existing state file before modifying.                                                                      |
-| `arg_chdir`                       | String path to the working directory where the TF command should be run.                                                                        |
-| `arg_check`                       | Boolean flag to toggle checking of file formatting with appropriate exit code.                                                                  |
-| `arg_cloud`                       | Boolean flag to toggle TF backend initialization.                                                                                               |
-| `arg_command`</br>Default: plan   | String name of the TF command to run (either 'plan' or 'apply').                                                                                |
-| `arg_compact_warnings`            | Boolean flag to toggle compact output for warnings.                                                                                             |
-| `arg_concise`                     | Boolean flag to toggle skipping of refresh log lines.                                                                                           |
-| `arg_destroy`                     | Boolean flag to toggle destruction of all managed objects.                                                                                      |
-| `arg_detailed_exitcode`           | String to set the detailed exit code mode.                                                                                                      |
-| `arg_diff`</br>Default: true      | Boolean flag to toggle display diff of formatting changes.                                                                                      |
-| `arg_force_copy`                  | Boolean flag to toggle suppression of prompts about copying state data.                                                                         |
-| `arg_from_module`                 | String path to copy contents from the given module source into the target directory.                                                            |
-| `arg_generate_config_out`         | String path to write the generated configuration.                                                                                               |
-| `arg_get`                         | Boolean flag to toggle downloading of modules for the configuration.                                                                            |
-| `arg_ignore_remote_version`       | Boolean flag to toggle checking if the local and remote TF versions use compatible state representations.                                       |
-| `arg_json`                        | Boolean flag to toggle JSON output format.                                                                                                      |
-| `arg_list`</br>Default: false     | Boolean flag to toggle listing of files whose formatting differs.                                                                               |
-| `arg_lock`                        | Boolean flag to toggle state locking during state operations.                                                                                   |
-| `arg_lock_timeout`                | String duration to retry a state lock.                                                                                                          |
-| `arg_lockfile`                    | String to set dependency lockfile mode.                                                                                                         |
-| `arg_migrate_state`               | Boolean flag to toggle reconfiguration of the backend, attempting to migrate any existing state.                                                |
-| `arg_no_tests`                    | Boolean flag to toggle validation of test files.                                                                                                |
-| `arg_or_create`                   | Boolean flag to toggle workspace creation if it doesn't exist.                                                                                  |
-| `arg_out`</br>Default: tfplan     | String path to write the generated plan.                                                                                                        |
-| `arg_parallelism`                 | String number to limit the number of concurrent operations.                                                                                     |
-| `arg_plugin_dir`                  | Comma-separated string list of directory path(s) containing plugin binaries.                                                                    |
-| `arg_reconfigure`                 | Boolean flag to toggle reconfiguration of the backend, ignoring any saved configuration.                                                        |
-| `arg_recursive`</br>Default: true | Boolean flag to toggle recursive processing of directories.                                                                                     |
-| `arg_refresh`                     | Boolean flag to skip checking of external changes to remote objects.                                                                            |
-| `arg_refresh_only`                | Boolean flag to toggle checking of remote objects still match the current configuration without proposing any actions to undo external changes. |
-| `arg_replace`                     | Comma-separated string list of resource addresses to replace.                                                                                   |
-| `arg_state`                       | String path to read and save state.                                                                                                             |
-| `arg_state_out`                   | String path to write state.                                                                                                                     |
-| `arg_target`                      | Comma-separated string list of resource addresses to target.                                                                                    |
-| `arg_test_directory`              | String path to the test directory.                                                                                                              |
-| `arg_upgrade`                     | Boolean flag to toggle upgrading the latest module and provider versions allowed within configured constraints.                                 |
-| `arg_var`                         | Comma-separated string list of variables to set in the format 'key=value'.                                                                      |
-| `arg_var_file`                    | Comma-separated string list of file path(s) to the variable configuration.                                                                      |
-| `arg_workspace`                   | String name of the workspace to select or create.                                                                                               |
-| `arg_write`</br>Default: false    | Boolean flag to toggle writing of formatted files.                                                                                              |
+> [!NOTE]
+>
+> - Arguments are passed to the appropriate TF command(s) automatically, whether that's `init`, `workspace`, `validate`, `plan`, or `apply`.</br>
+> - For repeated arguments like `arg-var`, `arg-replace` and `arg-target`, use commas to separate multiple values (e.g., `arg-var: key1=value1,key2=value2`).
+
+<details><summary>Toggle view of all available arguments.</summary>
+
+| Name                      | Description                              |
+| ------------------------- | ---------------------------------------- |
+| `arg-auto-approve`        | `-auto-approve`                          |
+| `arg-backend-config`      | `-backend-config`                        |
+| `arg-backend`             | `-backend`                               |
+| `arg-backup`              | `-backup`                                |
+| `arg-chdir`               | `-chdir`                                 |
+| `arg-check`               | `-check`</br>Default: `true`             |
+| `arg-compact-warnings`    | `-compact-warnings`                      |
+| `arg-concise`             | `-concise`                               |
+| `arg-destroy`             | `-destroy`                               |
+| `arg-detailed-exitcode`   | `-detailed-exitcode`</br>Default: `true` |
+| `arg-diff`                | `-diff`</br>Default: `true`              |
+| `arg-force-copy`          | `-force-copy`                            |
+| `arg-from-module`         | `-from-module`                           |
+| `arg-generate-config-out` | `-generate-config-out`                   |
+| `arg-get`                 | `-get`                                   |
+| `arg-list`                | `-list`                                  |
+| `arg-lock-timeout`        | `-lock-timeout`                          |
+| `arg-lock`                | `-lock`                                  |
+| `arg-lockfile`            | `-lockfile`                              |
+| `arg-migrate-state`       | `-migrate-state`                         |
+| `arg-no-tests`            | `-no-tests`                              |
+| `arg-or-create`           | `-or-create`</br>Default: `true`         |
+| `arg-parallelism`         | `-parallelism`                           |
+| `arg-plugin-dir`          | `-plugin-dir`                            |
+| `arg-reconfigure`         | `-reconfigure`                           |
+| `arg-recursive`           | `-recursive`</br>Default: `true`         |
+| `arg-refresh-only`        | `-refresh-only`                          |
+| `arg-refresh`             | `-refresh`                               |
+| `arg-replace`             | `-replace`                               |
+| `arg-state-out`           | `-state-out`                             |
+| `arg-state`               | `-state`                                 |
+| `arg-target`              | `-target`                                |
+| `arg-test-directory`      | `-test-directory`                        |
+| `arg-upgrade`             | `-upgrade`                               |
+| `arg-var-file`            | `-var-file`                              |
+| `arg-var`                 | `-var`                                   |
+| `arg-workspace`           | `-workspace`                             |
+| `arg-write`               | `-write`                                 |
+</details>
 
 ### Outputs
 
