@@ -11,10 +11,10 @@
 <table>
   <tr>
     <th>
-      <h2>What does it do?</h2>
+      <h3>What does it do?</h3>
     </th>
     <th>
-      <h2>Who is it for?</h2>
+      <h3>Who is it for?</h3>
     </th>
   </tr>
   <tr>
@@ -27,7 +27,7 @@
     <td>
       <ul>
         <li>DevOps and Platform engineers wanting to empower their teams to self-service scalably.</li>
-        <li>Teams looking to automate Terraform/OpenTofu workflows with best practices.</li>
+        <li>Maintainers looking to secure their pipeline without the overhead of containers or VMs.</li>
       </ul>
     </td>
   </tr>
