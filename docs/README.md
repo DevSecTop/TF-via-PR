@@ -8,11 +8,9 @@
 
 # Terraform/OpenTofu via Pull Request (TF-via-PR)
 
-<details open><summary>
-<h3>Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a></h3>
-</summary></br>
+<details open><summary><h3>Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a></h3></summary></br>
 
-[![PR comment of plan output with "Diff of changes" section expanded.](comment.png)](https://raw.githubusercontent.com/DevSecTop/TF-via-PR/refs/heads/docs--tidy-up/docs/comment.png "View full-size image.")
+[![PR comment of plan output with "Diff of changes" section expanded.](assets/comment.png)](https://raw.githubusercontent.com/DevSecTop/TF-via-PR/refs/heads/docs--tidy-up/docs/assets/comment.png "View full-size image.")
 </details>
 
 <table>
@@ -117,6 +115,11 @@ unzip <tf.plan>
 | UI       | `label-pr`          | Add a PR label with the command input.</br>Default: `true`                                                     |
 | UI       | `hide-args`         | Hide comma-separated arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var`           |
 
+<details open><summary>The default behavior of `comment-pr` is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</summary></br>
+
+[![PR comment revision history comparing plan and apply outputs.](assets/revisions.png)](https://raw.githubusercontent.com/DevSecTop/TF-via-PR/refs/heads/docs--tidy-up/docs/assets/revisions.png "View full-size image.")
+</details>
+
 ### Inputs - Arguments
 
 > [!NOTE]
@@ -199,8 +202,3 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 - This project is licensed under the permissive [Apache License 2.0](../LICENSE.txt "Apache License 2.0.").
 - All works herein are my own, shared of my own volition, and [contributors](https://github.com/devsectop/tf-via-pr/graphs/contributors "Contributors.").
 - Copyright 2022-2024 [Rishav Dhar](https://github.com/rdhar "Rishav Dhar's GitHub profile.") — All wrongs reserved.
-
-[opentofu_org]: https://opentofu.org "Open-source Terraform-compatible IaC tool."
-[pr_example_1]: https://github.com/devsectop/tf-via-pr/pull/164 "Example PR for this use-case."
-[pr_example_2]: https://github.com/devsectop/tf-via-pr/pull/166 "Example PR for this use-case."
-[terraform_io]: https://www.terraform.io "Terraform by Hashicorp."
