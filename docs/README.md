@@ -115,7 +115,7 @@ unzip <tf.plan>
 | UI       | `label-pr`          | Add a PR label with the command input.</br>Default: `true`                                                     |
 | UI       | `hide-args`         | Hide comma-separated arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var`           |
 
-<details open><summary>The default behavior of `comment-pr` is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</summary></br>
+<details open><summary>The default behavior of <code>comment-pr</code> is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</summary></br>
 
 [![PR comment revision history comparing plan and apply outputs.](assets/revisions.png)](https://raw.githubusercontent.com/DevSecTop/TF-via-PR/refs/heads/docs--tidy-up/docs/assets/revisions.png "View full-size image.")
 </details>
