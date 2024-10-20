@@ -8,7 +8,7 @@
 
 # Terraform/OpenTofu via Pull Request (TF-via-PR)
 
-<table border="0">
+<table>
   <tr>
     <th>
       <h3>What does it do?</h3>
@@ -21,7 +21,7 @@
     <td>
       <ul>
         <li>Plan and apply changes with CLI arguments and encrypted plan file to avoid configuration drift.</li>
-        <li>Outline changes concisely with diff in up-to-date PR comment and (matrix-friendly) workflow summary.</li>
+        <li>Outline ±diff changes concisely within up-to-date PR comments and matrix-friendly workflow summary.</li>
       </ul>
     </td>
     <td>
@@ -33,11 +33,13 @@
   </tr>
 </table>
 
+[`HIGHLIGHTS`](#highlights) · [`USAGE`](#usage) · [`PARAMETERS`](#parameters) · [`SECURITY`](#security) · [`CHANGELOG`](#changelog) · [`LICENSE`](#license)
+
 > [!NOTE]
 >
 > GitHub Action to plan and apply Terraform/OpenTofu via PR automation, using best practices for secure and scalable infrastructure-as-code (IaC) workflows.
 >
-> Overview: [Highlights](#highlights) · [Usage](#usage) · [Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
+> Overview:
 
 <figure>
   <a href="assets/screenshot_light.png" target="_blank">
