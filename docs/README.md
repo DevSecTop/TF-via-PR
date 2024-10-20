@@ -78,7 +78,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - uses: devsectop/tf-via-pr@v12
         with:
-          # Only plan by default, and apply with lock on merge.
+          # Only plan by default, or apply with lock on merge.
           command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
           arg-lock: ${{ github.event_name == 'push' }}
           arg-var-file: env/dev.tfvars
