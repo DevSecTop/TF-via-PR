@@ -33,7 +33,7 @@
   </tr>
 </table>
 
-Overview: [`USAGE EXAMPLES`](#usage) · [`PARAMETER IN/OUTPUTS`](#parameters) · [`SECURITY`](#security) · [`CHANGELOG`](#changelog) · [`LICENSE`](#license)
+Overview: [Usage Examples](#usage) · [Parameter In/Outputs](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
 <figure>
   <a href="assets/screenshot_light.png" target="_blank">
