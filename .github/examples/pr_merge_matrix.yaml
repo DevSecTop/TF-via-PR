@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      actions: read # Required to download repository artifact.
-      checks: write # Required to add status summary.
-      contents: read # Required to checkout repository.
-      pull-requests: write # Required to add PR comment and label.
+      actions: read        # Required to identify workflow run.
+      checks: write        # Required to add status summary.
+      contents: read       # Required to checkout repository.
+      pull-requests: write # Required to add comment and label.
 
     strategy:
       fail-fast: false
@@ -30,11 +30,12 @@ jobs:
         uses: opentofu/setup-opentofu@v1
 
       - name: Provision TF
-        uses: devsectop/tf-via-pr@v11
+        uses: devsectop/tf-via-pr@v12
         with:
-          arg_chdir: directory/path
           arg_command: ${{ github.event_name == 'merge_group' && 'apply' || 'plan' }}
-          arg_lock: ${{ github.event_name == 'merge_group' && 'true' || 'false' }}
-          arg_var_file: env/${{ matrix.deployment }}.tfvars
-          arg_workspace: ${{ matrix.deployment }}
-          plan_parity: true
+          arg-lock: ${{ github.event_name == 'merge_group' }}
+          arg-var-file: env/${{ matrix.deployment }}.tfvars
+          arg-workspace: ${{ matrix.deployment }}
+          working-directory: path/to/directory
+          plan-encrypt: ${{ secrets.PASSPHRASE }}
+          plan-parity: true

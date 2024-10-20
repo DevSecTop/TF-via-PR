@@ -8,11 +8,9 @@
 
 # Terraform/OpenTofu via Pull Request (TF-via-PR)
 
-<details open><summary>
-<h3>Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a></h3>
-</summary></br>
+<details open><summary><h3>Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a></h3></summary></br>
 
-[![PR comment of plan output with "Diff of changes" section expanded.](comment.png)](https://raw.githubusercontent.com/DevSecTop/TF-via-PR/refs/heads/docs--tidy-up/docs/comment.png "View full-size image.")
+[![PR comment of plan output with "Diff of changes" section expanded.](assets/comment.png)](https://github.com/devsectop/tf-via-pr/blob/main/docs/comment.png?raw=true "View full-size image.")
 </details>
 
 <table>
@@ -83,15 +81,16 @@ jobs:
 
 The functional workflow examples below showcase common use cases, while a comprehensive list of inputs is also [documented](#parameters).
 
-- [Trigger](.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS **authentication**.
-- [Trigger](.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in **matrix** strategy.
-- [Trigger](.github/examples/pr_tenv.yaml) on `pull_request` (plan or apply) event with [tenv](https://tofuutils.github.io/tenv/) to avoid TF **wrapper** on **self-hosted** runners.
+- [Trigger](/.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS **authentication**.
+- [Trigger](/.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in **matrix** strategy.
+- [Trigger](/.github/examples/pr_self_hosted.yaml) on `pull_request` (plan or apply) event event with Terraform and OpenTofu on **self-hosted** runner.
+- [Trigger](/.github/examples/schedule_refresh.yaml) on `schedule` (cron) event with "fmt" and "validate" checks to identify **configuration drift**.
 
 ### How does encryption work?
 
-Before the workflow uploads the TF plan file as an artifact, it can be encrypted with a passphrase to prevent exposure of sensitive data using `plan-encrypt` input with a secret (e.g., `${{ secrets.PASSPHRASE }}`). This is done with [OpenSSL](https://docs.openssl.org/master/man1/openssl-enc/ "OpenSSL encryption documentation.")'s symmetric stream counter mode encryption with salt and pbkdf2.
+Before the workflow uploads the plan file as an artifact, it can be encrypted with a passphrase to prevent exposure of sensitive data using `plan-encrypt` input with a secret (e.g., `${{ secrets.PASSPHRASE }}`). This is done with [OpenSSL](https://docs.openssl.org/master/man1/openssl-enc/ "OpenSSL encryption documentation.")'s symmetric stream counter mode encryption with salt and pbkdf2.
 
-In order to locally decrypt the TF plan file, use the following commands after downloading the artifact (noting the whitespace before `openssl` to prevent recording the command in shell history):
+In order to decrypt the plan file locally, use the following commands after downloading the artifact (noting the whitespace before `openssl` to prevent recording the command in shell history):
 
 ```fish
 unzip <tf.plan>
@@ -116,6 +115,11 @@ unzip <tf.plan>
 | UI       | `comment-pr`        | PR comment by: `update` existing comment, `recreate` and delete previous one, or `none`.</br>Default: `update` |
 | UI       | `label-pr`          | Add a PR label with the command input.</br>Default: `true`                                                     |
 | UI       | `hide-args`         | Hide comma-separated arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var`           |
+
+<details open><summary>The default behavior of <code>comment-pr</code> is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</summary></br>
+
+[![PR comment revision history comparing plan and apply outputs.](assets/revisions.png)](https://github.com/devsectop/tf-via-pr/blob/main/docs/revisions.png?raw=true "View full-size image.")
+</details>
 
 ### Inputs - Arguments
 
@@ -199,8 +203,3 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 - This project is licensed under the permissive [Apache License 2.0](../LICENSE.txt "Apache License 2.0.").
 - All works herein are my own, shared of my own volition, and [contributors](https://github.com/devsectop/tf-via-pr/graphs/contributors "Contributors.").
 - Copyright 2022-2024 [Rishav Dhar](https://github.com/rdhar "Rishav Dhar's GitHub profile.") — All wrongs reserved.
-
-[opentofu_org]: https://opentofu.org "Open-source Terraform-compatible IaC tool."
-[pr_example_1]: https://github.com/devsectop/tf-via-pr/pull/164 "Example PR for this use-case."
-[pr_example_2]: https://github.com/devsectop/tf-via-pr/pull/166 "Example PR for this use-case."
-[terraform_io]: https://www.terraform.io "Terraform by Hashicorp."

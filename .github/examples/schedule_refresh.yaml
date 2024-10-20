@@ -1,10 +1,9 @@
 ---
-name: Trigger on pull_request (plan) and push (apply) events with Terraform and AWS authentication.
+name: Trigger on schedule (cron) event with 'fmt' and 'validate' checks to identify configuration drift.
 
 on:
-  pull_request:
-  push:
-    branches: [main]
+  schedule:
+    - cron: "0 */8 * * 1-5" # Every 8 hours on weekdays.
 
 jobs:
   tf:
@@ -14,26 +13,28 @@ jobs:
       actions: read        # Required to identify workflow run.
       checks: write        # Required to add status summary.
       contents: read       # Required to checkout repository.
-      id-token: write      # Required to authenticate via OIDC.
       pull-requests: write # Required to add comment and label.
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Authenticate AWS
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          role-to-assume: ${{ secrets.AWS_ROLE }}
-
       - name: Setup TF
         uses: hashicorp/setup-terraform@v3
 
       - name: Provision TF
+        id: provision
         uses: devsectop/tf-via-pr@v12
         with:
-          command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
-          arg-lock: ${{ github.event_name == 'push' }}
+          command: plan
+          arg-lock: false
+          arg-parallelism: 20
+          arg-refresh-only: true
           working-directory: path/to/directory
           plan-encrypt: ${{ secrets.PASSPHRASE }}
+          format: true
+          validate: true
+
+      - name: Check drift
+        if: steps.provision.outputs.exitcode != 0
+        run: echo "Configuration drift detected."
