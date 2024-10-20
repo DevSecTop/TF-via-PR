@@ -83,7 +83,7 @@ jobs:
           arg-lock: ${{ github.event_name == 'push' }}
           arg-var-file: env/dev.tfvars
           arg_workspace: dev-use1
-          working-directory: stacks/path
+          working-directory: path/to/directory
           plan-encrypt: ${{ secrets.PASSPHRASE }}
 ```
 
@@ -114,20 +114,19 @@ In order to locally decrypt the TF plan file, use the following command (noting 
 
 ### Inputs - Configuration
 
-| Name                                                   | Description                                                                                            |
-| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| `cache_plugins`</br>Default: `false`                   | Boolean flag to cache TF plugins for faster workflow runs (requires .terraform.lock.hcl file).         |
-| `comment_pr`</br>Default: `true`                       | Boolean flag to add PR comment of TF command output.                                                   |
-| `encrypt_passphrase`</br>Example: `${{ secrets.KEY }}` | String passphrase to encrypt the TF plan file.                                                         |
-| `fmt_enable`</br>Default: `true`                       | Boolean flag to enable TF fmt command and display diff of changes.                                     |
-| `label_pr`</br>Default: `true`                         | Boolean flag to add PR label of TF command to run.                                                     |
-| `plan_parity`</br>Default: `false`                     | Boolean flag to compare the TF plan file with a newly-generated one to prevent stale apply.            |
-| `tenv_arch`</br>Default: `amd64`                       | String architecture of the tenv tool to install and use.                                               |
-| `tenv_version`</br>Example: `v3.2.3`                   | String version tag of the tenv tool to install and use.                                                |
-| `tf_tool`</br>Default: `terraform`                     | String name of the TF tool to use and override default assumption from wrapper environment variable.   |
-| `tf_version`</br>Example: `~> 1.8.0`                   | String version constraint of the TF tool to install and use.                                           |
-| `update_comment`</br>Default: `false`                  | Boolean flag to update existing PR comment instead of creating a new comment and deleting the old one. |
-| `validate_enable`</br>Default: `false`                 | Boolean flag to enable TF validate command check.                                                      |
+| Name                                                       | Description                                                                                  |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `command` </br>Default: `plan`                             | Command to run between: `plan` or `apply`.                                                   |
+| `comment-pr` </br>Default: `update`                        | PR comment by: `recreate` and delete previous comment, `update` existing comment, or `none`. |
+| `format` </br>Default: `false`                             | Check format of TF code.                                                                     |
+| `hide-args` </br>Default: `detailed-exitcode,lock,out,var` | Hide comma-separated arguments from the command input.                                       |
+| `label-pr` </br>Default: `true`                            | Add a PR label with the command input.                                                       |
+| `plan-encrypt` </br>Example: `${{ secrets.PASSPHRASE }}`   | Encrypt plan file artifact with the given input.                                             |
+| `plan-parity` </br>Default: `false`                        | Compare the plan file with a newly-generated one to prevent stale apply.                     |
+| `token` </br>Default: `${{ github.token }}`                | Specify a GitHub token.                                                                      |
+| `tool` </br>Default: `terraform`                           | Choose the tool to provision TF code.                                                        |
+| `validate` </br>Default: `false`                           | Check validation of TF code.                                                                 |
+| `working-directory` </br>Example: `path/to/directory`      | Specify the working directory of TF code.                                                    |
 
 ### Inputs - Arguments
 
@@ -179,19 +178,12 @@ In order to locally decrypt the TF plan file, use the following command (noting 
 
 ### Outputs
 
-| Name          | Description                                             |
-| ------------- | ------------------------------------------------------- |
-| `check_id`    | String output of the workflow check run ID.             |
-| `comment_id`  | String output of the PR comment ID.                     |
-| `exitcode`    | String output of the last TF command's exit code.       |
-| `fmt_result`  | String output of the TF fmt command.                    |
-| `header`      | String output of the TF command input.                  |
-| `identifier`  | String output of the TF run's unique identifier.        |
-| `last_result` | String output of the last TF command.                   |
-| `outline`     | String outline of the TF plan.                          |
-| `stderr`      | String output of the last TF command's standard error.  |
-| `stdout`      | String output of the last TF command's standard output. |
-| `summary`     | String summary of the last TF command.                  |
+| Name         | Description                                   |
+| ------------ | --------------------------------------------- |
+| `check-id`   | ID of the check run.                          |
+| `comment-id` | ID of the PR comment.                         |
+| `exitcode`   | Exit code of the last TF command.             |
+| `identifier` | Unique name of the workflow run and artifact. |
 
 ## Security
 
