@@ -21,7 +21,7 @@
     <td>
       <ul>
         <li>Plan and apply changes with CLI arguments and encrypted plan file to avoid configuration drift.</li>
-        <li>Outline changes concisely with diff highlighting in PR comments and (matrix-compatible) workflow summary.</li>
+        <li>Outline changes concisely with diff in up-to-date PR comment and (matrix-friendly) workflow summary.</li>
       </ul>
     </td>
     <td>
