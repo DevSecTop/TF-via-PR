@@ -64,25 +64,27 @@ on:
     branches: [main]
 
 jobs:
-  tf:
+  provision:
     runs-on: ubuntu-latest
 
     permissions:
-      actions: read # Required to download repository artifact.
-      checks: write # Required to add status summary.
-      contents: read # Required to checkout repository.
-      pull-requests: write # Required to add PR comment and label.
+      actions: read        # Required to identify workflow run.
+      checks: write        # Required to add status summary.
+      contents: read       # Required to checkout repository.
+      pull-requests: write # Required to add comment and label.
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: opentofu/setup-opentofu@v1
-      - uses: devsectop/tf-via-pr@v11
+      - uses: actions/checkout@4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: devsectop/tf-via-pr@v12
         with:
-          arg_chdir: sample/directory/path
-          arg_command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
-          arg_lock: ${{ github.event_name == 'push' && 'true' || 'false' }}
-          arg_var_file: env/dev.tfvars
-          arg_workspace: development
+          # Only plan by default, and apply with lock on merge.
+          command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
+          arg-lock: ${{ github.event_name == 'push' }}
+          arg-var-file: env/dev.tfvars
+          arg_workspace: dev-use1
+          working-directory: stacks/path
+          plan-encrypt: ${{ secrets.PASSPHRASE }}
 ```
 
 > [!TIP]
