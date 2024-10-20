@@ -33,13 +33,7 @@
   </tr>
 </table>
 
-[`HIGHLIGHTS`](#highlights) · [`USAGE`](#usage) · [`PARAMETERS`](#parameters) · [`SECURITY`](#security) · [`CHANGELOG`](#changelog) · [`LICENSE`](#license)
-
-> [!NOTE]
->
-> GitHub Action to plan and apply Terraform/OpenTofu via PR automation, using best practices for secure and scalable infrastructure-as-code (IaC) workflows.
->
-> Overview:
+Overview: [`USAGE EXAMPLES`](#usage) · [`PARAMETER IN/OUTPUTS`](#parameters) · [`SECURITY`](#security) · [`CHANGELOG`](#changelog) · [`LICENSE`](#license)
 
 <figure>
   <a href="assets/screenshot_light.png" target="_blank">
