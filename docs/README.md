@@ -38,7 +38,7 @@
 <h3>Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a></h3>
 </summary></br>
 
-<img src="comment.png" alt="PR comment of plan output with 'Diff of changes' section expanded." width="400" height="auto">
+<img src="comment.png" alt="PR comment of plan output with 'Diff of changes' section expanded." width="700" height="auto">
 
 ![PR comment of plan output with "Diff of changes" section expanded.](comment.png)
 *PR comment of plan output with "Diff of changes" section expanded.*
