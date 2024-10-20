@@ -106,7 +106,7 @@ Before the workflow uploads the TF plan file as an artifact, it can be encrypted
 In order to locally decrypt the TF plan file, use the following command (noting the whitespace prefix to prevent recording the command in shell history):
 
 ```sh
- openssl enc -aes-256-ctr -pbkdf2 -salt -in <tfplan> -out <tfplan.decrypted> -pass pass:<passphrase> -d
+ openssl enc -aes-256-ctr -pbkdf2 -salt -in <tfplan> -out <tfplan.decrypted> -pass pass:"<passphrase>" -d
 ```
 
 ## Parameters
@@ -194,46 +194,29 @@ In order to locally decrypt the TF plan file, use the following command (noting 
 
 ## Security
 
-Integrating security in your CI/CD pipeline is critical to practicing DevSecOps. This action aims to be secure by default, and it should be complemented with your own review to ensure it meets your (organization's) security requirements.
-
-- Action dependencies are maintained by GitHub and [pinned to a specific SHA][securing_github_actions]: [actions/cache](https://github.com/actions/cache), [actions/github-script](https://github.com/actions/github-script) and [actions/upload-artifact](https://github.com/actions/upload-artifact).
-- Restrict changes to certain environments with [deployment protection rules][deployment_protection] so that approval is required before changes to the infrastructure can be applied.
-- Ease of integration with [OpenID Connect][configure_oidc] by passing short-lived credentials as environment variables to the workflow.
+View [security policy and reporting instructions](SECURITY.md).
 
 ## Changelog
 
-- All notable changes to this project are documented in human-friendly [releases][releases].
-- The format is based on [Keep a Changelog](https://keepachangelog.com), and this project adheres to [Semantic Versioning](https://semver.org).
+View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Releases.") to this project in [Keep a Changelog](https://keepachangelog.com "Keep a Changelog.") format, which adheres to [Semantic Versioning](https://semver.org "Semantic Versioning.").
 
 > [!TIP]
 >
-> All forms of contribution are very welcome and deeply appreciated for fostering open-source projects.
+> All forms of **contribution are very welcome** and deeply appreciated for fostering open-source projects.
 >
-> - Please [create a PR][pull_request] to contribute changes you'd like to see.
-> - Please [raise an issue][issue] to discuss proposed changes or report unexpected behavior.
-> - Please [open a discussion][discussion] to share ideas about where you'd like to see this project go.
-> - Please [consider becoming a stargazer][stargazer] if you find this project useful.
+> - [Create a PR](https://github.com/devsectop/tf-via-pr/pulls "Create a pull request.") to contribute changes you'd like to see.
+> - [Raise an issue](https://github.com/devsectop/tf-via-pr/issues "Raise an issue.") to discuss proposed changes or report unexpected behavior.
+> - [Open a discussion](https://github.com/devsectop/tf-via-pr/discussions "Open a discussion.") to share ideas about where you'd like to see this project go.
+> - [Become a stargazer](https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer.") if you find this project useful.
 
 ## License
 
-- This project is licensed under the permissive [Apache License 2.0][license].
-- All works herein are my own, shared of my own volition, and [contributors][contributors].
-- Copyright 2022-2024 [Rishav Dhar][rishav_dhar] — All wrongs reserved.
+- This project is licensed under the permissive [Apache License 2.0](LICENSE.txt "Apache License 2.0.").
+- All works herein are my own, shared of my own volition, and [contributors](https://github.com/devsectop/tf-via-pr/graphs/contributors "Contributors.").
+- Copyright 2022-2024 [Rishav Dhar](https://github.com/rdhar "Rishav Dhar's GitHub profile.") — All wrongs reserved.
 
 [configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
-[configure_oidc]: https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-cloud-providers "Configuring OpenID Connect in cloud providers."
-[contributors]: https://github.com/devsectop/tf-via-pr/graphs/contributors "Contributors."
-[deployment_protection]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#deployment-protection-rules "Configuring environment deployment protection rules."
-[discussion]: https://github.com/devsectop/tf-via-pr/discussions "Open a discussion."
-[issue]: https://github.com/devsectop/tf-via-pr/issues "Raise an issue."
-[license]: LICENSE "Apache License 2.0."
 [opentofu_org]: https://opentofu.org "Open-source Terraform-compatible IaC tool."
 [pr_example_1]: https://github.com/devsectop/tf-via-pr/pull/164 "Example PR for this use-case."
 [pr_example_2]: https://github.com/devsectop/tf-via-pr/pull/166 "Example PR for this use-case."
-[pull_request]: https://github.com/devsectop/tf-via-pr/pulls "Create a pull request."
-[releases]: https://github.com/devsectop/tf-via-pr/releases "Releases."
-[rishav_dhar]: https://github.com/rdhar "Rishav Dhar's GitHub profile."
-[securing_github_actions]: https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-third-party-actions "Security hardening for GitHub Actions."
-[semver]: https://www.npmjs.com/package/semver#ranges "Semantic versioning ranges."
-[stargazer]: https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer."
 [terraform_io]: https://www.terraform.io "Terraform by Hashicorp."
