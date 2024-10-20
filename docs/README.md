@@ -90,7 +90,7 @@ jobs:
 > [!TIP]
 >
 > - Pin your workflow version to a specific release tag or SHA to harden your CI/CD pipeline [security](#security) against supply chain attacks.
-> - Environment variables can be passed in for cloud provider authentication (e.g., [aws-actions/configure-aws-credentials][configure_aws_credentials] action can be used for short-lived credentials).
+> - Environment variables can be passed in for cloud platform authentication (e.g., [configure-aws-credentials](https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions.") for short-lived credentials).
 
 ### Where to find more examples?
 
@@ -102,12 +102,13 @@ The following functional workflow examples demonstrate common use-cases, while a
 
 ### How does encryption work?
 
-Before the workflow uploads the TF plan file as an artifact, it can be encrypted with a passphrase to prevent exposure of sensitive data using `encrypt_passphrase` input with a secret (e.g., `${{ secrets.KEY }}`). This is done with [OpenSSL](https://docs.openssl.org/master/man1/openssl-enc/)'s symmetric stream counter mode encryption with salt and pbkdf2.
+Before the workflow uploads the TF plan file as an artifact, it can be encrypted with a passphrase to prevent exposure of sensitive data using `plan-encrypt` input with a secret (e.g., `${{ secrets.PASSPHRASE }}`). This is done with [OpenSSL](https://docs.openssl.org/master/man1/openssl-enc/ "OpenSSL encryption documentation.")'s symmetric stream counter mode encryption with salt and pbkdf2.
 
-In order to locally decrypt the TF plan file, use the following command (noting the whitespace prefix to prevent recording the command in shell history):
+In order to locally decrypt the TF plan file, use the following commands after downloading the artifact (noting the whitespace before `openssl` to prevent recording the command in shell history):
 
 ```sh
- openssl enc -aes-256-ctr -pbkdf2 -salt -in <tfplan> -out <tfplan.decrypted> -pass pass:"<passphrase>" -d
+unzip "<tf.plan>"
+ openssl enc -aes-256-ctr -pbkdf2 -salt -in "<tf.plan>" -out "tf.plan.decrypted" -pass pass:"<passphrase>" -d
 ```
 
 ## Parameters
@@ -208,7 +209,6 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 - All works herein are my own, shared of my own volition, and [contributors](https://github.com/devsectop/tf-via-pr/graphs/contributors "Contributors.").
 - Copyright 2022-2024 [Rishav Dhar](https://github.com/rdhar "Rishav Dhar's GitHub profile.") — All wrongs reserved.
 
-[configure_aws_credentials]: https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions."
 [opentofu_org]: https://opentofu.org "Open-source Terraform-compatible IaC tool."
 [pr_example_1]: https://github.com/devsectop/tf-via-pr/pull/164 "Example PR for this use-case."
 [pr_example_2]: https://github.com/devsectop/tf-via-pr/pull/166 "Example PR for this use-case."
