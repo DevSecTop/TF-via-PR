@@ -114,19 +114,19 @@ In order to locally decrypt the TF plan file, use the following command (noting 
 
 ### Inputs - Configuration
 
-| Type     | Name                                                       | Description                                                                              |
-| -------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| CLI      | `command` </br>Default: `plan`                             | Command to run between: `plan` or `apply`.                                               |
-| CLI      | `tool` </br>Default: `terraform`                           | Choose the tool to provision TF code.                                                    |
-| CLI      | `working-directory` </br>Example: `path/to/directory`      | Specify the working directory of TF code, alias of `arg-chdir`.                          |
-| Check    | `format` </br>Default: `false`                             | Check format of TF code.                                                                 |
-| Check    | `plan-parity` </br>Default: `false`                        | Compare the plan file with a newly-generated one to prevent stale apply.                 |
-| Check    | `validate` </br>Default: `false`                           | Check validation of TF code.                                                             |
-| Security | `plan-encrypt` </br>Example: `${{ secrets.PASSPHRASE }}`   | Encrypt plan file artifact with the given input.                                         |
-| Security | `token` </br>Default: `${{ github.token }}`                | Specify a GitHub token.                                                                  |
-| UI       | `comment-pr` </br>Default: `update`                        | PR comment by: `update` existing comment, `recreate` and delete previous one, or `none`. |
-| UI       | `hide-args` </br>Default: `detailed-exitcode,lock,out,var` | Hide comma-separated arguments from the command input.                                   |
-| UI       | `label-pr` </br>Default: `true`                            | Add a PR label with the command input.                                                   |
+| Type     | Name                | Description                                                                                                    |
+| -------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| CLI      | `command`           | Command to run between: `plan` or `apply`.</br>Default: `plan`                                                 |
+| CLI      | `tool`              | Choose the tool to provision TF code.</br>Default: `terraform`                                                 |
+| CLI      | `working-directory` | Specify the working directory of TF code, alias of `arg-chdir`.</br>Example: `path/to/directory`               |
+| Check    | `format`            | Check format of TF code.</br>Default: `false`                                                                  |
+| Check    | `plan-parity`       | Compare the plan file with a newly-generated one to prevent stale apply.</br>Default: `false`                  |
+| Check    | `validate`          | Check validation of TF code.</br>Default: `false`                                                              |
+| Security | `plan-encrypt`      | Encrypt plan file artifact with the given input.</br>Example: `${{ secrets.PASSPHRASE }}                       |
+| Security | `token`             | Specify a GitHub token.</br>Default: `${{ github.token }}`                                                     |
+| UI       | `comment-pr`        | PR comment by: `update` existing comment, `recreate` and delete previous one, or `none`.</br>Default: `update` |
+| UI       | `hide-args`         | Hide comma-separated arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var`           |
+| UI       | `label-pr`          | Add a PR label with the command input.</br>Default: `true`                                                     |
 
 ### Inputs - Arguments
 
