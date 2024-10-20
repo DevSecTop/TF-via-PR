@@ -94,7 +94,7 @@ jobs:
 
 ### Where to find more examples?
 
-The following functional workflow examples demonstrate common use-cases, while a comprehensive list of inputs is documented [below](#parameters).
+The functional workflow examples below showcase common use cases, while a comprehensive list of inputs is also [documented](#parameters).
 
 - [Trigger](.github/examples/pr_push_auth.yaml) on `pull_request` (plan) and `push` (apply) events with Terraform and AWS **authentication**.
 - [Trigger](.github/examples/pr_merge_matrix.yaml) on `pull_request` (plan) and `merge_group` (apply) events with OpenTofu in **matrix** strategy.
