@@ -1,5 +1,4 @@
 [![Terraform Compatible](https://img.shields.io/badge/Terraform-Compatible-844FBA?logo=terraform&logoColor=white)](https://github.com/hashicorp/setup-terraform "Terraform Compatible.")
-|
 [![OpenTofu Compatible](https://img.shields.io/badge/OpenTofu-Compatible-FFDA18?logo=opentofu&logoColor=white)](https://github.com/opentofu/setup-opentofu "OpenTofu Compatible.")
 |
 [![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr?logo=apache&label=License)](../LICENSE.txt "Apache License 2.0.")
