@@ -8,6 +8,31 @@
 
 # Terraform/OpenTofu via Pull Request (TF-via-PR)
 
+<table>
+  <tr>
+    <th>
+      <h2>What does it do?</h2>
+    </th>
+    <th>
+      <h2>Who is it for?</h2>
+    </th>
+  </tr>
+  <tr>
+    <td>
+      <ul>
+        <li>Outline plan changes with diff syntax highlighting in PR comment and workflow summary.</li>
+        <li>Plan and apply changes using encrypted TF plan file artifact to avoid configuration drift.</li>
+      </ul>
+    </td>
+    <td>
+      <ul>
+        <li>DevOps and Platform engineers wanting to empower their teams to self-service scalably.</li>
+        <li>Teams looking to automate Terraform/OpenTofu workflows with best practices.</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
 > [!NOTE]
 >
 > GitHub Action to plan and apply Terraform/OpenTofu via PR automation, using best practices for secure and scalable infrastructure-as-code (IaC) workflows.
@@ -26,7 +51,13 @@
     </figcaption>
 </figure>
 
-## Highlights
+### Who is it for?
+
+<details><summary>Best suited for DevOps and Platform engineers wanting to empower their teams to self-service scalably.</summary>
+
+- Each PR and associated workflow run holds a complete log of infrastructure changes for ease of collaborative debugging as well as audit compliance.
+- Removes the overhead of needing to maintain dedicated TF runners, containers or VMs like [Atlantis](https://www.runatlantis.io).
+</details>
 
 ### What does it do?
 
@@ -35,22 +66,7 @@
 - Both [Hashicorp][terraform_io] `terraform` and [OpenTofu][opentofu_org] `tofu` CLIs are supported, with the latter offering an open-source and backwards-compatible drop-in replacement for the former.
 - Prerequisite commands like `init` are run automatically, along with user-configurable options for workspace, var-file, backend-config, and [more](#parameters).
 - Multiple TF commands can be run in parallel across different workspaces, directories, or files with matrix [strategy](#usage).
-</details>
 
-</details>
-
-<details><summary>Retrieve TF plan file for apply, cache TF module plugins, and dynamically substitute input variables.</summary>
-
-- Store TF plan file as a repository artifact for later reference or for use in subsequent TF `apply` or `destroy` commands.
-- Use ".terraform.lock.hcl" file ([which should be included in version control](https://developer.hashicorp.com/terraform/language/files/dependency-lock#:~:text=include%20this%20file%20in%20your%20version%20control)) to cache TF plugins and associated dependencies for faster subsequent workflow runs.
-</details>
-
-### Who is it for?
-
-<details><summary>Best suited for DevOps and Platform engineers wanting to empower their teams to self-service scalably.</summary>
-
-- Each PR and associated workflow run holds a complete log of infrastructure changes for ease of collaborative debugging as well as audit compliance.
-- Removes the overhead of needing to maintain dedicated TF runners, containers or VMs like [Atlantis](https://www.runatlantis.io).
 </details>
 
 ## Usage
