@@ -1,17 +1,16 @@
-[![GitHub release tag](https://img.shields.io/github/v/release/devsectop/tf-via-pr?logo=semanticrelease&label=Release)](https://github.com/devsectop/tf-via-pr/releases)
-[![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr?logo=apache&label=License)](LICENSE)
-[![CodeQL](https://github.com/devsectop/tf-via-pr/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/devsectop/tf-via-pr/actions/workflows/github-code-scanning/codeql)
-[![GitHub repository stars count](https://img.shields.io/github/stars/devsectop/tf-via-pr)](https://github.com/devsectop/tf-via-pr/stargazers)
+[![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr?logo=apache&label=License)](../LICENSE.txt "Apache License 2.0.")
+[![GitHub release tag](https://img.shields.io/github/v/release/devsectop/tf-via-pr?logo=semanticrelease&label=Release)](https://github.com/devsectop/tf-via-pr/releases "View all releases.")
+[![GitHub repository stargazers](https://img.shields.io/github/stars/devsectop/tf-via-pr)](https://github.com/devsectop/tf-via-pr "Become a stargazer.")
 
-[![OpenTofu compatibility](https://img.shields.io/badge/OpenTofu-Compatible-FFDA18?logo=opentofu&logoColor=white)](https://github.com/opentofu/setup-opentofu)
-[![Terraform compatibility](https://img.shields.io/badge/Terraform-Compatible-844FBA?logo=terraform&logoColor=white)](https://github.com/hashicorp/setup-terraform)
-[![Static Badge](https://img.shields.io/badge/GitHub-Marketplace-2088FF?logo=githubactions&logoColor=white)](https://github.com/marketplace/actions/opentofu-terraform-via-pull-request)
+[![Terraform Compatible](https://img.shields.io/badge/Terraform-Compatible-844FBA?logo=terraform&logoColor=white)](https://github.com/hashicorp/setup-terraform "Terraform Compatible.")
+[![OpenTofu Compatible](https://img.shields.io/badge/OpenTofu-Compatible-FFDA18?logo=opentofu&logoColor=white)](https://github.com/opentofu/setup-opentofu "OpenTofu Compatible.")
+[![Linux Runner](https://img.shields.io/badge/Linux-Runner-DA3B8A?logo=linux&logoColor=white)](https://github.com/devsectop/tf-via-pr "Runs on Linux.")
 
-# OpenTofu/Terraform via Pull Request
+# Terraform/OpenTofu via Pull Request (TF-via-PR)
 
 > [!NOTE]
 >
-> GitHub Action to plan and apply OpenTofu/Terraform (TF) via pull request (PR) automation.
+> GitHub Action to plan and apply Terraform/OpenTofu (TF) via pull request (PR) automation, using best practices for secure and scalable infrastructure-as-code (IaC) workflows.
 >
 > Overview: [Highlights](#highlights) · [Usage](#usage) · [Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
@@ -31,7 +30,7 @@
 
 ### What does it do?
 
-<details><summary>Configure OpenTofu/Terraform to run multiple commands automatically via PR trigger events.</summary>
+<details><summary>Configure Terraform/OpenTofu to run multiple commands automatically via PR trigger events.</summary>
 
 - Both [Hashicorp][terraform_io] `terraform` and [OpenTofu][opentofu_org] `tofu` CLIs are supported, with the latter offering an open-source and backwards-compatible drop-in replacement for the former.
 - Prerequisite commands like `init` are run automatically, along with user-configurable options for workspace, var-file, backend-config, and [more](#parameters).
@@ -211,7 +210,7 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 
 ## License
 
-- This project is licensed under the permissive [Apache License 2.0](LICENSE.txt "Apache License 2.0.").
+- This project is licensed under the permissive [Apache License 2.0](../LICENSE.txt "Apache License 2.0.").
 - All works herein are my own, shared of my own volition, and [contributors](https://github.com/devsectop/tf-via-pr/graphs/contributors "Contributors.").
 - Copyright 2022-2024 [Rishav Dhar](https://github.com/rdhar "Rishav Dhar's GitHub profile.") — All wrongs reserved.
 
