@@ -20,50 +20,50 @@ runs:
       run: |
         # Populate variables.
         # Environment variables.
-        echo GH_API="X-GitHub-Api-Version:2022-11-28" >> $GITHUB_ENV
-        echo GH_TOKEN="${{ inputs.token }}" >> $GITHUB_ENV
-        echo TF_CLI_ARGS=$([[ -n "${{ env.TF_CLI_ARGS }}" ]] && echo "${{ env.TF_CLI_ARGS }} -no-color" || echo "-no-color") >> $GITHUB_ENV
-        echo TF_IN_AUTOMATION="true" >> $GITHUB_ENV
-        echo TF_INPUT="false" >> $GITHUB_ENV
+        echo GH_API="X-GitHub-Api-Version:2022-11-28" >> "$GITHUB_ENV"
+        echo GH_TOKEN="${{ inputs.token }}" >> "$GITHUB_ENV"
+        echo TF_CLI_ARGS=$([[ -n "${{ env.TF_CLI_ARGS }}" ]] && echo "${{ env.TF_CLI_ARGS }} -no-color" || echo "-no-color") >> "$GITHUB_ENV"
+        echo TF_IN_AUTOMATION="true" >> "$GITHUB_ENV"
+        echo TF_INPUT="false" >> "$GITHUB_ENV"
 
         # CLI arguments.
-        echo arg-auto-approve=$([[ -n "${{ inputs.arg-auto-approve }}" ]] && echo " -auto-approve" || echo "") >> $GITHUB_OUTPUT
-        echo arg-backend-config=$([[ -n "${{ inputs.arg-backend-config }}" ]] && echo " -backend-config='${{ inputs.arg-backend-config }}'" || echo "") >> $GITHUB_OUTPUT
-        echo arg-backend=$([[ -n "${{ inputs.arg-backend }}" ]] && echo " -backend=${{ inputs.arg-backend }}" || echo "") >> $GITHUB_OUTPUT
-        echo arg-backup=$([[ -n "${{ inputs.arg-backup }}" ]] && echo " -backup=${{ inputs.arg-backup }}" || echo "") >> $GITHUB_OUTPUT
-        echo arg-chdir=$([[ -n "${{ inputs.arg-chdir || inputs.working-directory }}" ]] && echo " -chdir='${{ inputs.arg-chdir || inputs.working-directory }}'" || echo "") >> $GITHUB_OUTPUT
-        echo arg-check=$([[ -n "${{ inputs.arg-check }}" ]] && echo " -check" || echo "") >> $GITHUB_OUTPUT
-        echo arg-compact-warnings=$([[ -n "${{ inputs.arg-compact-warnings }}" ]] && echo " -compact-warnings" || echo "") >> $GITHUB_OUTPUT
-        echo arg-concise=$([[ -n "${{ inputs.arg-concise }}" ]] && echo " -concise" || echo "") >> $GITHUB_OUTPUT
-        echo arg-destroy=$([[ -n "${{ inputs.arg-destroy }}" ]] && echo " -destroy" || echo "") >> $GITHUB_OUTPUT
-        echo arg-detailed-exitcode=$([[ -n "${{ inputs.arg-detailed-exitcode }}" ]] && echo " -detailed-exitcode" || echo "") >> $GITHUB_OUTPUT
-        echo arg-diff=$([[ -n "${{ inputs.arg-diff }}" ]] && echo " -diff" || echo "") >> $GITHUB_OUTPUT
-        echo arg-force-copy=$([[ -n "${{ inputs.arg-force-copy }}" ]] && echo " -force-copy" || echo "") >> $GITHUB_OUTPUT
-        echo arg-from-module=$([[ -n "${{ inputs.arg-from-module }}" ]] && echo " -from-module='${{ inputs.arg-from-module }}'" || echo "") >> $GITHUB_OUTPUT
-        echo arg-generate-config-out=$([[ -n "${{ inputs.arg-generate-config-out }}" ]] && echo " -generate-config-out='${{ inputs.arg-generate-config-out }}'" || echo "") >> $GITHUB_OUTPUT
-        echo arg-get=$([[ -n "${{ inputs.arg-get }}" ]] && echo " -get=${{ inputs.arg-get }}" || echo "") >> $GITHUB_OUTPUT
-        echo arg-list=$([[ -n "${{ inputs.arg-list }}" ]] && echo " -list=${{ inputs.arg-list }}" || echo "") >> $GITHUB_OUTPUT
-        echo arg-lock-timeout=$([[ -n "${{ inputs.arg-lock-timeout }}" ]] && echo " -lock-timeout=${{ inputs.arg-lock-timeout }}" || echo "") >> $GITHUB_OUTPUT
-        echo arg-lock=$([[ -n "${{ inputs.arg-lock }}" ]] && echo " -lock=${{ inputs.arg-lock }}" || echo "") >> $GITHUB_OUTPUT
-        echo arg-lockfile=$([[ -n "${{ inputs.arg-lockfile }}" ]] && echo " -lockfile=${{ inputs.arg-lockfile }}" || echo "") >> $GITHUB_OUTPUT
-        echo arg-migrate-state=$([[ -n "${{ inputs.arg-migrate-state }}" ]] && echo " -migrate-state" || echo "") >> $GITHUB_OUTPUT
-        echo arg-no-tests=$([[ -n "${{ inputs.arg-no-tests }}" ]] && echo " -no-tests" || echo "") >> $GITHUB_OUTPUT
-        echo arg-or-create=$([[ -n "${{ inputs.arg-or-create }}" ]] && echo " -or-create=${{ inputs.arg-or-create }}" || echo "") >> $GITHUB_OUTPUT
-        echo arg-parallelism=$([[ -n "${{ inputs.arg-parallelism }}" ]] && echo " -parallelism=${{ inputs.arg-parallelism }}" || echo "") >> $GITHUB_OUTPUT
-        echo arg-plugin-dir=$([[ -n "${{ inputs.arg-plugin-dir }}" ]] && echo " -plugin-dir='${{ inputs.arg-plugin-dir }}'" || echo "") >> $GITHUB_OUTPUT
-        echo arg-reconfigure=$([[ -n "${{ inputs.arg-reconfigure }}" ]] && echo " -reconfigure" || echo "") >> $GITHUB_OUTPUT
-        echo arg-recursive=$([[ -n "${{ inputs.arg-recursive }}" ]] && echo " -recursive" || echo "") >> $GITHUB_OUTPUT
-        echo arg-refresh-only=$([[ -n "${{ inputs.arg-refresh-only }}" ]] && echo " -refresh-only" || echo "") >> $GITHUB_OUTPUT
-        echo arg-refresh=$([[ -n "${{ inputs.arg-refresh }}" ]] && echo " -refresh=${{ inputs.arg-refresh }}" || echo "") >> $GITHUB_OUTPUT
-        echo arg-replace=$([[ -n "${{ inputs.arg-replace }}" ]] && echo " -replace='${{ inputs.arg-replace }}'" | sed "s/,/' -replace='/g" || echo "") >> $GITHUB_OUTPUT
-        echo arg-state-out=$([[ -n "${{ inputs.arg-state-out }}" ]] && echo " -state-out='${{ inputs.arg-state-out }}'" || echo "") >> $GITHUB_OUTPUT
-        echo arg-state=$([[ -n "${{ inputs.arg-state }}" ]] && echo " -state=${{ inputs.arg-state }}" || echo "") >> $GITHUB_OUTPUT
-        echo arg-target=$([[ -n "${{ inputs.arg-target }}" ]] && echo " -target='${{ inputs.arg-target }}'" | sed "s/,/' -target='/g" || echo "") >> $GITHUB_OUTPUT
-        echo arg-test-directory=$([[ -n "${{ inputs.arg-test-directory }}" ]] && echo " -test-directory='${{ inputs.arg-test-directory }}'" || echo "") >> $GITHUB_OUTPUT
-        echo arg-upgrade=$([[ -n "${{ inputs.arg-upgrade }}" ]] && echo " -upgrade" || echo "") >> $GITHUB_OUTPUT
-        echo arg-var-file=$([[ -n "${{ inputs.arg-var-file }}" ]] && echo " -var-file='${{ inputs.arg-var-file }}'" || echo "") >> $GITHUB_OUTPUT
-        echo arg-var=$([[ -n "${{ inputs.arg-var }}" ]] && echo " -var='${{ inputs.arg-var }}'" | sed "s/,/' -var='/g" || echo "") >> $GITHUB_OUTPUT
-        echo arg-write=$([[ -n "${{ inputs.arg-write }}" ]] && echo " -write=${{ inputs.arg-write }}" || echo "") >> $GITHUB_OUTPUT
+        echo arg-auto-approve=$([[ -n "${{ inputs.arg-auto-approve }}" ]] && echo " -auto-approve" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-backend-config=$([[ -n "${{ inputs.arg-backend-config }}" ]] && echo " -backend-config='${{ inputs.arg-backend-config }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-backend=$([[ -n "${{ inputs.arg-backend }}" ]] && echo " -backend=${{ inputs.arg-backend }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-backup=$([[ -n "${{ inputs.arg-backup }}" ]] && echo " -backup=${{ inputs.arg-backup }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-chdir=$([[ -n "${{ inputs.arg-chdir || inputs.working-directory }}" ]] && echo " -chdir='${{ inputs.arg-chdir || inputs.working-directory }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-check=$([[ -n "${{ inputs.arg-check }}" ]] && echo " -check" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-compact-warnings=$([[ -n "${{ inputs.arg-compact-warnings }}" ]] && echo " -compact-warnings" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-concise=$([[ -n "${{ inputs.arg-concise }}" ]] && echo " -concise" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-destroy=$([[ -n "${{ inputs.arg-destroy }}" ]] && echo " -destroy" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-detailed-exitcode=$([[ -n "${{ inputs.arg-detailed-exitcode }}" ]] && echo " -detailed-exitcode" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-diff=$([[ -n "${{ inputs.arg-diff }}" ]] && echo " -diff" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-force-copy=$([[ -n "${{ inputs.arg-force-copy }}" ]] && echo " -force-copy" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-from-module=$([[ -n "${{ inputs.arg-from-module }}" ]] && echo " -from-module='${{ inputs.arg-from-module }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-generate-config-out=$([[ -n "${{ inputs.arg-generate-config-out }}" ]] && echo " -generate-config-out='${{ inputs.arg-generate-config-out }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-get=$([[ -n "${{ inputs.arg-get }}" ]] && echo " -get=${{ inputs.arg-get }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-list=$([[ -n "${{ inputs.arg-list }}" ]] && echo " -list=${{ inputs.arg-list }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-lock-timeout=$([[ -n "${{ inputs.arg-lock-timeout }}" ]] && echo " -lock-timeout=${{ inputs.arg-lock-timeout }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-lock=$([[ -n "${{ inputs.arg-lock }}" ]] && echo " -lock=${{ inputs.arg-lock }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-lockfile=$([[ -n "${{ inputs.arg-lockfile }}" ]] && echo " -lockfile=${{ inputs.arg-lockfile }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-migrate-state=$([[ -n "${{ inputs.arg-migrate-state }}" ]] && echo " -migrate-state" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-no-tests=$([[ -n "${{ inputs.arg-no-tests }}" ]] && echo " -no-tests" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-or-create=$([[ -n "${{ inputs.arg-or-create }}" ]] && echo " -or-create=${{ inputs.arg-or-create }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-parallelism=$([[ -n "${{ inputs.arg-parallelism }}" ]] && echo " -parallelism=${{ inputs.arg-parallelism }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-plugin-dir=$([[ -n "${{ inputs.arg-plugin-dir }}" ]] && echo " -plugin-dir='${{ inputs.arg-plugin-dir }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-reconfigure=$([[ -n "${{ inputs.arg-reconfigure }}" ]] && echo " -reconfigure" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-recursive=$([[ -n "${{ inputs.arg-recursive }}" ]] && echo " -recursive" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-refresh-only=$([[ -n "${{ inputs.arg-refresh-only }}" ]] && echo " -refresh-only" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-refresh=$([[ -n "${{ inputs.arg-refresh }}" ]] && echo " -refresh=${{ inputs.arg-refresh }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-replace=$([[ -n "${{ inputs.arg-replace }}" ]] && echo " -replace='${{ inputs.arg-replace }}'" | sed "s/,/' -replace='/g" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-state-out=$([[ -n "${{ inputs.arg-state-out }}" ]] && echo " -state-out='${{ inputs.arg-state-out }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-state=$([[ -n "${{ inputs.arg-state }}" ]] && echo " -state=${{ inputs.arg-state }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-target=$([[ -n "${{ inputs.arg-target }}" ]] && echo " -target='${{ inputs.arg-target }}'" | sed "s/,/' -target='/g" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-test-directory=$([[ -n "${{ inputs.arg-test-directory }}" ]] && echo " -test-directory='${{ inputs.arg-test-directory }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-upgrade=$([[ -n "${{ inputs.arg-upgrade }}" ]] && echo " -upgrade" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-var-file=$([[ -n "${{ inputs.arg-var-file }}" ]] && echo " -var-file='${{ inputs.arg-var-file }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-var=$([[ -n "${{ inputs.arg-var }}" ]] && echo " -var='${{ inputs.arg-var }}'" | sed "s/,/' -var='/g" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-write=$([[ -n "${{ inputs.arg-write }}" ]] && echo " -write=${{ inputs.arg-write }}" || echo "") >> "$GITHUB_OUTPUT"
 
     - id: identifier
       env:
@@ -83,12 +83,12 @@ runs:
           # Get the PR number from the event payload or fallback on 0.
           pr_number=${{ github.event.number || 0 }}
         fi
-        echo "pr=$pr_number" >> $GITHUB_OUTPUT
+        echo "pr=$pr_number" >> "$GITHUB_OUTPUT"
 
         # Generate identifier for the workflow run.
         identifier="${{ inputs.tool }} $pr_number ${{ inputs.workspace }}${{ steps.arg.outputs.arg-chdir }}${{ steps.arg.outputs.arg-backend-config }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-destroy }}.tf.plan"
         identifier=$(echo "$identifier" | sed 's/[^a-zA-Z0-9]/./g')
-        echo "name=$identifier" >> $GITHUB_OUTPUT
+        echo "name=$identifier" >> "$GITHUB_OUTPUT"
 
         # List jobs from the current workflow run.
         workflow_run=$(gh api /repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}/jobs --header "$GH_API" --method GET --field per_page=100)
@@ -103,11 +103,21 @@ runs:
           matrix=$(echo "$GH_MATRIX" | jq -r 'to_entries | map(.value) | join(", ")')
           job_id=$(echo "$workflow_run" | jq -r --arg matrix "$matrix" '.jobs[] | select(.name | contains($matrix)) | .id')
         fi
-        echo "job=$job_id" >> $GITHUB_OUTPUT
+        echo "job=$job_id" >> "$GITHUB_OUTPUT"
 
         # Get the step number that has status "in_progress" from the current job.
         workflow_step=$(echo "$workflow_run" | jq -r --arg job_id "$job_id" '.jobs[] | select(.id == ($job_id | tonumber)) | .steps[] | select(.status == "in_progress") | .number')
-        echo "step=$workflow_step" >> $GITHUB_OUTPUT
+        echo "step=$workflow_step" >> "$GITHUB_OUTPUT"
+
+    - if: ${{ inputs.format == 'true' }}
+      id: format
+      shell: bash
+      run: |
+        # TF format.
+        trap 'exit_code="$?"; echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"' EXIT
+        args="${{ steps.arg.outputs.arg-check }}${{ steps.arg.outputs.arg-diff }}${{ steps.arg.outputs.arg-list }}${{ steps.arg.outputs.arg-recursive }}${{ steps.arg.outputs.arg-write }}"
+        echo "${{ inputs.tool }} fmt${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} fmt${args} > >(tee -a tf.console.txt) 2> tf.console.txt
 
     - id: initialize
       shell: bash
@@ -118,8 +128,8 @@ runs:
         echo "${{ inputs.tool }} init${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
         ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} init${args} > >(tee -a tf.console.txt) 2> tf.console.txt
 
-    - id: workspace
-      if: ${{ inputs.arg-workspace != '' }}
+    - if: ${{ inputs.arg-workspace != '' }}
+      id: workspace
       shell: bash
       run: |
         # TF workspace select.
@@ -128,8 +138,8 @@ runs:
         echo "${{ inputs.tool }} workspace select${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
         ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} workspace select${args} > >(tee -a tf.console.txt) 2> tf.console.txt
 
-    - id: validate
-      if: ${{ inputs.validate == 'true' }}
+    - if: ${{ inputs.validate == 'true' }}
+      id: validate
       shell: bash
       run: |
         # TF validate.
@@ -137,16 +147,6 @@ runs:
         args="${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-no-tests }}${{ steps.arg.outputs.arg-test-directory }}"
         echo "${{ inputs.tool }} validate${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
         ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} validate${args} > >(tee -a tf.console.txt) 2> tf.console.txt
-
-    - id: format
-      if: ${{ inputs.format == 'true' }}
-      shell: bash
-      run: |
-        # TF format.
-        trap 'exit_code="$?"; echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"' EXIT
-        args="${{ steps.arg.outputs.arg-check }}${{ steps.arg.outputs.arg-diff }}${{ steps.arg.outputs.arg-list }}${{ steps.arg.outputs.arg-recursive }}${{ steps.arg.outputs.arg-write }}"
-        echo "${{ inputs.tool }} fmt${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} fmt${args} > >(tee -a tf.console.txt) 2> tf.console.txt
 
     - if: ${{ inputs.label-pr == 'true' && steps.identifier.outputs.pr != 0 }}
       continue-on-error: true
@@ -158,8 +158,8 @@ runs:
           gh api /repos/${GITHUB_REPOSITORY}/labels --header "$GH_API" --method POST --field "name=tf:${{ inputs.command }}" --field "description=Pull requests that ${{ inputs.command }} TF code." --field "color=5C4EE5"
         gh api /repos/${GITHUB_REPOSITORY}/issues/${{ steps.identifier.outputs.pr }}/labels --header "$GH_API" --method POST --field "labels[]=tf:${{ inputs.command }}"
 
-    - id: plan
-      if: ${{ inputs.command == 'plan' }}
+    - if: ${{ inputs.command == 'plan' }}
+      id: plan
       shell: bash
       run: |
         # TF plan.
@@ -168,8 +168,8 @@ runs:
         echo "${{ inputs.tool }} plan${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
         ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} plan${args} > >(tee -a tf.console.txt) 2> tf.console.txt
 
-    - id: download
-      if: ${{ inputs.command == 'apply' && inputs.arg-auto-approve != 'true' }}
+    - if: ${{ inputs.command == 'apply' && inputs.arg-auto-approve != 'true' }}
+      id: download
       shell: bash
       run: |
         # Download plan file.
@@ -216,6 +216,7 @@ runs:
         mv "$path.encrypted" "$path"
 
     - if: ${{ inputs.command == 'plan' }}
+      id: upload
       uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
       with:
         name: ${{ steps.identifier.outputs.name }}
@@ -270,6 +271,7 @@ runs:
           command=$(echo "$command" | grep -v "^ -${arg}\b")
         done
         command=$(echo "$command" | tr -d '\n')
+        echo "command=$command" >> "$GITHUB_OUTPUT"
 
         # Parse the tf.console.txt file, truncated for character limit.
         console=$(grep -v '\.\.\.$' tf.console.txt | head -c 42000 | sed '${/^  /d}')
@@ -279,15 +281,17 @@ runs:
         } >> "$GITHUB_OUTPUT"
 
         # Parse the tf.console.txt file for the summary.
-        summary=$(cat tf.console.txt | tac | grep -m 1 -E '^(Error:|Plan:|Apply complete!|No changes.)' | tac || echo "View output.")
-        echo "summary=$summary" >> $GITHUB_OUTPUT
+        summary=$(cat tf.console.txt | tac | grep -m 1 -E '^(Error:|Plan:|Apply complete!|No changes.|Success)' | tac || echo "View output.")
+        echo "summary=$summary" >> "$GITHUB_OUTPUT"
 
         # Add summary to the job status.
         check_run=$(gh api /repos/${GITHUB_REPOSITORY}/check-runs/${{ steps.identifier.outputs.job }} --header "$GH_API" --method PATCH --field "output[title]=${summary}" --field "output[summary]=${summary}")
 
         # From check_run, echo html_url.
         check_url=$(echo "$check_run" | jq -r '.html_url')
-        echo "check_id=$(echo "$check_run" | jq -r '.id')" >> $GITHUB_OUTPUT
+        echo "check_id=$(echo "$check_run" | jq -r '.id')" >> "$GITHUB_OUTPUT"
+        run_url=$(echo ${check_url}#step:${{ steps.identifier.outputs.step }}:1)
+        echo "run_url=$run_url" >> "$GITHUB_OUTPUT"
 
         # If tf.diff.txt exists, display it within a diff block, truncated for character limit.
         if [[ -s tf.diff.txt ]]; then
@@ -318,7 +322,7 @@ runs:
         <details><summary>${summary}</br>
 
         <!-- placeholder-4 -->
-        ###### By @${GITHUB_TRIGGERING_ACTOR} at ${{ github.event.pull_request.updated_at || github.event.head_commit.timestamp || github.event.merge_group.head_commit.timestamp }} [(view log)](${check_url}#step:${{ steps.identifier.outputs.step }}:1).
+        ###### By @${GITHUB_TRIGGERING_ACTOR} at ${{ github.event.pull_request.updated_at || github.event.head_commit.timestamp || github.event.merge_group.head_commit.timestamp }} [(view log)](${run_url}).
         </summary>
 
         \`\`\`hcl
@@ -345,16 +349,16 @@ runs:
               # Delete previous comment before posting a new one.
               gh api /repos/${GITHUB_REPOSITORY}/issues/comments/${bot_comment} --header "$GH_API" --method DELETE
               pr_comment=$(gh api /repos/${GITHUB_REPOSITORY}/issues/${{ steps.identifier.outputs.pr }}/comments --header "$GH_API" --method POST --field "body=${body}")
-              echo "comment_id=$(echo "$pr_comment" | jq -r '.id')" >> $GITHUB_OUTPUT
+              echo "comment_id=$(echo "$pr_comment" | jq -r '.id')" >> "$GITHUB_OUTPUT"
             elif [[ "${{ inputs.comment-pr }}" == "update" ]]; then
               # Update existing comment.
               pr_comment=$(gh api /repos/${GITHUB_REPOSITORY}/issues/comments/${bot_comment} --header "$GH_API" --method PATCH --field "body=${body}")
-              echo "comment_id=$(echo "$pr_comment" | jq -r '.id')" >> $GITHUB_OUTPUT
+              echo "comment_id=$(echo "$pr_comment" | jq -r '.id')" >> "$GITHUB_OUTPUT"
             fi
           else
             # Post new comment.
             pr_comment=$(gh api /repos/${GITHUB_REPOSITORY}/issues/${{ steps.identifier.outputs.pr }}/comments --header "$GH_API" --method POST --field "body=${body}")
-            echo "comment_id=$(echo "$pr_comment" | jq -r '.id')" >> $GITHUB_OUTPUT
+            echo "comment_id=$(echo "$pr_comment" | jq -r '.id')" >> "$GITHUB_OUTPUT"
           fi
         fi
 
@@ -365,11 +369,14 @@ outputs:
   check-id:
     description: "ID of the check run."
     value: ${{ steps.post.outputs.check_id }}
+  command:
+    description: "Input of the last TF command."
+    value: ${{ steps.post.outputs.command }}
   comment-id:
     description: "ID of the PR comment."
     value: ${{ steps.post.outputs.comment_id }}
   diff:
-    description: "Diff of changes, if present."
+    description: "Diff of changes, if present (truncated)."
     value: ${{ steps.post.outputs.diff }}
   exitcode:
     description: "Exit code of the last TF command."
@@ -377,9 +384,21 @@ outputs:
   identifier:
     description: "Unique name of the workflow run and artifact."
     value: ${{ steps.identifier.outputs.name }}
+  job-id:
+    description: "ID of the workflow job."
+    value: ${{ steps.identifier.outputs.job }}
+  plan-id:
+    description: "ID of the plan file artifact."
+    value: ${{ steps.upload.outputs.artifact-id }}
+  plan-url:
+    description: "URL of the plan file artifact."
+    value: ${{ steps.upload.outputs.artifact-url }}
   result:
-    description: "Result of the last TF command."
+    description: "Result of the last TF command (truncated)."
     value: ${{ steps.post.outputs.result }}
+  run-url:
+    description: "URL of the workflow run."
+    value: ${{ steps.post.outputs.run_url }}
   summary:
     description: "Summary of the last TF command."
     value: ${{ steps.post.outputs.summary }}
@@ -387,7 +406,7 @@ outputs:
 inputs:
   # Action parameters.
   command:
-    default: "plan"
+    default: ""
     description: "Command to run between: `plan` or `apply` (e.g., `plan`)."
     required: false
   comment-pr:

@@ -97,7 +97,7 @@ The following workflows showcase common use cases, while a comprehensive list of
       <a href="/.github/examples/pr_self_hosted.yaml">Run on</a> <code>pull_request</code> (plan or apply) event with Terraform and OpenTofu on <strong>self-hosted</strong> runner.
     </td>
     <td>
-      <a href="/.github/examples/schedule_refresh.yaml">Run on</a> <code>schedule</code> (cron) event with "fmt" and "validate" checks to identify <strong>configuration drift</strong>.
+      <a href="/.github/examples/schedule_refresh.yaml">Run on</a> <code>schedule</code> (cron) event with fmt/validate checks to open an issue on <strong>configuration drift</strong>.
     </td>
   </tr>
 </table>
@@ -122,7 +122,7 @@ unzip <tf.plan>
 
 | Type     | Name                | Description                                                                                                    |
 | -------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
-| CLI      | `command`           | Command to run between: `plan` or `apply`.</br>Default: `plan`                                                 |
+| CLI      | `command`           | Command to run between: `plan` or `apply`.</br>Example: `plan`                                                 |
 | CLI      | `working-directory` | Specify the working directory of TF code, alias of `arg-chdir`.</br>Example: `path/to/directory`               |
 | CLI      | `tool`              | Choose the tool to provision TF code.</br>Default: `terraform`                                                 |
 | Check    | `format`            | Check format of TF code.</br>Default: `false`                                                                  |
@@ -195,15 +195,20 @@ unzip <tf.plan>
 
 ### Outputs
 
-| Name         | Description                                   |
-| ------------ | --------------------------------------------- |
-| `check-id`   | ID of the check run.                          |
-| `comment-id` | ID of the PR comment.                         |
-| `diff`       | Diff of changes, if present.                  |
-| `exitcode`   | Exit code of the last TF command.             |
-| `identifier` | Unique name of the workflow run and artifact. |
-| `result`     | Result of the last TF command.                |
-| `summary`    | Summary of the last TF command.               |
+| Type     | Name         | Description                                   |
+| -------- | ------------ | --------------------------------------------- |
+| Artifact | `plan-id`    | ID of the plan file artifact.                 |
+| Artifact | `plan-url`   | URL of the plan file artifact.                |
+| CLI      | `command`    | Input of the last TF command.                 |
+| CLI      | `diff`       | Diff of changes, if present (truncated).      |
+| CLI      | `exitcode`   | Exit code of the last TF command.             |
+| CLI      | `result`     | Result of the last TF command (truncated).    |
+| CLI      | `summary`    | Summary of the last TF command.               |
+| Workflow | `check-id`   | ID of the check run.                          |
+| Workflow | `comment-id` | ID of the PR comment.                         |
+| Workflow | `job-id`     | ID of the workflow job.                       |
+| Workflow | `run-url`    | URL of the workflow run.                      |
+| Workflow | `identifier` | Unique name of the workflow run and artifact. |
 </br>
 
 ## Security

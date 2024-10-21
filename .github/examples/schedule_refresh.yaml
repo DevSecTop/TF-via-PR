@@ -1,5 +1,5 @@
 ---
-name: Trigger on schedule (cron) event with 'fmt' and 'validate' checks to identify configuration drift.
+name: Trigger on schedule (cron) event with fmt/validate checks to open an issue on configuration drift.
 
 on:
   schedule:
@@ -13,6 +13,7 @@ jobs:
       actions: read        # Required to identify workflow run.
       checks: write        # Required to add status summary.
       contents: read       # Required to checkout repository.
+      issues: write        # Required to open issue.
       pull-requests: write # Required to add comment and label.
 
     steps:
@@ -28,13 +29,34 @@ jobs:
         with:
           command: plan
           arg-lock: false
-          arg-parallelism: 20
           arg-refresh-only: true
           working-directory: path/to/directory
           plan-encrypt: ${{ secrets.PASSPHRASE }}
           format: true
           validate: true
 
-      - name: Check drift
+      - name: Open issue on drift
         if: steps.provision.outputs.exitcode != 0
-        run: echo "Configuration drift detected."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          diff: ${{ steps.provision.outputs.diff }}
+          run: ${{ steps.provision.outputs.run-url }}
+          result: ${{ steps.provision.outputs.result }}
+          summary: ${{ steps.provision.outputs.summary }}
+        run: |
+          gh api /repos/{owner}/{repo}/issues \
+            --method POST \
+            --field title="Configuration drift detected" \
+            --field body="[View log.]($run)
+          <details><summary>Diff of changes.</summary>
+
+          \`\`\`diff
+          $diff
+          \`\`\`
+          </details>
+          <details><summary>$summary</summary>
+
+          \`\`\`hcl
+          $result
+          \`\`\`
+          </details>"
