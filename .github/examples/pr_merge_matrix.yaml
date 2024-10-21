@@ -32,10 +32,10 @@ jobs:
       - name: Provision TF
         uses: devsectop/tf-via-pr@v12
         with:
-          arg_command: ${{ github.event_name == 'merge_group' && 'apply' || 'plan' }}
+          command: ${{ github.event_name == 'merge_group' && 'apply' || 'plan' }}
           arg-lock: ${{ github.event_name == 'merge_group' }}
           arg-var-file: env/${{ matrix.deployment }}.tfvars
           arg-workspace: ${{ matrix.deployment }}
-          working-directory: path/to/directory
+          working-directory: path/to/${{ matrix.deployment }}
           plan-encrypt: ${{ secrets.PASSPHRASE }}
           plan-parity: true
