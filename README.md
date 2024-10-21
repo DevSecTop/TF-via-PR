@@ -86,7 +86,7 @@ The following workflows showcase common use cases, while a comprehensive list of
 <table>
   <tr>
     <td>
-      <a href="/.github/examples/pr_push_auth.yaml">Run on</a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with Terraform and AWS <strong>authentication</strong>.
+      <a href="/.github/examples/pr_push_auth.yaml">Run on</a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with Terraform, AWS <strong>authentication</strong> and <strong>caching</strong>.
     </td>
     <td>
       <a href="/.github/examples/pr_merge_matrix.yaml">Run on</a> <code>pull_request</code> (plan) and <code>merge_group</code> (apply) events with OpenTofu in <strong>matrix</strong> strategy.
