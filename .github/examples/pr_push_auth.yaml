@@ -1,5 +1,5 @@
 ---
-name: Trigger on pull_request (plan) and push (apply) events with Terraform and AWS authentication.
+name: Trigger on pull_request (plan) and push (apply) events with Terraform, AWS authentication and caching.
 
 on:
   pull_request:
@@ -26,6 +26,17 @@ jobs:
         with:
           aws-region: us-east-1
           role-to-assume: ${{ secrets.AWS_ROLE }}
+
+      - name: Create cache
+        run: |
+          mkdir --parents $HOME/.terraform.d/plugin-cache
+          echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >> $GITHUB_ENV
+
+      - name: Cache TF
+        uses: actions/cache@v4
+        with:
+          path: ~/.terraform.d/plugin-cache
+          key: cache-tf-${{ runner.os }}-${{ hashFiles('path/to/directory/.terraform.lock.hcl') }}
 
       - name: Setup TF
         uses: hashicorp/setup-terraform@v3
