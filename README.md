@@ -199,8 +199,11 @@ unzip <tf.plan>
 | ------------ | --------------------------------------------- |
 | `check-id`   | ID of the check run.                          |
 | `comment-id` | ID of the PR comment.                         |
+| `diff`       | Diff of changes, if present.                  |
 | `exitcode`   | Exit code of the last TF command.             |
 | `identifier` | Unique name of the workflow run and artifact. |
+| `result`     | Result of the last TF command.                |
+| `summary`    | Summary of the last TF command.               |
 </br>
 
 ## Security

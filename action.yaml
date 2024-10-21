@@ -272,8 +272,15 @@ runs:
         command=$(echo "$command" | tr -d '\n')
 
         # Parse the tf.console.txt file, truncated for character limit.
-        console=$(grep -v '\.\.\.$' tf.console.txt | head -c 42000)
-        summary=$(cat tf.console.txt | tac | grep -m 1 -E '^(Apply complete!|No changes.|Error:|Plan:)' | tac || echo "View output.")
+        console=$(grep -v '\.\.\.$' tf.console.txt | head -c 42000 | sed '${/^  /d}')
+        { echo 'result<<EOTFVIAPR'
+          echo "$console"
+          echo EOTFVIAPR
+        } >> "$GITHUB_OUTPUT"
+
+        # Parse the tf.console.txt file for the summary.
+        summary=$(cat tf.console.txt | tac | grep -m 1 -E '^(Error:|Plan:|Apply complete!|No changes.)' | tac || echo "View output.")
+        echo "summary=$summary" >> $GITHUB_OUTPUT
 
         # Add summary to the job status.
         check_run=$(gh api /repos/${GITHUB_REPOSITORY}/check-runs/${{ steps.identifier.outputs.job }} --header "$GH_API" --method PATCH --field "output[title]=${summary}" --field "output[summary]=${summary}")
@@ -284,6 +291,11 @@ runs:
 
         # If tf.diff.txt exists, display it within a diff block, truncated for character limit.
         if [[ -s tf.diff.txt ]]; then
+          { echo 'diff<<EOTFVIAPR'
+            head -c 24000 tf.diff.txt
+            echo EOTFVIAPR
+          } >> "$GITHUB_OUTPUT"
+
           diff="
         <details><summary>Diff of changes.</summary>
 
@@ -295,7 +307,7 @@ runs:
           diff=""
         fi
 
-        body=$(cat <<EOTF_VIA_PR
+        body=$(cat <<EOTFVIAPR
         <!-- placeholder-1 -->
         \`\`\`fish
         ${command}
@@ -316,7 +328,7 @@ runs:
         <!-- placeholder-5 -->
         <!-- ${{ steps.identifier.outputs.name }} -->
         <!-- placeholder-6 -->
-        EOTF_VIA_PR
+        EOTFVIAPR
         )
 
         # Post output to job summary.
@@ -356,12 +368,21 @@ outputs:
   comment-id:
     description: "ID of the PR comment."
     value: ${{ steps.post.outputs.comment_id }}
+  diff:
+    description: "Diff of changes, if present."
+    value: ${{ steps.post.outputs.diff }}
   exitcode:
     description: "Exit code of the last TF command."
     value: ${{ steps.apply.outputs.exit_code || steps.plan.outputs.exit_code || steps.format.outputs.exit_code || steps.validate.outputs.exit_code || steps.workspace.outputs.exit_code || steps.initialize.outputs.exit_code }}
   identifier:
     description: "Unique name of the workflow run and artifact."
     value: ${{ steps.identifier.outputs.name }}
+  result:
+    description: "Result of the last TF command."
+    value: ${{ steps.post.outputs.result }}
+  summary:
+    description: "Summary of the last TF command."
+    value: ${{ steps.post.outputs.summary }}
 
 inputs:
   # Action parameters.
