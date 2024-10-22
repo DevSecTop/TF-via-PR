@@ -233,7 +233,7 @@ runs:
         ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }} tf.plan.parity | sort | sed '/^$/d' > tf.plan.new
         cat tf.console.txt | sort | sed '/^$/d' > tf.plan.old
 
-        # If both plan files are identical, then replace the old plan file with the new one to prevent stale apply.
+        # If both plan files are identical, then replace the old plan file with the new one to prevent avoidable stale apply.
         diff --brief tf.plan.new tf.plan.old > /dev/null && mv "${{ format('{0}{1}tf.plan.parity', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}" "${{ format('{0}{1}tf.plan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
         rm -f tf.plan.new tf.plan.old "${{ format('{0}{1}tf.plan.parity', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
 
@@ -407,7 +407,7 @@ inputs:
   # Action parameters.
   command:
     default: ""
-    description: "Command to run between: `plan` or `apply` (e.g., `plan`)."
+    description: "Command to run between: `plan`, `apply` or leave empty for `init` with checks (e.g., `plan`)."
     required: false
   comment-pr:
     default: "update"
@@ -431,7 +431,7 @@ inputs:
     required: false
   plan-parity:
     default: "false"
-    description: "Compare the plan file with a newly-generated one to prevent stale apply (e.g., `false`)."
+    description: "Replace the plan file if it matches a newly-generated one to prevent stale apply (e.g., `false`)."
     required: false
   token:
     default: ${{ github.token }}
@@ -439,7 +439,7 @@ inputs:
     required: false
   tool:
     default: "terraform"
-    description: "Choose the tool to provision TF code (e.g., `tofu`)."
+    description: "Provisioning tool to use between: `terraform` or `tofu` (e.g., `terraform`)."
     required: false
   validate:
     default: "false"
