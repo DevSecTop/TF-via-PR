@@ -8,10 +8,9 @@
 
 # Terraform/OpenTofu via Pull Request (TF-via-PR)
 
-<details open><summary><h3>Overview: <a href="#usage">Usage Examples</a> · <a href="#parameters">In/Output Parameters</a> · <a href="#security">Security</a> · <a href="#changelog">Changelog</a> · <a href="#license">License</a></h3></summary></br>
+### Overview: [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
 [![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://github.com/devsectop/tf-via-pr/blob/main/.github/assets/comment.png?raw=true "View full-size image.")
-</details>
 
 <table>
   <tr>
