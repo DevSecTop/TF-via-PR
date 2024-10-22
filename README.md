@@ -8,10 +8,6 @@
 
 # Terraform/OpenTofu via Pull Request (TF-via-PR)
 
-### [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
-
-[![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/comment.png "View full-size image.")
-
 <table>
   <tr>
     <th>
@@ -36,6 +32,12 @@
     </td>
   </tr>
 </table>
+</br>
+
+[![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/comment.png "View full-size image.")
+</br>
+
+### [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 </br>
 
 ## Usage
