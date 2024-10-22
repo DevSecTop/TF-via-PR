@@ -67,7 +67,7 @@ jobs:
           command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
           arg-lock: ${{ github.event_name == 'push' }}
           arg-var-file: env/dev.tfvars
-          arg_workspace: dev-use1
+          arg-workspace: dev-use1
           working-directory: path/to/directory
           plan-encrypt: ${{ secrets.PASSPHRASE }}
 ```
