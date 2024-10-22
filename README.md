@@ -8,7 +8,7 @@
 
 # Terraform/OpenTofu via Pull Request (TF-via-PR)
 
-### Overview: [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
+### [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
 [![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/comment.png "View full-size image.")
 
@@ -121,12 +121,12 @@ unzip <tf.plan>
 
 | Type     | Name                | Description                                                                                                    |
 | -------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
-| CLI      | `command`           | Command to run between: `plan` or `apply`.</br>Example: `plan`                                                 |
+| CLI      | `command`           | Command to run between: `plan`, `apply` or leave empty for `init` with checks.</br>Example: `plan`             |
 | CLI      | `working-directory` | Specify the working directory of TF code, alias of `arg-chdir`.</br>Example: `path/to/directory`               |
-| CLI      | `tool`              | Choose the tool to provision TF code.</br>Default: `terraform`                                                 |
+| CLI      | `tool`              | Provisioning tool to use between: `terraform` or `tofu`.</br>Default: `terraform`                              |
 | Check    | `format`            | Check format of TF code.</br>Default: `false`                                                                  |
 | Check    | `validate`          | Check validation of TF code.</br>Default: `false`                                                              |
-| Check    | `plan-parity`       | Compare the plan file with a newly-generated one to prevent stale apply.</br>Default: `false`                  |
+| Check    | `plan-parity`       | Replace the plan file if it matches a newly-generated one to prevent stale apply.</br>Default: `false`         |
 | Security | `plan-encrypt`      | Encrypt plan file artifact with the given input.</br>Example: `${{ secrets.PASSPHRASE }}`                      |
 | Security | `token`             | Specify a GitHub token.</br>Default: `${{ github.token }}`                                                     |
 | UI       | `comment-pr`        | PR comment by: `update` existing comment, `recreate` and delete previous one, or `none`.</br>Default: `update` |
