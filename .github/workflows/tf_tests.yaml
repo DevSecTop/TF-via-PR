@@ -48,13 +48,10 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
-          arg_chdir: tests/${{ matrix.test }}
-          arg_command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
-          arg_lock: ${{ github.event.pull_request.merged && 'true' || 'false' }}
-          arg_detailed_exitcode: true
-          tenv_version: v3.2.3
-          tf_tool: ${{ matrix.tool }}
-          tf_version: ~> 1.8.0
+          command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
+          arg-lock: ${{ github.event.pull_request.merged }}
+          working-directory: tests/${{ matrix.test }}
+          tool: ${{ matrix.tool }}
 
       - name: Echo TF
         run: |
