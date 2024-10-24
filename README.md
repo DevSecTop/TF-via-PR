@@ -121,19 +121,19 @@ unzip <tf.plan>
 
 ### Inputs - Configuration
 
-| Type     | Name                | Description                                                                                                    |
-| -------- | ------------------- | -------------------------------------------------------------------------------------------------------------- |
-| CLI      | `command`           | Command to run between: `plan`, `apply` or leave empty for `init` with checks.</br>Example: `plan`             |
-| CLI      | `working-directory` | Specify the working directory of TF code, alias of `arg-chdir`.</br>Example: `path/to/directory`               |
-| CLI      | `tool`              | Provisioning tool to use between: `terraform` or `tofu`.</br>Default: `terraform`                              |
-| Check    | `format`            | Check format of TF code.</br>Default: `false`                                                                  |
-| Check    | `validate`          | Check validation of TF code.</br>Default: `false`                                                              |
-| Check    | `plan-parity`       | Replace the plan file if it matches a newly-generated one to prevent stale apply.</br>Default: `false`         |
-| Security | `plan-encrypt`      | Encrypt plan file artifact with the given input.</br>Example: `${{ secrets.PASSPHRASE }}`                      |
-| Security | `token`             | Specify a GitHub token.</br>Default: `${{ github.token }}`                                                     |
-| UI       | `comment-pr`        | PR comment by: `update` existing comment, `recreate` and delete previous one, or `none`.</br>Default: `update` |
-| UI       | `label-pr`          | Add a PR label with the command input.</br>Default: `true`                                                     |
-| UI       | `hide-args`         | Hide comma-separated arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var`           |
+| Type     | Name                | Description                                                                                                                          |
+| -------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| CLI      | `command`           | Command to run between: `plan`, `apply` or leave empty for `init` with checks.</br>Example: `plan`                                   |
+| CLI      | `working-directory` | Specify the working directory of TF code, alias of `arg-chdir`.</br>Example: `path/to/directory`                                     |
+| CLI      | `tool`              | Provisioning tool to use between: `terraform` or `tofu`.</br>Default: `terraform`                                                    |
+| Check    | `format`            | Check format of TF code.</br>Default: `false`                                                                                        |
+| Check    | `validate`          | Check validation of TF code.</br>Default: `false`                                                                                    |
+| Check    | `plan-parity`       | Replace the plan file if it matches a newly-generated one to prevent stale apply (very rarely needed nowadays).</br>Default: `false` |
+| Security | `plan-encrypt`      | Encrypt plan file artifact with the given input.</br>Example: `${{ secrets.PASSPHRASE }}`                                            |
+| Security | `token`             | Specify a GitHub token.</br>Default: `${{ github.token }}`                                                                           |
+| UI       | `comment-pr`        | PR comment by: `update` existing comment, `recreate` and delete previous one, or `none`.</br>Default: `update`                       |
+| UI       | `label-pr`          | Add a PR label with the command input.</br>Default: `true`                                                                           |
+| UI       | `hide-args`         | Hide comma-separated arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var`                                 |
 </br>
 
 The default behavior of `comment-pr` is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</br>
