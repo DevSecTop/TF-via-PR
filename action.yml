@@ -274,7 +274,7 @@ runs:
         echo "command=$command" >> "$GITHUB_OUTPUT"
 
         # Parse the tf.console.txt file, truncated for character limit.
-        console=$(grep --invert-match '\.\.\.' tf.console.txt | head --bytes=42000 || true)
+        console=$(head --bytes=42000 tf.console.txt)
         if [[ ${#console} -eq 42000 ]]; then console="${console}"$'\n…'; fi
         { echo 'result<<EOTFVIAPR'
           echo "$console"
@@ -282,7 +282,7 @@ runs:
         } >> "$GITHUB_OUTPUT"
 
         # Parse the tf.console.txt file for the summary.
-        summary=$(tac tf.console.txt | grep -m 1 -E '^(Error:|Plan:|Apply complete!|No changes.|Success)' | tac || echo "View output.")
+        summary=$(awk '/^(Error:|Plan:|Apply complete!|No changes.|Success)/ {line=$0} END {if (line) print line; else print "View output."}' tf.console.txt)
         echo "summary=$summary" >> "$GITHUB_OUTPUT"
 
         # Add summary to the job status.
