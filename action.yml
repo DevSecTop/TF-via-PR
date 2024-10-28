@@ -87,7 +87,7 @@ runs:
         echo "pr=$pr_number" >> "$GITHUB_OUTPUT"
 
         # Generate identifier for the workflow run.
-        identifier="${{ inputs.tool }} $pr_number ${{ inputs.workspace }}${{ steps.arg.outputs.arg-chdir }}${{ steps.arg.outputs.arg-backend-config }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-destroy }}.tf.plan"
+        identifier="${{ inputs.tool }} $pr_number ${{ inputs.arg-workspace }}${{ steps.arg.outputs.arg-chdir }}${{ steps.arg.outputs.arg-backend-config }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-destroy }}.tf.plan"
         identifier=$(echo "$identifier" | sed 's/[^a-zA-Z0-9]/./g')
         echo "name=$identifier" >> "$GITHUB_OUTPUT"
 
