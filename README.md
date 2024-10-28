@@ -150,7 +150,7 @@ The default behavior of `comment-pr` is to update the existing PR comment with t
 
 <details><summary>Toggle view of all available arguments.</summary>
 
-| Name                      | Equivalent CLI argument                  |
+| Name                      | Equivalent TF/OT CLI argument            |
 | ------------------------- | ---------------------------------------- |
 | `arg-auto-approve`        | `-auto-approve`                          |
 | `arg-backend-config`      | `-backend-config`                        |
