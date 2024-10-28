@@ -133,7 +133,7 @@ unzip <tf.plan>
 | Security | `token`             | Specify a GitHub token.</br>Default: `${{ github.token }}`                                                                           |
 | UI       | `comment-pr`        | PR comment by: `update` existing comment, `recreate` and delete previous one, or `none`.</br>Default: `update`                       |
 | UI       | `label-pr`          | Add a PR label with the command input.</br>Default: `true`                                                                           |
-| UI       | `hide-args`         | Hide comma-separated arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var`                                 |
+| UI       | `hide-args`         | Hide comma-separated list of CLI arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var`                     |
 </br>
 
 The default behavior of `comment-pr` is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</br>
@@ -148,9 +148,9 @@ The default behavior of `comment-pr` is to update the existing PR comment with t
 > - Arguments are passed to the appropriate TF command(s) automatically, whether that's `init`, `workspace`, `validate`, `plan`, or `apply`.</br>
 > - For repeated arguments like `arg-var`, `arg-replace` and `arg-target`, use commas to separate multiple values (e.g., `arg-var: key1=value1,key2=value2`).
 
-<details><summary>Toggle view of all available arguments.</summary>
+<details><summary>Toggle view of all available CLI arguments.</summary>
 
-| Name                      | Description                              |
+| Name                      | CLI Argument                             |
 | ------------------------- | ---------------------------------------- |
 | `arg-auto-approve`        | `-auto-approve`                          |
 | `arg-backend-config`      | `-backend-config`                        |
