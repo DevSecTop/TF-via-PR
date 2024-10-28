@@ -117,7 +117,7 @@ runs:
         trap 'exit_code="$?"; echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"' EXIT
         args="${{ steps.arg.outputs.arg-check }}${{ steps.arg.outputs.arg-diff }}${{ steps.arg.outputs.arg-list }}${{ steps.arg.outputs.arg-recursive }}${{ steps.arg.outputs.arg-write }}"
         echo "${{ inputs.tool }} fmt${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} fmt${args} > >(tee -a tf.console.txt) 2> tf.console.txt
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} fmt${args} > >(tee tf.console.txt) 2> >(tee tf.console.txt >&2)
 
     - id: initialize
       shell: bash
@@ -126,7 +126,7 @@ runs:
         trap 'exit_code="$?"; echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"' EXIT
         args="${{ steps.arg.outputs.arg-backend-config }}${{ steps.arg.outputs.arg-backend }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-force-copy }}${{ steps.arg.outputs.arg-from-module }}${{ steps.arg.outputs.arg-get }}${{ steps.arg.outputs.arg-lock-timeout }}${{ steps.arg.outputs.arg-lock }}${{ steps.arg.outputs.arg-lockfile }}${{ steps.arg.outputs.arg-migrate-state }}${{ steps.arg.outputs.arg-plugin-dir }}${{ steps.arg.outputs.arg-reconfigure }}${{ steps.arg.outputs.arg-test-directory }}${{ steps.arg.outputs.arg-upgrade }}"
         echo "${{ inputs.tool }} init${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} init${args} > >(tee -a tf.console.txt) 2> tf.console.txt
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} init${args} > >(tee tf.console.txt) 2> >(tee tf.console.txt >&2)
 
     - if: ${{ inputs.arg-workspace != '' }}
       id: workspace
@@ -136,7 +136,7 @@ runs:
         trap 'exit_code="$?"; echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"' EXIT
         args="${{ steps.arg.outputs.arg-or-create }} ${{ inputs.arg-workspace }}"
         echo "${{ inputs.tool }} workspace select${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} workspace select${args} > >(tee -a tf.console.txt) 2> tf.console.txt
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} workspace select${args} > >(tee tf.console.txt) 2> >(tee tf.console.txt >&2)
 
     - if: ${{ inputs.validate == 'true' }}
       id: validate
@@ -146,7 +146,7 @@ runs:
         trap 'exit_code="$?"; echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"' EXIT
         args="${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-no-tests }}${{ steps.arg.outputs.arg-test-directory }}"
         echo "${{ inputs.tool }} validate${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} validate${args} > >(tee -a tf.console.txt) 2> tf.console.txt
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} validate${args} > >(tee tf.console.txt) 2> >(tee tf.console.txt >&2)
 
     - if: ${{ inputs.label-pr == 'true' && steps.identifier.outputs.pr != 0 }}
       continue-on-error: true
@@ -166,7 +166,7 @@ runs:
         trap 'exit_code="$?"; echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"; if [[ "$exit_code" == "2" ]]; then exit 0; fi' EXIT
         args="${{ steps.arg.outputs.arg-destroy }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-compact-warnings }}${{ steps.arg.outputs.arg-concise }}${{ steps.arg.outputs.arg-detailed-exitcode }}${{ steps.arg.outputs.arg-generate-config-out }}${{ steps.arg.outputs.arg-lock-timeout }}${{ steps.arg.outputs.arg-lock }}${{ steps.arg.outputs.arg-parallelism }}${{ steps.arg.outputs.arg-refresh-only }}${{ steps.arg.outputs.arg-refresh }}${{ steps.arg.outputs.arg-replace }}${{ steps.arg.outputs.arg-target }} -out=tf.plan"
         echo "${{ inputs.tool }} plan${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} plan${args} > >(tee -a tf.console.txt) 2> tf.console.txt
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} plan${args} > >(tee tf.console.txt) 2> >(tee tf.console.txt >&2)
 
     - if: ${{ inputs.command == 'apply' && inputs.arg-auto-approve != 'true' }}
       id: download
@@ -228,13 +228,13 @@ runs:
       run: |
         # TF plan parity.
         # Generate a new plan file, then compare it with the previous one.
-        # Both plan files are normalized by sorting and removing empty lines.
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} plan${{ steps.arg.outputs.arg-destroy }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-compact-warnings }}${{ steps.arg.outputs.arg-concise }}${{ steps.arg.outputs.arg-detailed-exitcode }}${{ steps.arg.outputs.arg-generate-config-out }}${{ steps.arg.outputs.arg-lock-timeout }}${{ steps.arg.outputs.arg-lock }}${{ steps.arg.outputs.arg-parallelism }}${{ steps.arg.outputs.arg-refresh-only }}${{ steps.arg.outputs.arg-refresh }}${{ steps.arg.outputs.arg-replace }}${{ steps.arg.outputs.arg-target }} -out=tf.plan.parity > /dev/null
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }} tf.plan.parity | sort | sed '/^$/d' > tf.plan.new
-        cat tf.console.txt | sort | sed '/^$/d' > tf.plan.old
+        # Both plan files are normalized by sorting JSON keys, removing timestamps and ${{ steps.arg.outputs.arg-detailed-exitcode }} to avoid false-positives.
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} plan${{ steps.arg.outputs.arg-destroy }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-compact-warnings }}${{ steps.arg.outputs.arg-concise }}${{ steps.arg.outputs.arg-generate-config-out }}${{ steps.arg.outputs.arg-lock-timeout }}${{ steps.arg.outputs.arg-lock }}${{ steps.arg.outputs.arg-parallelism }}${{ steps.arg.outputs.arg-refresh-only }}${{ steps.arg.outputs.arg-refresh }}${{ steps.arg.outputs.arg-replace }}${{ steps.arg.outputs.arg-target }} -out=tf.plan.parity
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }} -json tf.plan.parity | jq -S 'del(.timestamp)' > tf.plan.new
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }} -json tf.plan | jq -S 'del(.timestamp)' > tf.plan.old
 
         # If both plan files are identical, then replace the old plan file with the new one to prevent avoidable stale apply.
-        diff --brief tf.plan.new tf.plan.old > /dev/null && mv "${{ format('{0}{1}tf.plan.parity', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}" "${{ format('{0}{1}tf.plan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
+        diff tf.plan.new tf.plan.old && mv "${{ format('{0}{1}tf.plan.parity', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}" "${{ format('{0}{1}tf.plan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
         rm -f tf.plan.new tf.plan.old "${{ format('{0}{1}tf.plan.parity', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
 
     - id: apply
@@ -255,7 +255,7 @@ runs:
         fi
         args="${{ steps.arg.outputs.arg-destroy }}${var_file}${var}${{ steps.arg.outputs.arg-backup }}${{ steps.arg.outputs.arg-compact-warnings }}${{ steps.arg.outputs.arg-concise }}${{ steps.arg.outputs.arg-lock-timeout }}${{ steps.arg.outputs.arg-lock }}${{ steps.arg.outputs.arg-parallelism }}${{ steps.arg.outputs.arg-refresh-only }}${{ steps.arg.outputs.arg-refresh }}${{ steps.arg.outputs.arg-replace }}${{ steps.arg.outputs.arg-state-out }}${{ steps.arg.outputs.arg-state }}${{ steps.arg.outputs.arg-target }}${plan}"
         echo "${{ inputs.tool }} apply${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} apply${args} > >(tee -a tf.console.txt) 2> tf.console.txt
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} apply${args} > >(tee tf.console.txt) 2> >(tee tf.console.txt >&2)
 
     - id: post
       if: ${{ !cancelled() && steps.identifier.outcome == 'success' }}
@@ -268,20 +268,21 @@ runs:
         # Remove each comma-delemited argument from the command.
         IFS=',' read -ra args <<< "${{ inputs.hide-args }}"
         for arg in "${args[@]}"; do
-          command=$(echo "$command" | grep -v "^ -${arg}\b")
+          command=$(echo "$command" | grep --invert-match "^ -${arg}\b")
         done
         command=$(echo "$command" | tr -d '\n')
         echo "command=$command" >> "$GITHUB_OUTPUT"
 
         # Parse the tf.console.txt file, truncated for character limit.
-        console=$(grep -v '\.\.\.$' tf.console.txt | head -c 42000 | sed '${/^  /d}')
+        console=$(grep --invert-match '\.\.\.' tf.console.txt | head --bytes=42000 || true)
+        if [[ ${#console} -eq 42000 ]]; then console="${console}"$'\n…'; fi
         { echo 'result<<EOTFVIAPR'
           echo "$console"
           echo EOTFVIAPR
         } >> "$GITHUB_OUTPUT"
 
         # Parse the tf.console.txt file for the summary.
-        summary=$(cat tf.console.txt | tac | grep -m 1 -E '^(Error:|Plan:|Apply complete!|No changes.|Success)' | tac || echo "View output.")
+        summary=$(tac tf.console.txt | grep -m 1 -E '^(Error:|Plan:|Apply complete!|No changes.|Success)' | tac || echo "View output.")
         echo "summary=$summary" >> "$GITHUB_OUTPUT"
 
         # Add summary to the job status.
@@ -295,16 +296,23 @@ runs:
 
         # If tf.diff.txt exists, display it within a diff block, truncated for character limit.
         if [[ -s tf.diff.txt ]]; then
+          # Get count of lines in tf.diff.txt which don't start with "# ".
+          diff_count=$(grep --invert-match '^# ' tf.diff.txt | wc -l)
+          if [[ $diff_count -eq 1 ]]; then diff_change="change"; else diff_change="changes"; fi
+
+          # Parse diff of changes, truncated for character limit.
+          diff_truncated=$(head --bytes=24000 tf.diff.txt)
+          if [[ ${#diff_truncated} -eq 24000 ]]; then diff_truncated="${diff_truncated}"$'\n…'; fi
           { echo 'diff<<EOTFVIAPR'
-            head -c 24000 tf.diff.txt
+            echo "$diff_truncated"
             echo EOTFVIAPR
           } >> "$GITHUB_OUTPUT"
 
           diff="
-        <details><summary>Diff of changes.</summary>
+        <details><summary>Diff of ${diff_count} ${diff_change}.</summary>
 
         \`\`\`diff
-        $(head -c 24000 tf.diff.txt)
+        ${diff_truncated}
         \`\`\`
         </details>"
         else
