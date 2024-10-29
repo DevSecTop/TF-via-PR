@@ -117,6 +117,11 @@ unzip <tf.plan>
 ```
 </br>
 
+For each workflow run, a matrix-friendly job summary with logs is added as a fallback to the PR comment. Below this, you’ll find a list of plan file artifacts generated during runtime.</br>
+
+[![Workflow job summary with plan file artifact.](/.github/assets/workflow.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/workflow.png "View full-size image.")
+</br>
+
 ## Parameters
 
 ### Inputs - Configuration
