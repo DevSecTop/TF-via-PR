@@ -29,10 +29,10 @@ runs:
 
         # CLI arguments.
         echo arg-auto-approve=$([[ -n "${{ inputs.arg-auto-approve }}" ]] && echo " -auto-approve" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-backend-config=$([[ -n "${{ inputs.arg-backend-config }}" ]] && echo " -backend-config='${{ inputs.arg-backend-config }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-backend-config=$([[ -n "${{ inputs.arg-backend-config }}" ]] && echo " -backend-config=${{ inputs.arg-backend-config }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-backend=$([[ -n "${{ inputs.arg-backend }}" ]] && echo " -backend=${{ inputs.arg-backend }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-backup=$([[ -n "${{ inputs.arg-backup }}" ]] && echo " -backup=${{ inputs.arg-backup }}" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-chdir=$([[ -n "${{ inputs.arg-chdir || inputs.working-directory }}" ]] && echo " -chdir='${{ inputs.arg-chdir || inputs.working-directory }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-chdir=$([[ -n "${{ inputs.arg-chdir || inputs.working-directory }}" ]] && echo " -chdir=${{ inputs.arg-chdir || inputs.working-directory }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-check=$([[ -n "${{ inputs.arg-check }}" ]] && echo " -check" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-compact-warnings=$([[ -n "${{ inputs.arg-compact-warnings }}" ]] && echo " -compact-warnings" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-concise=$([[ -n "${{ inputs.arg-concise }}" ]] && echo " -concise" || echo "") >> "$GITHUB_OUTPUT"
@@ -40,8 +40,8 @@ runs:
         echo arg-detailed-exitcode=$([[ -n "${{ inputs.arg-detailed-exitcode }}" ]] && echo " -detailed-exitcode" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-diff=$([[ -n "${{ inputs.arg-diff }}" ]] && echo " -diff" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-force-copy=$([[ -n "${{ inputs.arg-force-copy }}" ]] && echo " -force-copy" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-from-module=$([[ -n "${{ inputs.arg-from-module }}" ]] && echo " -from-module='${{ inputs.arg-from-module }}'" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-generate-config-out=$([[ -n "${{ inputs.arg-generate-config-out }}" ]] && echo " -generate-config-out='${{ inputs.arg-generate-config-out }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-from-module=$([[ -n "${{ inputs.arg-from-module }}" ]] && echo " -from-module=${{ inputs.arg-from-module }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-generate-config-out=$([[ -n "${{ inputs.arg-generate-config-out }}" ]] && echo " -generate-config-out=${{ inputs.arg-generate-config-out }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-get=$([[ -n "${{ inputs.arg-get }}" ]] && echo " -get=${{ inputs.arg-get }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-list=$([[ -n "${{ inputs.arg-list }}" ]] && echo " -list=${{ inputs.arg-list }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-lock-timeout=$([[ -n "${{ inputs.arg-lock-timeout }}" ]] && echo " -lock-timeout=${{ inputs.arg-lock-timeout }}" || echo "") >> "$GITHUB_OUTPUT"
@@ -51,19 +51,19 @@ runs:
         echo arg-no-tests=$([[ -n "${{ inputs.arg-no-tests }}" ]] && echo " -no-tests" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-or-create=$([[ -n "${{ inputs.arg-or-create }}" ]] && echo " -or-create=${{ inputs.arg-or-create }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-parallelism=$([[ -n "${{ inputs.arg-parallelism }}" ]] && echo " -parallelism=${{ inputs.arg-parallelism }}" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-plugin-dir=$([[ -n "${{ inputs.arg-plugin-dir }}" ]] && echo " -plugin-dir='${{ inputs.arg-plugin-dir }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-plugin-dir=$([[ -n "${{ inputs.arg-plugin-dir }}" ]] && echo " -plugin-dir=${{ inputs.arg-plugin-dir }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-reconfigure=$([[ -n "${{ inputs.arg-reconfigure }}" ]] && echo " -reconfigure" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-recursive=$([[ -n "${{ inputs.arg-recursive }}" ]] && echo " -recursive" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-refresh-only=$([[ -n "${{ inputs.arg-refresh-only }}" ]] && echo " -refresh-only" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-refresh=$([[ -n "${{ inputs.arg-refresh }}" ]] && echo " -refresh=${{ inputs.arg-refresh }}" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-replace=$([[ -n "${{ inputs.arg-replace }}" ]] && echo " -replace='${{ inputs.arg-replace }}'" | sed "s/,/' -replace='/g" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-state-out=$([[ -n "${{ inputs.arg-state-out }}" ]] && echo " -state-out='${{ inputs.arg-state-out }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-replace=$([[ -n "${{ inputs.arg-replace }}" ]] && echo " -replace=${{ inputs.arg-replace }}" | sed "s/,/' -replace='/g" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-state-out=$([[ -n "${{ inputs.arg-state-out }}" ]] && echo " -state-out=${{ inputs.arg-state-out }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-state=$([[ -n "${{ inputs.arg-state }}" ]] && echo " -state=${{ inputs.arg-state }}" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-target=$([[ -n "${{ inputs.arg-target }}" ]] && echo " -target='${{ inputs.arg-target }}'" | sed "s/,/' -target='/g" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-test-directory=$([[ -n "${{ inputs.arg-test-directory }}" ]] && echo " -test-directory='${{ inputs.arg-test-directory }}'" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-target=$([[ -n "${{ inputs.arg-target }}" ]] && echo " -target=${{ inputs.arg-target }}" | sed "s/,/' -target='/g" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-test-directory=$([[ -n "${{ inputs.arg-test-directory }}" ]] && echo " -test-directory=${{ inputs.arg-test-directory }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-upgrade=$([[ -n "${{ inputs.arg-upgrade }}" ]] && echo " -upgrade" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-var-file=$([[ -n "${{ inputs.arg-var-file }}" ]] && echo " -var-file='${{ inputs.arg-var-file }}'" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-var=$([[ -n "${{ inputs.arg-var }}" ]] && echo " -var='${{ inputs.arg-var }}'" | sed "s/,/' -var='/g" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-var-file=$([[ -n "${{ inputs.arg-var-file }}" ]] && echo " -var-file=${{ inputs.arg-var-file }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-var=$([[ -n "${{ inputs.arg-var }}" ]] && echo " -var=${{ inputs.arg-var }}" | sed "s/,/' -var='/g" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-write=$([[ -n "${{ inputs.arg-write }}" ]] && echo " -write=${{ inputs.arg-write }}" || echo "") >> "$GITHUB_OUTPUT"
 
     - id: identifier
@@ -198,7 +198,7 @@ runs:
       shell: bash
       run: |
         # TF show.
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }} tf.plan > tf.console.txt
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show tf.plan > tf.console.txt
 
         # Diff of changes.
         # Filter lines starting with "  # " and save to tf.diff.txt, then prepend diff-specific symbols based on specific keywords.
@@ -231,8 +231,8 @@ runs:
         # Generate a new plan file, then compare it with the previous one.
         # Both plan files are normalized by sorting JSON keys, removing timestamps and ${{ steps.arg.outputs.arg-detailed-exitcode }} to avoid false-positives.
         ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} plan${{ steps.arg.outputs.arg-destroy }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-compact-warnings }}${{ steps.arg.outputs.arg-concise }}${{ steps.arg.outputs.arg-generate-config-out }}${{ steps.arg.outputs.arg-lock-timeout }}${{ steps.arg.outputs.arg-lock }}${{ steps.arg.outputs.arg-parallelism }}${{ steps.arg.outputs.arg-refresh-only }}${{ steps.arg.outputs.arg-refresh }}${{ steps.arg.outputs.arg-replace }}${{ steps.arg.outputs.arg-target }} -out=tf.plan.parity
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }} -json tf.plan.parity | jq --sort-keys 'del(.timestamp)' > tf.plan.new
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }} -json tf.plan | jq --sort-keys 'del(.timestamp)' > tf.plan.old
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show -json tf.plan.parity | jq --sort-keys 'del(.timestamp)' > tf.plan.new
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show -json tf.plan | jq --sort-keys 'del(.timestamp)' > tf.plan.old
 
         # If both plan files are identical, then replace the old plan file with the new one to prevent avoidable stale apply.
         diff tf.plan.new tf.plan.old && mv "${{ format('{0}{1}tf.plan.parity', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}" "${{ format('{0}{1}tf.plan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
@@ -267,7 +267,7 @@ runs:
         command=$(cat tf.command.txt)
 
         # Remove each comma-delemited argument from the command.
-        IFS=',' read -ra args <<< "${{ inputs.hide-args }}"
+        IFS=',' read -ra args <<< "${{ inputs.hide-args }}="
         for arg in "${args[@]}"; do
           command=$(echo "$command" | grep --invert-match "^ -${arg}\b")
         done
