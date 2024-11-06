@@ -287,6 +287,10 @@ runs:
         summary=$(awk '/^(Error:|Plan:|Apply complete!|No changes.|Success)/ {line=$0} END {if (line) print line; else print "View output."}' tf.console.txt)
         echo "summary=$summary" >> "$GITHUB_OUTPUT"
 
+        # If steps.format.outcome failed, set syntax highlighting to diff, otherwise set it to hcl.
+        syntax="hcl"
+        if [[ "${{ steps.format.outcome }}" == "failure" ]]; then syntax="diff"; fi
+
         # Add summary to the job status.
         check_run=$(gh api /repos/${GITHUB_REPOSITORY}/check-runs/${{ steps.identifier.outputs.job }} --header "$GH_API" --method PATCH --field "output[title]=${summary}" --field "output[summary]=${summary}")
 
@@ -335,7 +339,7 @@ runs:
         ###### By @${GITHUB_TRIGGERING_ACTOR} at ${{ github.event.pull_request.updated_at || github.event.head_commit.timestamp || github.event.merge_group.head_commit.timestamp }} [(view log)](${run_url}).
         </summary>
 
-        \`\`\`hcl
+        \`\`\`$syntax
         ${console}
         \`\`\`
         </details>
