@@ -27,22 +27,17 @@ jobs:
           - fail_data_source_error
 
     steps:
-      - name: Echo github
+      - name: Echo context
         env:
           GH_JSON: ${{ toJson(github) }}
         run: echo "$GH_JSON"
-
-      - name: Echo context
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: console.log(JSON.stringify(context, null, 2))
 
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
 
-      - name: Setup OpenTofu
+      - name: Setup TF
         uses: opentofu/setup-opentofu@12f4debbf681675350b6cd1f0ff8ecfbda62027b # v1.0.4
         with:
           tofu_version: 1.8.5
@@ -58,6 +53,7 @@ jobs:
           working-directory: tests/${{ matrix.test }}
           tool: tofu
           format: true
+          validate: true
 
       - name: Echo TF
         run: |
