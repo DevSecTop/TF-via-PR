@@ -239,7 +239,7 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 ### To-Do
 
 - Handling of inputs which contain space(s) (e.g., `working-directory: path to/directory`).
-- Handling of comma-separated inputs which contain comma(s) (e.g., `arg-var: token=1,2,3`).
+- Handling of comma-separated inputs which contain comma(s) (e.g., `arg-var: token=1,2,3`)—use `TF_CLI_ARGS` [workaround](https://developer.hashicorp.com/terraform/cli/config/environment-variables#tf_cli_args-and-tf_cli_args_name).
 
 ## License
 

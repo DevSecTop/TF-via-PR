@@ -19,29 +19,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tool: [tofu, terraform]
         test:
           - pass_one
           - pass_character_limit
-          - pass_format_diff
-          # - fail_invalid_resource_type
-          # - fail_data_source_error
+          - fail_data_source_error
+          - fail_format_diff
+          - fail_invalid_resource_type
 
     steps:
-      - name: Echo github
+      - name: Echo context
         env:
           GH_JSON: ${{ toJson(github) }}
         run: echo "$GH_JSON"
-
-      - name: Echo context
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
-        with:
-          script: console.log(JSON.stringify(context, null, 2))
 
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+
+      - name: Setup TF
+        uses: opentofu/setup-opentofu@12f4debbf681675350b6cd1f0ff8ecfbda62027b # v1.0.4
+        with:
+          tofu_version: 1.8.5
+          tofu_wrapper: false
 
       - name: Provision TF
         id: tf
@@ -51,7 +51,9 @@ jobs:
           command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg-lock: ${{ github.event.pull_request.merged }}
           working-directory: tests/${{ matrix.test }}
-          tool: ${{ matrix.tool }}
+          tool: tofu
+          format: true
+          validate: true
 
       - name: Echo TF
         run: |
