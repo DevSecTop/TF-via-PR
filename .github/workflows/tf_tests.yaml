@@ -22,9 +22,9 @@ jobs:
         test:
           - pass_one
           - pass_character_limit
-          - pass_format_diff
-          - fail_invalid_resource_type
           - fail_data_source_error
+          - fail_format_diff
+          - fail_invalid_resource_type
 
     steps:
       - name: Echo context

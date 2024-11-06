@@ -339,7 +339,7 @@ runs:
         ###### By @${GITHUB_TRIGGERING_ACTOR} at ${{ github.event.pull_request.updated_at || github.event.head_commit.timestamp || github.event.merge_group.head_commit.timestamp }} [(view log)](${run_url}).
         </summary>
 
-        \`\`\`$syntax
+        \`\`\`${syntax}
         ${console}
         \`\`\`
         </details>
