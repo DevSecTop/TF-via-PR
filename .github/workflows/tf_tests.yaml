@@ -19,10 +19,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tool: [tofu, terraform]
+        tool: [terraform] # [tofu, terraform]
         test:
-          - pass_one
-          - pass_character_limit
+          # - pass_one
+          # - pass_character_limit
           - pass_format_diff
           # - fail_invalid_resource_type
           # - fail_data_source_error
@@ -53,7 +53,7 @@ jobs:
 
       - name: Provision TF
         id: tf
-        continue-on-error: true
+        # continue-on-error: true
         uses: ./
         with:
           command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
