@@ -60,6 +60,7 @@ jobs:
           arg-lock: ${{ github.event.pull_request.merged }}
           working-directory: tests/${{ matrix.test }}
           tool: ${{ matrix.tool }}
+          format: true
 
       - name: Echo TF
         run: |
