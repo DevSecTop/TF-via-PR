@@ -236,6 +236,11 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 > - [Become a stargazer](https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer.") if you find this project useful.
 </br>
 
+### To-Do
+
+- Handling of inputs which contain space(s) (e.g., `working-directory: path to/directory`).
+- Handling of comma-separated inputs which contain comma(s) (e.g., `arg-var: token=1,2,3`).
+
 ## License
 
 - This project is licensed under the permissive [Apache License 2.0](LICENSE.txt "Apache License 2.0.").
