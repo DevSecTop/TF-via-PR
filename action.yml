@@ -11,6 +11,7 @@ runs:
         # Check for required tools.
         which gh > /dev/null 2>&1 || { echo "Please install GitHub CLI before running this action as it is required for interacting with GitHub."; exit 1; }
         which jq > /dev/null 2>&1 || { echo "Please install jq before running this action as it is required for processing JSON outputs."; exit 1; }
+        which md5sum > /dev/null 2>&1 || { echo "Please install md5sum before running this action as it is required for naming the plan file artifact uniquely."; exit 1; }
         which unzip > /dev/null 2>&1 || { echo "Please install unzip before running this action as it is required for unpacking the plan file artifact."; exit 1; }
         which ${{ inputs.tool }} > /dev/null 2>&1 || { echo "Please install ${{ inputs.tool }} before running this action as it is required for provisioning TF code."; exit 1; }
         if [[ "${{ inputs.plan-encrypt }}" ]]; then which openssl > /dev/null 2>&1 || { echo "Please install openssl before running this action as it is required for plan file encryption."; exit 1; }; fi
@@ -29,7 +30,7 @@ runs:
 
         # CLI arguments.
         echo arg-auto-approve=$([[ -n "${{ inputs.arg-auto-approve }}" ]] && echo " -auto-approve" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-backend-config=$([[ -n "${{ inputs.arg-backend-config }}" ]] && echo " -backend-config=${{ inputs.arg-backend-config }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-backend-config=$([[ -n "${{ inputs.arg-backend-config }}" ]] && echo " -backend-config=${{ inputs.arg-backend-config }}" | sed "s/,/ -backend-config=/g" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-backend=$([[ -n "${{ inputs.arg-backend }}" ]] && echo " -backend=${{ inputs.arg-backend }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-backup=$([[ -n "${{ inputs.arg-backup }}" ]] && echo " -backup=${{ inputs.arg-backup }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-chdir=$([[ -n "${{ inputs.arg-chdir || inputs.working-directory }}" ]] && echo " -chdir=${{ inputs.arg-chdir || inputs.working-directory }}" || echo "") >> "$GITHUB_OUTPUT"
@@ -56,14 +57,14 @@ runs:
         echo arg-recursive=$([[ -n "${{ inputs.arg-recursive }}" ]] && echo " -recursive" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-refresh-only=$([[ -n "${{ inputs.arg-refresh-only }}" ]] && echo " -refresh-only" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-refresh=$([[ -n "${{ inputs.arg-refresh }}" ]] && echo " -refresh=${{ inputs.arg-refresh }}" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-replace=$([[ -n "${{ inputs.arg-replace }}" ]] && echo " -replace=${{ inputs.arg-replace }}" | sed "s/,/' -replace='/g" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-replace=$([[ -n "${{ inputs.arg-replace }}" ]] && echo " -replace=${{ inputs.arg-replace }}" | sed "s/,/ -replace=/g" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-state-out=$([[ -n "${{ inputs.arg-state-out }}" ]] && echo " -state-out=${{ inputs.arg-state-out }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-state=$([[ -n "${{ inputs.arg-state }}" ]] && echo " -state=${{ inputs.arg-state }}" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-target=$([[ -n "${{ inputs.arg-target }}" ]] && echo " -target=${{ inputs.arg-target }}" | sed "s/,/' -target='/g" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-target=$([[ -n "${{ inputs.arg-target }}" ]] && echo " -target=${{ inputs.arg-target }}" | sed "s/,/ -target=/g" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-test-directory=$([[ -n "${{ inputs.arg-test-directory }}" ]] && echo " -test-directory=${{ inputs.arg-test-directory }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-upgrade=$([[ -n "${{ inputs.arg-upgrade }}" ]] && echo " -upgrade" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-var-file=$([[ -n "${{ inputs.arg-var-file }}" ]] && echo " -var-file=${{ inputs.arg-var-file }}" || echo "") >> "$GITHUB_OUTPUT"
-        echo arg-var=$([[ -n "${{ inputs.arg-var }}" ]] && echo " -var=${{ inputs.arg-var }}" | sed "s/,/' -var='/g" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-var=$([[ -n "${{ inputs.arg-var }}" ]] && echo " -var=${{ inputs.arg-var }}" | sed "s/,/ -var=/g" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-write=$([[ -n "${{ inputs.arg-write }}" ]] && echo " -write=${{ inputs.arg-write }}" || echo "") >> "$GITHUB_OUTPUT"
 
     - id: identifier
@@ -86,10 +87,10 @@ runs:
         fi
         echo "pr=$pr_number" >> "$GITHUB_OUTPUT"
 
-        # Generate identifier for the workflow run.
-        identifier="${{ inputs.tool }} $pr_number ${{ inputs.arg-workspace }}${{ steps.arg.outputs.arg-chdir }}${{ steps.arg.outputs.arg-backend-config }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-destroy }}.tf.plan"
-        identifier=$(echo "$identifier" | sed 's/[^a-zA-Z0-9]/./g')
-        echo "name=$identifier" >> "$GITHUB_OUTPUT"
+        # Generate identifier for the workflow run using MD5 hashing algorithm for concise and unique naming.
+        identifier="${{ steps.arg.outputs.arg-chdir }}${{ steps.arg.outputs.arg-backend-config }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ inputs.arg-workspace }}${{ steps.arg.outputs.arg-destroy }}"
+        identifier=$(echo -n "$identifier" | md5sum | awk '{print $1}')
+        echo "name=${{ inputs.tool }}-${pr_number}-${identifier}.tfplan" >> "$GITHUB_OUTPUT"
 
         # List jobs from the current workflow run.
         workflow_run=$(gh api /repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/attempts/${GITHUB_RUN_ATTEMPT}/jobs --header "$GH_API" --method GET --field per_page=100)
@@ -165,7 +166,7 @@ runs:
       run: |
         # TF plan.
         trap 'exit_code="$?"; echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"; if [[ "$exit_code" == "2" ]]; then exit 0; fi' EXIT
-        args="${{ steps.arg.outputs.arg-destroy }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-compact-warnings }}${{ steps.arg.outputs.arg-concise }}${{ steps.arg.outputs.arg-detailed-exitcode }}${{ steps.arg.outputs.arg-generate-config-out }}${{ steps.arg.outputs.arg-lock-timeout }}${{ steps.arg.outputs.arg-lock }}${{ steps.arg.outputs.arg-parallelism }}${{ steps.arg.outputs.arg-refresh-only }}${{ steps.arg.outputs.arg-refresh }}${{ steps.arg.outputs.arg-replace }}${{ steps.arg.outputs.arg-target }} -out=tf.plan"
+        args="${{ steps.arg.outputs.arg-destroy }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-compact-warnings }}${{ steps.arg.outputs.arg-concise }}${{ steps.arg.outputs.arg-detailed-exitcode }}${{ steps.arg.outputs.arg-generate-config-out }}${{ steps.arg.outputs.arg-lock-timeout }}${{ steps.arg.outputs.arg-lock }}${{ steps.arg.outputs.arg-parallelism }}${{ steps.arg.outputs.arg-refresh-only }}${{ steps.arg.outputs.arg-refresh }}${{ steps.arg.outputs.arg-replace }}${{ steps.arg.outputs.arg-target }} -out=tfplan"
         echo "${{ inputs.tool }} plan${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
         ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} plan${args} 2> >(tee tf.console.txt 2>&1)
 
@@ -185,7 +186,7 @@ runs:
     - if: ${{ inputs.plan-encrypt != '' && steps.download.outcome == 'success' }}
       env:
         pass: ${{ inputs.plan-encrypt }}
-        path: ${{ format('{0}{1}tf.plan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}
+        path: ${{ format('{0}{1}tfplan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}
       shell: bash
       run: |
         # Decrypt plan file.
@@ -198,7 +199,7 @@ runs:
       shell: bash
       run: |
         # TF show.
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show tf.plan > tf.console.txt
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show tfplan > tf.console.txt
 
         # Diff of changes.
         # Filter lines starting with "  # " and save to tf.diff.txt, then prepend diff-specific symbols based on specific keywords.
@@ -207,7 +208,7 @@ runs:
     - if: ${{ inputs.plan-encrypt != '' && steps.plan.outcome == 'success' }}
       env:
         pass: ${{ inputs.plan-encrypt }}
-        path: ${{ format('{0}{1}tf.plan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}
+        path: ${{ format('{0}{1}tfplan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}
       shell: bash
       run: |
         # Encrypt plan file.
@@ -221,7 +222,7 @@ runs:
       uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
       with:
         name: ${{ steps.identifier.outputs.name }}
-        path: ${{ format('{0}{1}tf.plan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}
+        path: ${{ format('{0}{1}tfplan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}
         overwrite: true
 
     - if: ${{ inputs.plan-parity == 'true' && steps.download.outcome == 'success' }}
@@ -230,13 +231,13 @@ runs:
         # TF plan parity.
         # Generate a new plan file, then compare it with the previous one.
         # Both plan files are normalized by sorting JSON keys, removing timestamps and ${{ steps.arg.outputs.arg-detailed-exitcode }} to avoid false-positives.
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} plan${{ steps.arg.outputs.arg-destroy }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-compact-warnings }}${{ steps.arg.outputs.arg-concise }}${{ steps.arg.outputs.arg-generate-config-out }}${{ steps.arg.outputs.arg-lock-timeout }}${{ steps.arg.outputs.arg-lock }}${{ steps.arg.outputs.arg-parallelism }}${{ steps.arg.outputs.arg-refresh-only }}${{ steps.arg.outputs.arg-refresh }}${{ steps.arg.outputs.arg-replace }}${{ steps.arg.outputs.arg-target }} -out=tf.plan.parity
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show -json tf.plan.parity | jq --sort-keys 'del(.timestamp)' > tf.plan.new
-        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show -json tf.plan | jq --sort-keys 'del(.timestamp)' > tf.plan.old
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} plan${{ steps.arg.outputs.arg-destroy }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-compact-warnings }}${{ steps.arg.outputs.arg-concise }}${{ steps.arg.outputs.arg-generate-config-out }}${{ steps.arg.outputs.arg-lock-timeout }}${{ steps.arg.outputs.arg-lock }}${{ steps.arg.outputs.arg-parallelism }}${{ steps.arg.outputs.arg-refresh-only }}${{ steps.arg.outputs.arg-refresh }}${{ steps.arg.outputs.arg-replace }}${{ steps.arg.outputs.arg-target }} -out=tfplan.parity
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show -json tfplan.parity | jq --sort-keys 'del(.timestamp)' > tfplan.new
+        ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} show -json tfplan | jq --sort-keys 'del(.timestamp)' > tfplan.old
 
         # If both plan files are identical, then replace the old plan file with the new one to prevent avoidable stale apply.
-        diff tf.plan.new tf.plan.old && mv "${{ format('{0}{1}tf.plan.parity', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}" "${{ format('{0}{1}tf.plan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
-        rm --force tf.plan.new tf.plan.old "${{ format('{0}{1}tf.plan.parity', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
+        diff tfplan.new tfplan.old && mv "${{ format('{0}{1}tfplan.parity', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}" "${{ format('{0}{1}tfplan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
+        rm --force tfplan.new tfplan.old "${{ format('{0}{1}tfplan.parity', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
 
     - id: apply
       if: ${{ inputs.command == 'apply' }}
@@ -250,7 +251,7 @@ runs:
           var_file="${{ steps.arg.outputs.arg-var-file }}"
           var="${{ steps.arg.outputs.arg-var }}"
         else
-          plan=" tf.plan"
+          plan=" tfplan"
           var_file=""
           var=""
         fi
@@ -372,7 +373,7 @@ runs:
         fi
 
         # Clean up files.
-        rm --force tf.command.txt tf.console.txt tf.diff.txt "${{ format('{0}{1}tf.plan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
+        rm --force tf.command.txt tf.console.txt tf.diff.txt "${{ format('{0}{1}tfplan', inputs.arg-chdir || inputs.working-directory, (inputs.arg-chdir || inputs.working-directory) && '/' || '') }}"
 
 outputs:
   check-id:
