@@ -19,13 +19,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tool: [terraform] # [tofu, terraform]
         test:
-          # - pass_one
-          # - pass_character_limit
+          - pass_one
+          - pass_character_limit
           - pass_format_diff
-          # - fail_invalid_resource_type
-          # - fail_data_source_error
+          - fail_invalid_resource_type
+          - fail_data_source_error
 
     steps:
       - name: Echo github
@@ -43,23 +42,21 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Setup Terraform
-        if: matrix.tool == 'terraform'
-        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
-
       - name: Setup OpenTofu
-        if: matrix.tool == 'tofu'
         uses: opentofu/setup-opentofu@12f4debbf681675350b6cd1f0ff8ecfbda62027b # v1.0.4
+        with:
+          tofu_version: 1.8.5
+          tofu_wrapper: false
 
       - name: Provision TF
         id: tf
-        # continue-on-error: true
+        continue-on-error: true
         uses: ./
         with:
           command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg-lock: ${{ github.event.pull_request.merged }}
           working-directory: tests/${{ matrix.test }}
-          tool: ${{ matrix.tool }}
+          tool: tofu
           format: true
 
       - name: Echo TF
