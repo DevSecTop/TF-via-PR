@@ -43,6 +43,14 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup Terraform
+        if: matrix.tool == 'terraform'
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+
+      - name: Setup OpenTofu
+        if: matrix.tool == 'tofu'
+        uses: opentofu/setup-opentofu@12f4debbf681675350b6cd1f0ff8ecfbda62027b # v1.0.4
+
       - name: Provision TF
         id: tf
         continue-on-error: true
