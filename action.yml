@@ -99,11 +99,11 @@ runs:
         if [[ "$GH_MATRIX" == "null" ]]; then
           # For regular jobs, get the ID of the job with the same name as $GITHUB_JOB (lowercase and '-' or '_' replaced with ' ').
           # Otherwise, get the ID of the first job in the list as a fallback.
-          job_id=$(echo "$workflow_run" | jq --raw-output '(.jobs[] | select((.name | ascii_downcase | gsub("-|_"; " ")) == (env.GITHUB_JOB | ascii_downcase | gsub("-|_"; " "))) | .id) // .jobs[0].id' | head -n 1)
+          job_id=$(echo "$workflow_run" | jq --raw-output '(.jobs[] | select((.name | ascii_downcase | gsub("-|_"; " ")) == (env.GITHUB_JOB | ascii_downcase | gsub("-|_"; " "))) | .id) // .jobs[0].id' | tail -n 1)
         else
           # For matrix jobs, join the matrix values with comma separator into a single string and get the ID of the job which contains it.
           matrix=$(echo "$GH_MATRIX" | jq --raw-output 'to_entries | map(.value) | join(", ")')
-          job_id=$(echo "$workflow_run" | jq --raw-output --arg matrix "$matrix" '.jobs[] | select(.name | contains($matrix)) | .id')
+          job_id=$(echo "$workflow_run" | jq --raw-output --arg matrix "$matrix" '.jobs[] | select(.name | contains($matrix)) | .id' | tail -n 1)
         fi
         echo "job=$job_id" >> "$GITHUB_OUTPUT"
 
@@ -356,7 +356,7 @@ runs:
         if [[ "${{ inputs.comment-pr }}" != "none" && "${{ steps.identifier.outputs.pr }}" != "0" ]]; then
           # Check if the PR contains a bot comment with the same identifier.
           list_comments=$(gh api /repos/${GITHUB_REPOSITORY}/issues/${{ steps.identifier.outputs.pr }}/comments --header "$GH_API" --method GET --field per_page=100)
-          bot_comment=$(echo "$list_comments" | jq --raw-output --arg identifier "${{ steps.identifier.outputs.name }}" '.[] | select(.user.type == "Bot") | select(.body | contains($identifier)) | .id' | head -n 1)
+          bot_comment=$(echo "$list_comments" | jq --raw-output --arg identifier "${{ steps.identifier.outputs.name }}" '.[] | select(.user.type == "Bot") | select(.body | contains($identifier)) | .id' | tail -n 1)
 
           if [[ -n "$bot_comment" ]]; then
             if [[ "${{ inputs.comment-pr }}" == "recreate" ]]; then
