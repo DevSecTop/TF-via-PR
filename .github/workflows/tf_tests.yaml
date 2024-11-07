@@ -25,6 +25,7 @@ jobs:
 
   tests:
     runs-on: ubuntu-24.04
+    needs: placeholder
 
     permissions:
       actions: read # Required to download repository artifact.
