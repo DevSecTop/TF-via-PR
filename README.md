@@ -138,7 +138,8 @@ For each workflow run, a matrix-friendly job summary with logs is added as a fal
 | Security | `token`             | Specify a GitHub token.</br>Default: `${{ github.token }}`                                                                           |
 | UI       | `comment-pr`        | PR comment by: `update` existing comment, `recreate` and delete previous one, or `none`.</br>Default: `update`                       |
 | UI       | `label-pr`          | Add a PR label with the command input.</br>Default: `true`                                                                           |
-| UI       | `hide-args`         | Hide comma-separated list of CLI arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var`                     |
+| UI       | `hide-args`         | Hide comma-separated list of CLI arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var=`                    |
+| UI       | `show-args`         | Show comma-separated list of CLI arguments in the command input.</br>Default: `workspace`                                            |
 </br>
 
 The default behavior of `comment-pr` is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</br>

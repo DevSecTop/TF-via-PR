@@ -66,6 +66,7 @@ runs:
         echo arg-var-file=$([[ -n "${{ inputs.arg-var-file }}" ]] && echo " -var-file=${{ inputs.arg-var-file }}" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-var=$([[ -n "${{ inputs.arg-var }}" ]] && echo " -var=${{ inputs.arg-var }}" | sed "s/,/ -var=/g" || echo "") >> "$GITHUB_OUTPUT"
         echo arg-write=$([[ -n "${{ inputs.arg-write }}" ]] && echo " -write=${{ inputs.arg-write }}" || echo "") >> "$GITHUB_OUTPUT"
+        echo arg-workspace=$([[ -n "${{ inputs.arg-workspace }}" ]] && echo " -workspace=${{ inputs.arg-workspace }}" || echo "") >> "$GITHUB_OUTPUT"
 
     - id: identifier
       env:
@@ -203,7 +204,7 @@ runs:
 
         # Diff of changes.
         # Filter lines starting with "  # " and save to tf.diff.txt, then prepend diff-specific symbols based on specific keywords.
-        grep -E '^  # ' tf.console.txt | sed -e 's/^  # \(.* be created\)/+ \1/' -e 's/^  # \(.* be destroyed\)/- \1/' -e 's/^  # \(.* be updated\|.* be replaced\)/! \1/' -e 's/^  # \(.* be read\)/~ \1/' -e 's/^  # \(.*\)/# \1/' > tf.diff.txt || true
+        grep '^  # ' tf.console.txt | sed -e 's/^  # \(.* be created\)/+ \1/' -e 's/^  # \(.* be destroyed\)/- \1/' -e 's/^  # \(.* be updated\|.* be replaced\)/! \1/' -e 's/^  # \(.* be read\)/~ \1/' -e 's/^  # \(.*\)/# \1/' > tf.diff.txt || true
 
     - if: ${{ inputs.plan-encrypt != '' && steps.plan.outcome == 'success' }}
       env:
@@ -267,12 +268,20 @@ runs:
         # Parse the tf.command.txt file.
         command=$(cat tf.command.txt)
 
-        # Remove each comma-delemited argument from the command.
-        IFS=',' read -ra args <<< "${{ inputs.hide-args }}="
-        for arg in "${args[@]}"; do
-          command=$(echo "$command" | grep --invert-match "^ -${arg}\b")
+        # Remove each comma-delemited hide-args argument from the command.
+        IFS=',' read -ra hide_args <<< "${{ inputs.hide-args }}"
+        for arg in "${hide_args[@]}"; do
+          command=$(echo "$command" | grep --invert-match "^ -${arg}")
         done
-        command=$(echo "$command" | tr -d '\n')
+
+        # Conversely, show each comma-delemited show-args argument in the command.
+        IFS=',' read -ra show_args <<< "${{ inputs.show-args }}"
+        command_append=""
+        for arg in "${show_args[@]}"; do
+          command_append+=$(echo "${{ steps.arg.outputs.arg-workspace }}${{ steps.arg.outputs.arg-auto-approve }}${{ steps.arg.outputs.arg-backend-config }}${{ steps.arg.outputs.arg-backend }}${{ steps.arg.outputs.arg-backup }}${{ steps.arg.outputs.arg-check }}${{ steps.arg.outputs.arg-compact-warnings }}${{ steps.arg.outputs.arg-concise }}${{ steps.arg.outputs.arg-destroy }}${{ steps.arg.outputs.arg-detailed-exitcode }}${{ steps.arg.outputs.arg-diff }}${{ steps.arg.outputs.arg-force-copy }}${{ steps.arg.outputs.arg-from-module }}${{ steps.arg.outputs.arg-generate-config-out }}${{ steps.arg.outputs.arg-get }}${{ steps.arg.outputs.arg-list }}${{ steps.arg.outputs.arg-lock-timeout }}${{ steps.arg.outputs.arg-lock }}${{ steps.arg.outputs.arg-lockfile }}${{ steps.arg.outputs.arg-migrate-state }}${{ steps.arg.outputs.arg-no-tests }}${{ steps.arg.outputs.arg-or-create }}${{ steps.arg.outputs.arg-parallelism }}${{ steps.arg.outputs.arg-plugin-dir }}${{ steps.arg.outputs.arg-reconfigure }}${{ steps.arg.outputs.arg-recursive }}${{ steps.arg.outputs.arg-refresh-only }}${{ steps.arg.outputs.arg-refresh }}${{ steps.arg.outputs.arg-replace }}${{ steps.arg.outputs.arg-state-out }}${{ steps.arg.outputs.arg-state }}${{ steps.arg.outputs.arg-target }}${{ steps.arg.outputs.arg-test-directory }}${{ steps.arg.outputs.arg-upgrade }}${{ steps.arg.outputs.arg-var-file }}${{ steps.arg.outputs.arg-var }}${{ steps.arg.outputs.arg-write }}" | sed 's/ -/\n -/g' | grep "^ -${arg}")
+        done
+
+        command=$(echo "$command" | tr -d '\n')$command_append
         echo "command=$command" >> "$GITHUB_OUTPUT"
 
         # Parse the tf.console.txt file, truncated for character limit.
@@ -356,7 +365,7 @@ runs:
         if [[ "${{ inputs.comment-pr }}" != "none" && "${{ steps.identifier.outputs.pr }}" != "0" ]]; then
           # Check if the PR contains a bot comment with the same identifier.
           list_comments=$(gh api /repos/${GITHUB_REPOSITORY}/issues/${{ steps.identifier.outputs.pr }}/comments --header "$GH_API" --method GET --field per_page=100)
-          bot_comment=$(echo "$list_comments" | jq --raw-output --arg identifier "${{ steps.identifier.outputs.name }}" '.[] | select(.user.type == "Bot") | select(.body | contains($identifier)) | .id' | tail -n 1)
+          bot_comment=$(echo "$list_comments" | jq --raw-output --arg identifier "${{ steps.identifier.outputs.name }}" '.[] | select(.user.type == "Bot") | select(.body | contains($identifier)) | .id' | head -n 1)
 
           if [[ -n "$bot_comment" ]]; then
             if [[ "${{ inputs.comment-pr }}" == "recreate" ]]; then
@@ -432,8 +441,8 @@ inputs:
     description: "Check format of TF code (e.g., `false`)."
     required: false
   hide-args:
-    default: "detailed-exitcode,lock,out,var"
-    description: "Hide comma-separated arguments from the command input (e.g., `detailed-exitcode,lock,out,var`)."
+    default: "detailed-exitcode,lock,out,var="
+    description: "Hide comma-separated arguments from the command input (e.g., `detailed-exitcode,lock,out,var=`)."
     required: false
   label-pr:
     default: "true"
@@ -446,6 +455,10 @@ inputs:
   plan-parity:
     default: "false"
     description: "Replace the plan file if it matches a newly-generated one to prevent stale apply (e.g., `false`)."
+    required: false
+  show-args:
+    default: "workspace"
+    description: "Show comma-separated arguments in the command input (e.g., `workspace`)."
     required: false
   token:
     default: ${{ github.token }}
