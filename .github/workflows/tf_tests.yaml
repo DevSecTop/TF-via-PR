@@ -7,25 +7,8 @@ on:
     types: [opened, reopened, synchronize, closed]
 
 jobs:
-  placeholder:
-    runs-on: ubuntu-24.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        test: [pass_one]
-
-    steps:
-      - name: Echo context
-        env:
-          GH_JSON: ${{ toJson(github) }}
-        run: echo "$GH_JSON"
-
-      - run: echo "Placeholder job."
-
   tests:
     runs-on: ubuntu-24.04
-    needs: placeholder
 
     permissions:
       actions: read # Required to download repository artifact.
@@ -38,10 +21,10 @@ jobs:
       matrix:
         test:
           - pass_one
-          # - pass_character_limit
-          # - fail_data_source_error
-          # - fail_format_diff
-          # - fail_invalid_resource_type
+          - pass_character_limit
+          - fail_data_source_error
+          - fail_format_diff
+          - fail_invalid_resource_type
 
     steps:
       - name: Echo context
