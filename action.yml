@@ -365,7 +365,7 @@ runs:
         if [[ "${{ inputs.comment-pr }}" != "none" && "${{ steps.identifier.outputs.pr }}" != "0" ]]; then
           # Check if the PR contains a bot comment with the same identifier.
           list_comments=$(gh api /repos/${GITHUB_REPOSITORY}/issues/${{ steps.identifier.outputs.pr }}/comments --header "$GH_API" --method GET --field per_page=100)
-          bot_comment=$(echo "$list_comments" | jq --raw-output --arg identifier "${{ steps.identifier.outputs.name }}" '.[] | select(.user.type == "Bot") | select(.body | contains($identifier)) | .id' | head -n 1)
+          bot_comment=$(echo "$list_comments" | jq --raw-output --arg identifier "${{ steps.identifier.outputs.name }}" '.[] | select(.user.type == "Bot") | select(.body | contains($identifier)) | .id' | tail -n 1)
 
           if [[ -n "$bot_comment" ]]; then
             if [[ "${{ inputs.comment-pr }}" == "recreate" ]]; then
