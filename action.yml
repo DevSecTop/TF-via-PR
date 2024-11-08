@@ -271,7 +271,7 @@ runs:
         # Remove each comma-delemited hide-args argument from the command.
         IFS=',' read -ra hide_args <<< "${{ inputs.hide-args }}"
         for arg in "${hide_args[@]}"; do
-          command=$(echo "$command" | grep --invert-match "^ -${arg}")
+          command=$(echo "$command" | grep --invert-match "^ -${arg}" || true)
         done
 
         # Conversely, show each comma-delemited show-args argument in the command.

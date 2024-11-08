@@ -21,10 +21,10 @@ jobs:
       matrix:
         test:
           - pass_one
-          # - pass_character_limit
-          # - fail_data_source_error
-          # - fail_format_diff
-          # - fail_invalid_resource_type
+          - pass_character_limit
+          - fail_data_source_error
+          - fail_format_diff
+          - fail_invalid_resource_type
 
     steps:
       - name: Echo context
@@ -45,7 +45,7 @@ jobs:
 
       - name: Provision TF
         id: tf
-        # continue-on-error: true
+        continue-on-error: true
         uses: ./
         with:
           command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
