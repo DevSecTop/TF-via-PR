@@ -78,7 +78,7 @@ runs:
         if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
           # List PRs associated with the commit, then get the PR number from the head ref or the latest PR.
           associated_prs=$(gh api /repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls --header "$GH_API" --method GET --field per_page=100)
-          pr_number=$(echo "$associated_prs" | jq --raw-output '(.[] | select(.head.ref == env.GITHUB_REF_NAME) | .number) // .[0].number')
+          pr_number=$(echo "$associated_prs" | jq --raw-output '(.[] | select(.head.ref == env.GITHUB_REF_NAME) | .number) // .[0].number // 0')
         elif [[ "$GITHUB_EVENT_NAME" == "merge_group" ]]; then
           # Get the PR number by parsing the ref name.
           pr_number=$(echo "${GITHUB_REF_NAME}" | sed -n 's/.*pr-\([0-9]*\)-.*/\1/p')
