@@ -45,7 +45,7 @@ jobs:
 
       - name: Provision TF
         id: tf
-        continue-on-error: true
+        # continue-on-error: true
         uses: ./
         with:
           command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
