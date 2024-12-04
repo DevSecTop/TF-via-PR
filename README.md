@@ -65,7 +65,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - uses: devsectop/tf-via-pr@v12
         with:
-          # Only plan by default, or apply with lock on merge.
+          # Run plan by default, or apply with lock on merge.
           command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
           arg-lock: ${{ github.event_name == 'push' }}
           arg-var-file: env/dev.tfvars
@@ -76,7 +76,7 @@ jobs:
 
 > [!TIP]
 >
-> - Pin your workflow version to a specific release tag or SHA to harden your CI/CD pipeline [security](#security) against supply chain attacks.
+> - All supported parameters and arguments (e.g., `-backend-config`, `-destroy`, `-parallelism`, etc.) are [listed below](#inputs---arguments).
 > - Environment variables can be passed in for cloud platform authentication (e.g., [configure-aws-credentials](https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions.") for short-lived credentials).
 </br>
 
@@ -221,6 +221,9 @@ The default behavior of `comment-pr` is to update the existing PR comment with t
 
 View [security policy and reporting instructions](SECURITY.md).
 
+> [!TIP]
+>
+> Pin your workflow version to a specific release tag or SHA to harden your CI/CD pipeline security against supply chain attacks.
 </br>
 
 ## Changelog
