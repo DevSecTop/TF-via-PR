@@ -430,7 +430,7 @@ inputs:
   # Action parameters.
   command:
     default: ""
-    description: "Command to run between: `plan`, `apply` or leave empty for `init` with checks (e.g., `plan`)."
+    description: "Command to run between: `plan`, `apply`, `init` (only for checks) or leave empty (only for outputs) (e.g., `plan`)."
     required: false
   comment-pr:
     default: "update"
