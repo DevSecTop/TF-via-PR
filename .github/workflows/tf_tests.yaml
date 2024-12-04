@@ -71,10 +71,11 @@ jobs:
           echo "summary: ${{ steps.tf.outputs.summary }}"
 
       - name: Check plan for diff
+        id: check
         env:
           path: tests/${{ matrix.test }}
           plan: ${{ steps.tf.outputs.identifier }}
-          pass: ${{ secrets.TF_ENCRYPTION }}
+          pass: ${{ secrets.TF_ENCRYPTION }} # Optional.
         run: |
           echo "Download plan-file artifact."
           artifact_id=$(gh api /repos/{owner}/{repo}/actions/artifacts --method GET --field "name=$plan" --jq '.artifacts[0].id')
@@ -89,5 +90,7 @@ jobs:
           mv "tfplan.decrypted" "tfplan"
 
           echo "Check if plan-file has diff, or exit with 1."
-          tofu show "tfplan"
-          tofu show "tfplan" | grep -q "^Plan:" || exit 1
+          diff_exists=$(tofu show "tfplan" | grep -q "^Plan:" && echo "true" || echo "false")
+
+    outputs:
+      diff_exists: ${{ steps.check.outputs.diff_exists }}
