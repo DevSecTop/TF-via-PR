@@ -20,14 +20,14 @@
   <tr>
     <td>
       <ul>
-        <li>Plan and apply changes with CLI arguments and encrypted plan file to avoid configuration drift.</li>
-        <li>Outline diff changes within updated PR comment and matrix-friendly workflow summary, complete with log.</li>
+        <li>Plan and apply changes with CLI arguments and <strong>encrypted plan file</strong> to avoid configuration drift.</li>
+        <li>Outline diff changes within updated <strong>PR comment</strong> and matrix-friendly workflow summary, complete with log.</li>
       </ul>
     </td>
     <td>
       <ul>
-        <li>DevOps and Platform engineers wanting to empower their teams to self-service scalably.</li>
-        <li>Maintainers looking to secure their pipeline without the overhead of containers or VMs.</li>
+        <li>DevOps and Platform engineers wanting to empower their teams to <strong>self-service</strong> scalably.</li>
+        <li>Maintainers looking to <strong>secure</strong> their pipeline without the overhead of containers or VMs.</li>
       </ul>
     </td>
   </tr>
