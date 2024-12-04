@@ -132,7 +132,7 @@ runs:
         echo "${{ inputs.tool }} init${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
         ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} init${args} 2> >(tee tf.console.txt) > >(tee tf.console.txt)
 
-    - if: ${{ inputs.arg-workspace != '' }}
+    - if: ${{ inputs.arg-workspace != '' && contains(fromJSON('["plan", "apply", "init"]'), inputs.command) }}
       id: workspace
       shell: bash
       run: |
@@ -142,7 +142,7 @@ runs:
         echo "${{ inputs.tool }} workspace select${{ steps.arg.outputs.arg-chdir }}${args}" | sed 's/ -/\n -/g' > tf.command.txt
         ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} workspace select${args} 2> >(tee tf.console.txt) > >(tee tf.console.txt)
 
-    - if: ${{ inputs.validate == 'true' }}
+    - if: ${{ inputs.validate == 'true' && contains(fromJSON('["plan", "apply", "init"]'), inputs.command) }}
       id: validate
       shell: bash
       run: |
