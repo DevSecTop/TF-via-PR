@@ -117,7 +117,7 @@ unzip <tf.plan>
 ```
 </br>
 
-For each workflow run, a matrix-friendly job summary with logs is added as a fallback to the PR comment. Below this, you’ll find a list of plan file artifacts generated during runtime.</br>
+For each workflow run, a matrix-friendly job summary with logs is added as a fallback to the PR comment. Below this, you'll find a list of plan file artifacts generated during runtime.</br>
 
 [![Workflow job summary with plan file artifact.](/.github/assets/workflow.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/workflow.png "View full-size image.")
 </br>
@@ -152,7 +152,7 @@ The default behavior of `comment-pr` is to update the existing PR comment with t
 > [!NOTE]
 >
 > - Arguments are passed to the appropriate TF command(s) automatically, whether that's `init`, `workspace`, `validate`, `plan`, or `apply`.</br>
-> - For repeated arguments like `arg-var`, `arg-replace` and `arg-target`, use commas to separate multiple values (e.g., `arg-var: key1=value1,key2=value2`).
+> - For repeated arguments like `arg-var`, `arg-backend-config`, `arg-replace` and `arg-target`, use commas to separate multiple values (e.g., `arg-var: key1=value1,key2=value2`).
 
 <details><summary>Toggle view of all available CLI arguments.</summary>
 
