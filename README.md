@@ -120,7 +120,7 @@ unzip <tf.plan>
 For each workflow run, a matrix-friendly job summary with logs is added as a fallback to the PR comment. Below this, you'll find a list of plan file artifacts generated during runtime.</br>
 
 [![Workflow job summary with plan file artifact.](/.github/assets/workflow.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/workflow.png "View full-size image.")
-</br>
+</br></br>
 
 ## Parameters
 
@@ -145,7 +145,7 @@ For each workflow run, a matrix-friendly job summary with logs is added as a fal
 The default behavior of `comment-pr` is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</br>
 
 [![PR comment revision history comparing plan and apply outputs.](/.github/assets/revisions.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/revisions.png "View full-size image.")
-</br>
+</br></br>
 
 ### Inputs - Arguments
 
