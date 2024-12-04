@@ -267,7 +267,7 @@ runs:
       run: |
         # Post output.
         # Parse the tf.command.txt file.
-        command=$(cat tf.command.txt)
+        command=$(cat tf.command.txt || true)
 
         # Remove each comma-delemited hide-args argument from the command.
         IFS=',' read -ra hide_args <<< "${{ inputs.hide-args }}"
