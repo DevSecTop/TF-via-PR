@@ -286,7 +286,7 @@ runs:
         echo "command=$command" >> "$GITHUB_OUTPUT"
 
         # Parse the tf.console.txt file, truncated for character limit.
-        console=$(head --bytes=42000 tf.console.txt)
+        console=$(head --bytes=42000 tf.console.txt || true)
         if [[ ${#console} -eq 42000 ]]; then console="${console}"$'\n…'; fi
         { echo 'result<<EOTFVIAPR'
           echo "$console"
