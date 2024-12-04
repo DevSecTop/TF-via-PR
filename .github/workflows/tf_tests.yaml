@@ -93,4 +93,4 @@ jobs:
           ls -la "$path"
 
           echo "Check if plan-file has diff, or exit with 1."
-          tofu -chdir "$path" show "tfplan" | grep -q "^Plan:" || exit 1
+          tofu -chdir="$path" show "tfplan" | grep -q "^Plan:" || exit 1
