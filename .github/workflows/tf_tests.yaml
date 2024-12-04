@@ -48,7 +48,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
-          command: init # ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
+          # command: init # ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg-lock: false # ${{ github.event.pull_request.merged }}
           working-directory: tests/${{ matrix.test }}
           tool: tofu
@@ -89,7 +89,7 @@ jobs:
           openssl enc -aes-256-ctr -pbkdf2 -salt -in "tfplan" -out "tfplan.decrypted" -pass file:"$temp" -d
           mv "tfplan.decrypted" "tfplan"
 
-          echo "Check if plan-file has diff, or exit with 1."
+          echo "Check if plan-file has diff."
           diff_exists=$(tofu show "tfplan" | grep -q "^Plan:" && echo "true" || echo "false")
 
     outputs:
