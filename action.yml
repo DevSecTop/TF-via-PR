@@ -262,12 +262,12 @@ runs:
         ${{ inputs.tool }}${{ steps.arg.outputs.arg-chdir }} apply${args} 2> >(tee tf.console.txt) > >(tee tf.console.txt)
 
     - id: post
-      if: ${{ !cancelled() && steps.identifier.outcome == 'success' }}
+      if: ${{ !cancelled() && steps.identifier.outcome == 'success' && contains(fromJSON('["plan", "apply", "init"]'), inputs.command) }}
       shell: bash
       run: |
         # Post output.
         # Parse the tf.command.txt file.
-        command=$(cat tf.command.txt || touch tf.command.txt)
+        command=$(cat tf.command.txt)
 
         # Remove each comma-delemited hide-args argument from the command.
         IFS=',' read -ra hide_args <<< "${{ inputs.hide-args }}"
@@ -286,7 +286,7 @@ runs:
         echo "command=$command" >> "$GITHUB_OUTPUT"
 
         # Parse the tf.console.txt file, truncated for character limit.
-        console=$(head --bytes=42000 tf.console.txt || touch tf.console.txt)
+        console=$(head --bytes=42000 tf.console.txt)
         if [[ ${#console} -eq 42000 ]]; then console="${console}"$'\n…'; fi
         { echo 'result<<EOTFVIAPR'
           echo "$console"
