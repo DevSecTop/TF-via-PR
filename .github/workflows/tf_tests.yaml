@@ -81,6 +81,7 @@ jobs:
           artifact_id=$(gh api /repos/{owner}/{repo}/actions/artifacts --method GET --field "name=$plan" --jq '.artifacts[0].id')
           gh api /repos/{owner}/{repo}/actions/artifacts/${artifact_id}/zip --method GET > "$plan.zip"
           unzip "$plan.zip" -d "$path"
+          cd "$path"
 
           # echo "Optionally decrypt plan-file."
           # temp=$(mktemp)
@@ -93,4 +94,4 @@ jobs:
           ls -la "$path"
 
           echo "Check if plan-file has diff, or exit with 1."
-          tofu -chdir="$path" show "tfplan" | grep -q "^Plan:" || exit 1
+          tofu show "tfplan" | grep -q "^Plan:" || exit 1
