@@ -20,25 +20,24 @@
   <tr>
     <td>
       <ul>
-        <li>Plan and apply changes with CLI arguments and encrypted plan file to avoid configuration drift.</li>
-        <li>Outline diff changes within updated PR comment and matrix-friendly workflow summary, complete with log.</li>
+        <li>Plan and apply changes with CLI arguments and <strong>encrypted plan file</strong> to avoid configuration drift.</li>
+        <li>Outline diff changes within updated <strong>PR comment</strong> and matrix-friendly workflow summary, complete with log.</li>
       </ul>
     </td>
     <td>
       <ul>
-        <li>DevOps and Platform engineers wanting to empower their teams to self-service scalably.</li>
-        <li>Maintainers looking to secure their pipeline without the overhead of containers or VMs.</li>
+        <li>DevOps and Platform engineers wanting to empower their teams to <strong>self-service</strong> scalably.</li>
+        <li>Maintainers looking to <strong>secure</strong> their pipeline without the overhead of containers or VMs.</li>
       </ul>
     </td>
   </tr>
 </table>
 </br>
 
-[![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/comment.png "View full-size image.")
-</br>
+### View: [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
-### [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
-</br>
+[![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/comment.png "View full-size image.")
+</br></br>
 
 ## Usage
 
@@ -65,7 +64,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - uses: devsectop/tf-via-pr@v12
         with:
-          # Only plan by default, or apply with lock on merge.
+          # Run plan by default, or apply with lock on merge.
           command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
           arg-lock: ${{ github.event_name == 'push' }}
           arg-var-file: env/dev.tfvars
@@ -76,7 +75,7 @@ jobs:
 
 > [!TIP]
 >
-> - Pin your workflow version to a specific release tag or SHA to harden your CI/CD pipeline [security](#security) against supply chain attacks.
+> - All supported arguments (e.g., `-backend-config`, `-destroy`, `-parallelism`, etc.) are [listed below](#inputs---arguments).
 > - Environment variables can be passed in for cloud platform authentication (e.g., [configure-aws-credentials](https://github.com/aws-actions/configure-aws-credentials "Configuring AWS credentials for use in GitHub Actions.") for short-lived credentials).
 </br>
 
@@ -106,7 +105,7 @@ The following workflows showcase common use cases, while a comprehensive list of
 
 ### How does encryption work?
 
-Before the workflow uploads the plan file as an artifact, it can be encrypted with a passphrase to prevent exposure of sensitive data using `plan-encrypt` input with a secret (e.g., `${{ secrets.PASSPHRASE }}`). This is done with [OpenSSL](https://docs.openssl.org/master/man1/openssl-enc/ "OpenSSL encryption documentation.")'s symmetric stream counter mode encryption with salt and pbkdf2.
+Before the workflow uploads the plan file as an artifact, it can be encrypted with a passphrase (e.g., `${{ secrets.PASSPHRASE }}`) to prevent exposure of sensitive data using `plan-encrypt` input. This is done with [OpenSSL](https://docs.openssl.org/master/man1/openssl-enc/ "OpenSSL encryption documentation.")'s symmetric stream counter mode encryption with salt and pbkdf2.
 
 In order to decrypt the plan file locally, use the following commands after downloading the artifact (noting the whitespace before `openssl` to prevent recording the command in shell history):
 
@@ -117,10 +116,10 @@ unzip <tf.plan>
 ```
 </br>
 
-For each workflow run, a matrix-friendly job summary with logs is added as a fallback to the PR comment. Below this, you’ll find a list of plan file artifacts generated during runtime.</br>
+For each workflow run, a matrix-friendly job summary with logs is added as a fallback to the PR comment. Below this, you'll find a list of plan file artifacts generated during runtime.</br>
 
 [![Workflow job summary with plan file artifact.](/.github/assets/workflow.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/workflow.png "View full-size image.")
-</br>
+</br></br>
 
 ## Parameters
 
@@ -145,14 +144,14 @@ For each workflow run, a matrix-friendly job summary with logs is added as a fal
 The default behavior of `comment-pr` is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</br>
 
 [![PR comment revision history comparing plan and apply outputs.](/.github/assets/revisions.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/revisions.png "View full-size image.")
-</br>
+</br></br>
 
 ### Inputs - Arguments
 
 > [!NOTE]
 >
 > - Arguments are passed to the appropriate TF command(s) automatically, whether that's `init`, `workspace`, `validate`, `plan`, or `apply`.</br>
-> - For repeated arguments like `arg-var`, `arg-replace` and `arg-target`, use commas to separate multiple values (e.g., `arg-var: key1=value1,key2=value2`).
+> - For repeated arguments like `arg-var`, `arg-backend-config`, `arg-replace` and `arg-target`, use commas to separate multiple values (e.g., `arg-var: key1=value1,key2=value2`).
 
 <details><summary>Toggle view of all available CLI arguments.</summary>
 
@@ -221,6 +220,9 @@ The default behavior of `comment-pr` is to update the existing PR comment with t
 
 View [security policy and reporting instructions](SECURITY.md).
 
+> [!TIP]
+>
+> Pin your workflow version to a specific release tag or SHA to harden your CI/CD pipeline security against supply chain attacks.
 </br>
 
 ## Changelog
@@ -241,6 +243,7 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 
 - Handling of inputs which contain space(s) (e.g., `working-directory: path to/directory`).
 - Handling of comma-separated inputs which contain comma(s) (e.g., `arg-var: token=1,2,3`)—use `TF_CLI_ARGS` [workaround](https://developer.hashicorp.com/terraform/cli/config/environment-variables#tf_cli_args-and-tf_cli_args_name).
+</br>
 
 ## License
 
