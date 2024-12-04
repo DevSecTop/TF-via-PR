@@ -48,7 +48,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
-          # command: "" # ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
+          command: "" # ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg-lock: ${{ github.event.pull_request.merged }}
           working-directory: tests/${{ matrix.test }}
           tool: tofu
@@ -69,3 +69,19 @@ jobs:
           echo "result: ${{ steps.tf.outputs.result }}"
           echo "run-url: ${{ steps.tf.outputs.run-url }}"
           echo "summary: ${{ steps.tf.outputs.summary }}"
+
+      - name: Parse plan-file artifact
+        env:
+          PLAN_FILE: ${{ steps.tf.outputs.identifier }}
+        run: |
+          echo "Get artifact ID for $PLAN_FILE"
+          artifact_id=$(gh api /repos/{owner}/{repo}/actions/artifacts --method GET --field "name=$PLAN_FILE" --jq '.artifacts[0].id')
+          echo "Download artifact zip"
+          gh api /repos/{owner}/{repo}/actions/artifacts/${artifact_id}/zip --method GET > "$PLAN_FILE.zip"
+          echo "Unzip artifact"
+          unzip "$PLAN_FILE.zip"
+          echo "List files"
+          ls -la
+          echo "Remove artifact zip"
+          rm "$PLAN_FILE.zip"
+          tofu show "$PLAN_FILE"
