@@ -84,3 +84,7 @@ jobs:
           cd "tests/${{ matrix.test }}"
           echo "Show plan"
           tofu show "tfplan"
+          echo "Use tofu show tfplan to check if it contains a line starting with 'Plan:'."
+          tofu show "tfplan" | grep -q "^Plan:" || exit 0
+          echo "exit 1"
+          tofu show "tfplan" | grep -q "^Plan:" || exit 1
