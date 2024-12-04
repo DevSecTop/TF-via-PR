@@ -48,7 +48,7 @@ jobs:
         continue-on-error: true
         uses: ./
         with:
-          command: init # ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
+          command: plan # ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg-lock: false # ${{ github.event.pull_request.merged }}
           working-directory: tests/${{ matrix.test }}
           tool: tofu
@@ -70,21 +70,26 @@ jobs:
           echo "run-url: ${{ steps.tf.outputs.run-url }}"
           echo "summary: ${{ steps.tf.outputs.summary }}"
 
-      - name: Parse plan-file artifact
+      - name: Check plan for diff
         env:
-          PLAN_FILE: ${{ steps.tf.outputs.identifier }}
+          path: tests/${{ matrix.test }}
+          plan: ${{ steps.tf.outputs.identifier }}
+          pass: ${{ secrets.TF_ENCRYPTION }}
         run: |
-          echo "Get artifact ID for $PLAN_FILE"
-          artifact_id=$(gh api /repos/{owner}/{repo}/actions/artifacts --method GET --field "name=$PLAN_FILE" --jq '.artifacts[0].id')
-          echo "Download artifact zip"
-          gh api /repos/{owner}/{repo}/actions/artifacts/${artifact_id}/zip --method GET > "$PLAN_FILE.zip"
-          echo "Unzip artifact"
-          unzip "$PLAN_FILE.zip" -d "tests/${{ matrix.test }}"
-          # Change directory to plan-file
-          cd "tests/${{ matrix.test }}"
-          echo "Show plan"
-          tofu show "tfplan"
-          echo "Use tofu show tfplan to check if it contains a line starting with 'Plan:'."
-          tofu show "tfplan" | grep -q "^Plan:" || exit 0
-          echo "exit 1"
-          tofu show "tfplan" | grep -q "^Plan:" || exit 1
+          echo "Download plan-file artifact."
+          artifact_id=$(gh api /repos/{owner}/{repo}/actions/artifacts --method GET --field "name=$plan" --jq '.artifacts[0].id')
+          gh api /repos/{owner}/{repo}/actions/artifacts/${artifact_id}/zip --method GET > "$plan.zip"
+          unzip "$plan.zip" -d "$path"
+
+          echo "Optionally decrypt plan-file."
+          temp=$(mktemp)
+          printf "%s" "$pass" > "$temp"
+          openssl enc -aes-256-ctr -pbkdf2 -salt -in "$path" -out "$path.decrypted" -pass file:"$temp" -d
+          mv "$path.decrypted" "$path"
+
+          echo "List files"
+          ls -la
+          ls -la "$path"
+
+          echo "Check if plan-file has diff, or exit with 1."
+          tofu -chdir "$path" show "tfplan" | grep -q "^Plan:" || exit 1
