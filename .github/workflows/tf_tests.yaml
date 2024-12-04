@@ -80,8 +80,5 @@ jobs:
           gh api /repos/{owner}/{repo}/actions/artifacts/${artifact_id}/zip --method GET > "$PLAN_FILE.zip"
           echo "Unzip artifact"
           unzip "$PLAN_FILE.zip"
-          echo "List files"
-          ls -la
-          echo "Remove artifact zip"
-          rm "$PLAN_FILE.zip"
-          tofu show "$PLAN_FILE"
+          echo "Show plan"
+          tofu show "tfplan"
