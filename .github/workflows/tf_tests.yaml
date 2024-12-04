@@ -79,6 +79,8 @@ jobs:
           echo "Download artifact zip"
           gh api /repos/{owner}/{repo}/actions/artifacts/${artifact_id}/zip --method GET > "$PLAN_FILE.zip"
           echo "Unzip artifact"
-          unzip "$PLAN_FILE.zip"
+          unzip "$PLAN_FILE.zip" -d "tests/${{ matrix.test }}"
+          # Change directory to plan-file
+          cd "tests/${{ matrix.test }}"
           echo "Show plan"
           tofu show "tfplan"
