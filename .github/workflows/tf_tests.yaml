@@ -52,6 +52,7 @@ jobs:
           arg-lock: false # ${{ github.event.pull_request.merged }}
           working-directory: tests/${{ matrix.test }}
           tool: tofu
+          plan-encrypt: ${{ secrets.TF_ENCRYPTION }}
           # format: true
           # validate: true
 
