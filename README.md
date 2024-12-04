@@ -34,8 +34,7 @@
 </table>
 </br>
 
-### [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
-</br>
+### View: [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
 [![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/comment.png "View full-size image.")
 </br></br>
@@ -238,6 +237,7 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 > - [Raise an issue](https://github.com/devsectop/tf-via-pr/issues "Raise an issue.") to propose changes or report unexpected behavior.
 > - [Open a discussion](https://github.com/devsectop/tf-via-pr/discussions "Open a discussion.") to discuss broader topics or questions.
 > - [Become a stargazer](https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer.") if you find this project useful.
+</br>
 
 ### To-Do
 
