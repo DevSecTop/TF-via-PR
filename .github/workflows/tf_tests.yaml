@@ -83,11 +83,11 @@ jobs:
           unzip "$plan.zip" -d "$path"
           cd "$path"
 
-          # echo "Optionally decrypt plan-file."
-          # temp=$(mktemp)
-          # printf "%s" "$pass" > "$temp"
-          # openssl enc -aes-256-ctr -pbkdf2 -salt -in "tfplan" -out "tfplan.decrypted" -pass file:"$temp" -d
-          # mv "tfplan.decrypted" "tfplan"
+          echo "Optionally decrypt plan-file."
+          temp=$(mktemp)
+          printf "%s" "$pass" > "$temp"
+          openssl enc -aes-256-ctr -pbkdf2 -salt -in "tfplan" -out "tfplan.decrypted" -pass file:"$temp" -d
+          mv "tfplan.decrypted" "tfplan"
 
           echo "Check if plan-file has diff, or exit with 1."
           tofu show "tfplan" | grep -q "^Plan:" || exit 1
