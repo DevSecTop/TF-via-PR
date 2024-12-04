@@ -89,4 +89,5 @@ jobs:
           mv "tfplan.decrypted" "tfplan"
 
           echo "Check if plan-file has diff, or exit with 1."
+          tofu show "tfplan"
           tofu show "tfplan" | grep -q "^Plan:" || exit 1
