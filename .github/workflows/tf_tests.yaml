@@ -52,7 +52,7 @@ jobs:
           arg-lock: false # ${{ github.event.pull_request.merged }}
           working-directory: tests/${{ matrix.test }}
           tool: tofu
-          plan-encrypt: ${{ secrets.TF_ENCRYPTION }}
+          # plan-encrypt: ${{ secrets.TF_ENCRYPTION }}
           # format: true
           # validate: true
 
@@ -82,11 +82,11 @@ jobs:
           gh api /repos/{owner}/{repo}/actions/artifacts/${artifact_id}/zip --method GET > "$plan.zip"
           unzip "$plan.zip" -d "$path"
 
-          echo "Optionally decrypt plan-file."
-          temp=$(mktemp)
-          printf "%s" "$pass" > "$temp"
-          openssl enc -aes-256-ctr -pbkdf2 -salt -in "$path" -out "$path.decrypted" -pass file:"$temp" -d
-          mv "$path.decrypted" "$path"
+          # echo "Optionally decrypt plan-file."
+          # temp=$(mktemp)
+          # printf "%s" "$pass" > "$temp"
+          # openssl enc -aes-256-ctr -pbkdf2 -salt -in "$path" -out "$path.decrypted" -pass file:"$temp" -d
+          # mv "$path.decrypted" "$path"
 
           echo "List files"
           ls -la
