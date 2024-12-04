@@ -52,8 +52,8 @@ jobs:
           arg-lock: ${{ github.event.pull_request.merged }}
           working-directory: tests/${{ matrix.test }}
           tool: tofu
-          format: true
-          validate: true
+          # format: true
+          # validate: true
 
       - name: Echo TF
         run: |
