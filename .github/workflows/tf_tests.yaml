@@ -80,7 +80,7 @@ jobs:
           <details><summary>TFLint error.</summary>
 
           \`\`\`hcl
-          ${echo '${{ steps.tflint.outputs.stdout }}' | sed 's/`/\\`/g'}
+          ${echo "${{ steps.tflint.outputs.stdout }}" | sed 's/`/\\`/g'}
           \`\`\`
           </details>
           "
