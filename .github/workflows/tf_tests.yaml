@@ -77,9 +77,7 @@ jobs:
           <details><summary>TFLint error.</summary>
 
           \`\`\`hcl
-          2 issue(s) found:
-          main.tf:1:1: Warning - Missing version constraint for provider "random" in required_providers (terraform_required_providers)
-          main.tf:1:1: Warning - terraform "required_version" attribute is required (terraform_required_version)
+          ${{ steps.tflint.outputs.stderr || steps.tflint.outputs.stdout }}
           \`\`\`
           </details>
           EOF
