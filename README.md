@@ -87,36 +87,36 @@ The following workflows showcase common use cases, while a comprehensive list of
   <tr>
     <td>
       </br>
-      <a href="/.github/examples/pr_push_auth.yaml">Run on</a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with Terraform, AWS <strong>authentication</strong> and <strong>caching</strong>.
+      <a href="/.github/examples/pr_push_auth.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with Terraform, AWS <strong>authentication</strong> and <strong>caching</strong>.
       </br></br>
     </td>
     <td>
       </br>
-      <a href="/.github/examples/pr_merge_matrix.yaml">Run on</a> <code>pull_request</code> (plan) and <code>merge_group</code> (apply) events with OpenTofu in <strong>matrix</strong> strategy.
-      </br></br>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      </br>
-      <a href="/.github/examples/pr_push_stages.yaml">Run on</a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with <strong>conditional job stages</strong>.
-      </br></br>
-    </td>
-    <td>
-      </br>
-      <a href="/.github/examples/schedule_refresh.yaml">Run on</a> <code>schedule</code> (cron) event with fmt/validate checks to open an issue on <strong>configuration drift</strong>.
+      <a href="/.github/examples/pr_merge_matrix.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan) and <code>merge_group</code> (apply) events with OpenTofu in <strong>matrix</strong> strategy.
       </br></br>
     </td>
   </tr>
   <tr>
     <td>
       </br>
-      <a href="/.github/examples/pr_self_hosted.yaml">Run on</a> <code>pull_request</code> (plan or apply) event with Terraform and OpenTofu on <strong>self-hosted</strong> runner.
+      <a href="/.github/examples/pr_push_stages.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with <strong>conditional job stages</strong>.
       </br></br>
     </td>
     <td>
       </br>
-      <a href="/.github/examples/schedule_refresh.yaml">Run on</a> <code>schedule</code> (cron) event with fmt/validate checks to open an issue on <strong>configuration drift</strong>.
+      <a href="/.github/examples/schedule_refresh.yaml"><strong>Run on</strong></a> <code>schedule</code> (cron) event with fmt/validate checks to open an issue on <strong>configuration drift</strong>.
+      </br></br>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      </br>
+      <a href="/.github/examples/pr_self_hosted.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan or apply) event with Terraform and OpenTofu on <strong>self-hosted</strong> runner.
+      </br></br>
+    </td>
+    <td>
+      </br>
+      <a href="/.github/examples/schedule_refresh.yaml"><strong>Run on</strong></a> <code>schedule</code> (cron) event with fmt/validate checks to open an issue on <strong>configuration drift</strong>.
       </br></br>
     </td>
   </tr>
