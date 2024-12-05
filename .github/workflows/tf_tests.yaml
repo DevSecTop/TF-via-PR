@@ -74,16 +74,12 @@ jobs:
         run: |
           # Compose TFLint output.
           tflint='${{ steps.tflint.outputs.stdout }}'
-          # tflint=$(echo "$tflint" | sed 's/`/\\`/g')
-
-          tflint="
-          <details><summary>TFLint error.</summary>
+          tflint="<details><summary>TFLint error.</summary>
 
           \`\`\`hcl
           $(echo "$tflint" | sed 's/`/\\`/g')
           \`\`\`
-          </details>
-          "
+          </details>"
 
           # Get body of PR comment from tf step output.
           comment=$(gh api /repos/{owner}/{repo}/issues/comments/${{ steps.tf.outputs.comment-id }} --method GET --jq '.body')
