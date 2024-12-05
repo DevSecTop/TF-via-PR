@@ -94,19 +94,15 @@ jobs:
           diff_exists=$(tofu show "tfplan" | grep -q "^Plan:" && echo "true" || echo "false")
           echo "$diff_exists"
 
+      - run: echo ${{ steps.check.outputs.diff_exists }}
+
     outputs:
       diff_exists: ${{ steps.check.outputs.diff_exists }}
 
   apply:
-    needs: tests
+    needs: [tests]
     if: ${{ needs.tests.outputs.diff_exists == 'true' }}
     runs-on: ubuntu-24.04
-
-    permissions:
-      actions: read # Required to download repository artifact.
-      checks: write # Required to add status summary.
-      contents: read # Required to checkout repository.
-      pull-requests: write # Required to add PR comment and label.
 
     steps:
       - run: echo "run apply"
