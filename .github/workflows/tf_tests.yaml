@@ -77,7 +77,7 @@ jobs:
           <details><summary>TFLint error.</summary>
 
           \`\`\`hcl
-          ${{ steps.tflint.outputs.stderr }}
+          ${{ steps.tflint.outputs.stdout }}
           \`\`\`
           </details>"
 
