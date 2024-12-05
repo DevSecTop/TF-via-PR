@@ -86,18 +86,38 @@ The following workflows showcase common use cases, while a comprehensive list of
 <table>
   <tr>
     <td>
-      <a href="/.github/examples/pr_push_auth.yaml">Run on</a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with Terraform, AWS <strong>authentication</strong> and <strong>caching</strong>.
+      </br>
+      <a href="/.github/examples/pr_push_auth.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with Terraform, AWS <strong>authentication</strong> and <strong>caching</strong>.
+      </br></br>
     </td>
     <td>
-      <a href="/.github/examples/pr_merge_matrix.yaml">Run on</a> <code>pull_request</code> (plan) and <code>merge_group</code> (apply) events with OpenTofu in <strong>matrix</strong> strategy.
+      </br>
+      <a href="/.github/examples/pr_merge_matrix.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan) and <code>merge_group</code> (apply) events with OpenTofu in <strong>matrix</strong> strategy.
+      </br></br>
     </td>
   </tr>
   <tr>
     <td>
-      <a href="/.github/examples/pr_self_hosted.yaml">Run on</a> <code>pull_request</code> (plan or apply) event with Terraform and OpenTofu on <strong>self-hosted</strong> runner.
+      </br>
+      <a href="/.github/examples/pr_push_stages.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with <strong>conditional job stages</strong> based on plan file.
+      </br></br>
     </td>
     <td>
-      <a href="/.github/examples/schedule_refresh.yaml">Run on</a> <code>schedule</code> (cron) event with fmt/validate checks to open an issue on <strong>configuration drift</strong>.
+      </br>
+      <a href="/.github/examples/schedule_refresh.yaml"><strong>Run on</strong></a> <code>schedule</code> (cron) event with <code>-refresh-only</code> to open an issue on <strong>configuration drift</strong>.
+      </br></br>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      </br>
+      <a href="/.github/examples/pr_push_lint.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with <strong>fmt/validate checks</strong> and TFLint.
+      </br></br>
+    </td>
+    <td>
+      </br>
+      <a href="/.github/examples/pr_self_hosted.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan or apply) event with Terraform and OpenTofu on <strong>self-hosted</strong> runner.
+      </br></br>
     </td>
   </tr>
 </table>
@@ -127,7 +147,7 @@ For each workflow run, a matrix-friendly job summary with logs is added as a fal
 
 | Type     | Name                | Description                                                                                                                          |
 | -------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| CLI      | `command`           | Command to run between: `plan`, `apply` or leave empty for `init` with checks.</br>Example: `plan`                                   |
+| CLI      | `command`           | Command to run between: `plan` or `apply`. Optionally `init` for checks and outputs only.</br>Example: `plan`                        |
 | CLI      | `working-directory` | Specify the working directory of TF code, alias of `arg-chdir`.</br>Example: `path/to/directory`                                     |
 | CLI      | `tool`              | Provisioning tool to use between: `terraform` or `tofu`.</br>Default: `terraform`                                                    |
 | Check    | `format`            | Check format of TF code.</br>Default: `false`                                                                                        |

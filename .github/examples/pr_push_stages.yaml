@@ -1,0 +1,97 @@
+---
+name: Trigger on pull_request (plan) and push (apply) events with conditional job stages based on plan file.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  actions: read        # Required to identify workflow run.
+  checks: write        # Required to add status summary.
+  contents: read       # Required to checkout repository.
+  pull-requests: write # Required to add comment and label.
+
+jobs:
+  plan:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup TF
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Plan TF
+        uses: devsectop/tf-via-pr@v12
+        with:
+          command: plan
+          working-directory: path/to/directory
+          plan-encrypt: ${{ secrets.PASSPHRASE }}
+
+  pre_apply:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup TF
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Init TF
+        id: tf
+        uses: devsectop/tf-via-pr@v12
+        with:
+          command: init
+          working-directory: path/to/directory
+          comment-pr: none
+
+      - name: Check for diff
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          path: path/to/directory
+          plan: ${{ steps.tf.outputs.identifier }}
+          pass: ${{ secrets.PASSPHRASE }} # For use with "plan-encrypt".
+        run: |
+          echo "Download plan file artifact."
+          artifact_id=$(gh api /repos/{owner}/{repo}/actions/artifacts --method GET --field "name=$plan" --jq '.artifacts[0].id')
+          gh api /repos/{owner}/{repo}/actions/artifacts/${artifact_id}/zip --method GET > "$plan.zip"
+          unzip "$plan.zip" -d "$path"
+          cd "$path"
+
+          echo "Optionally decrypt plan file."
+          temp=$(mktemp)
+          printf "%s" "$pass" > "$temp"
+          openssl enc -aes-256-ctr -pbkdf2 -salt -in "tfplan" -out "tfplan.decrypted" -pass file:"$temp" -d
+          mv "tfplan.decrypted" "tfplan"
+
+          echo "Check if plan file has diff."
+          diff_exists=$(tofu show "tfplan" | grep -q "^Plan:" && echo "true" || echo "false")
+          echo "diff_exists=$diff_exists" >> $GITHUB_OUTPUT
+
+    outputs:
+      diff_exists: ${{ steps.check.outputs.diff_exists }}
+
+  apply:
+    needs: pre_apply
+    if: ${{ needs.pre_apply.outputs.diff_exists == 'true' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup TF
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Apply TF
+        uses: devsectop/tf-via-pr@v12
+        with:
+          command: apply
+          working-directory: path/to/directory
+          plan-encrypt: ${{ secrets.PASSPHRASE }}

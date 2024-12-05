@@ -1,5 +1,5 @@
 ---
-name: Trigger on schedule (cron) event with fmt/validate checks to open an issue on configuration drift.
+name: Trigger on schedule (cron) event with -refresh-only to open an issue on configuration drift.
 
 on:
   schedule:
@@ -23,7 +23,7 @@ jobs:
       - name: Setup TF
         uses: hashicorp/setup-terraform@v3
 
-      - name: Provision TF
+      - name: Plan TF
         id: provision
         uses: devsectop/tf-via-pr@v12
         with:
@@ -32,8 +32,6 @@ jobs:
           arg-refresh-only: true
           working-directory: path/to/directory
           plan-encrypt: ${{ secrets.PASSPHRASE }}
-          format: true
-          validate: true
 
       - name: Open issue on drift
         if: steps.provision.outputs.exitcode != 0
