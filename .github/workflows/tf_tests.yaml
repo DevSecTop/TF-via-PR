@@ -98,7 +98,7 @@ jobs:
           # </details>"
 
           tflint_raw="${{ steps.tflint.outputs.stdout }}"
-          tflint="${tflint_raw//`/'}"
+          tflint="${tflint_raw//`/"}"
 
           # Get body of PR comment from tf step output.
           comment=$(gh api /repos/{owner}/{repo}/issues/comments/${{ steps.tf.outputs.comment-id }} --method GET --jq '.body')
