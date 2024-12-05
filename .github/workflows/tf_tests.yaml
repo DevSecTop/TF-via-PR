@@ -2,10 +2,9 @@
 name: TF Tests
 
 on:
-  merge_group:
-  # pull_request:
-  #   paths: [.github/workflows/tf_tests.yaml, action.yml, tests/**]
-  #   types: [opened, reopened, synchronize, closed]
+  pull_request:
+    paths: [.github/workflows/tf_tests.yaml, action.yml, tests/**]
+    types: [opened, reopened, synchronize, closed]
 
 jobs:
   tests:
@@ -44,63 +43,54 @@ jobs:
           tofu_version: 1.8.5
           tofu_wrapper: false
 
-      - name: Provision TF
+      - name: Init TF
         id: tf
-        continue-on-error: true
+        if: ${{ github.event_name == 'pull_request' }}
         uses: ./
         with:
-          command: init # ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
-          arg-lock: false # ${{ github.event.pull_request.merged }}
+          command: init
+          arg-lock: false
           working-directory: tests/${{ matrix.test }}
-          tool: tofu
-          # format: true
-          # validate: true
+          format: true
+          validate: true
 
-      - name: Echo TF
+      - name: Setup TFLint
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_wrapper: true
+
+      - name: Run TFLint
+        id: tflint
+        if: ${{ github.event_name == 'pull_request' }}
+        working-directory: tests/${{ matrix.test }}
         run: |
-          echo "check-id: ${{ steps.tf.outputs.check-id }}"
-          echo "command: ${{ steps.tf.outputs.command }}"
-          echo "comment-id: ${{ steps.tf.outputs.comment-id }}"
-          echo "diff: ${{ steps.tf.outputs.diff }}"
-          echo "exitcode: ${{ steps.tf.outputs.exitcode }}"
-          echo "identifier: ${{ steps.tf.outputs.identifier }}"
-          echo "job-id: ${{ steps.tf.outputs.job-id }}"
-          echo "plan-id: ${{ steps.tf.outputs.plan-id }}"
-          echo "plan-url: ${{ steps.tf.outputs.plan-url }}"
-          echo "result: ${{ steps.tf.outputs.result }}"
-          echo "run-url: ${{ steps.tf.outputs.run-url }}"
-          echo "summary: ${{ steps.tf.outputs.summary }}"
+          tflint --init
+          tflint --format compact
+        continue-on-error: true
 
-      - name: Check plan for diff
-        id: check
+      - name: Comment if TFLint errors
+        if: ${{ github.event_name == 'pull_request' && steps.tflint.outputs.exitcode != 0 }}
         env:
-          path: tests/${{ matrix.test }}
-          plan: ${{ steps.tf.outputs.identifier }}
-          pass: ${{ secrets.TF_ENCRYPTION }} # Optional.
+          GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Download plan file artifact."
-          artifact_id=$(gh api /repos/{owner}/{repo}/actions/artifacts --method GET --field "name=$plan" --jq '.artifacts[0].id')
-          gh api /repos/{owner}/{repo}/actions/artifacts/${artifact_id}/zip --method GET > "$plan.zip"
-          unzip "$plan.zip" -d "$path"
-          cd "$path"
+          # Compose TFLint output.
+          tflint="
+          <details><summary>TFLint error.</summary>
 
-          echo "Optionally decrypt plan file."
-          temp=$(mktemp)
-          printf "%s" "$pass" > "$temp"
-          openssl enc -aes-256-ctr -pbkdf2 -salt -in "tfplan" -out "tfplan.decrypted" -pass file:"$temp" -d
-          mv "tfplan.decrypted" "tfplan"
+          \`\`\`hcl
+          ${{ steps.tflint.outputs.stderr || steps.tflint.outputs.stdout }}
+          \`\`\`
+          </details>"
 
-          echo "Check if plan file has diff."
-          diff_exists=$(tofu show "tfplan" | grep -q "^Plan:" && echo "true" || echo "false")
-          echo "diff_exists=$diff_exists" >> $GITHUB_OUTPUT
+          # Get body of PR comment from tf step output.
+          comment=$(gh api /repos/{owner}/{repo}/issues/comments/${{ steps.tf.outputs.comment-id }} --method GET --jq '.body')
 
-    outputs:
-      diff_exists: ${{ steps.check.outputs.diff_exists }}
+          # Replace placeholder with TFLint output.
+          comment="${comment//<!-- placeholder-2 -->/$tflint}"
 
-  apply:
-    needs: [tests]
-    if: ${{ needs.tests.outputs.diff_exists == 'true' }}
-    runs-on: ubuntu-24.04
+          # Update PR comment combined with TFLint output.
+          gh api /repos/{owner}/{repo}/issues/comments/${{ steps.tf.outputs.comment-id }} --method PATCH --field body="$comment"
 
-    steps:
-      - run: echo "run apply"
+          # Exit workflow due to TFLint error.
+          exit 1
