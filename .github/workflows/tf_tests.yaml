@@ -73,14 +73,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Compose TFLint output.
-          # tflint='${{ steps.tflint.outputs.stdout }}'
+          tflint='${{ steps.tflint.outputs.stdout }}'
           # tflint=$(echo "$tflint" | sed 's/`/\\`/g')
 
           tflint="
           <details><summary>TFLint error.</summary>
 
           \`\`\`hcl
-          $(echo "${{ steps.tflint.outputs.stdout }}" | sed 's/`/\\`/g')
+          $(echo "$tflint" | sed 's/`/\\`/g')
           \`\`\`
           </details>
           "
