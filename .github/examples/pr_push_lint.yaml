@@ -1,5 +1,5 @@
 ---
-name: Trigger on pull_request (plan) and push (apply) events with Terraform, AWS authentication and caching.
+name: Trigger on pull_request (plan) and push (apply) events with fmt/validate checks and TFLint.
 
 on:
   pull_request:
@@ -14,37 +14,70 @@ jobs:
       actions: read        # Required to identify workflow run.
       checks: write        # Required to add status summary.
       contents: read       # Required to checkout repository.
-      id-token: write      # Required to authenticate via OIDC.
       pull-requests: write # Required to add comment and label.
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Authenticate AWS
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          role-to-assume: ${{ secrets.AWS_ROLE }}
-
-      - name: Create cache
-        run: |
-          mkdir --parents $HOME/.terraform.d/plugin-cache
-          echo "TF_PLUGIN_CACHE_DIR=$HOME/.terraform.d/plugin-cache" >> $GITHUB_ENV
-
-      - name: Cache TF
-        uses: actions/cache@v4
-        with:
-          path: ~/.terraform.d/plugin-cache
-          key: cache-tf-${{ runner.os }}-${{ hashFiles('path/to/directory/.terraform.lock.hcl') }}
-
       - name: Setup TF
         uses: hashicorp/setup-terraform@v3
 
-      - name: Provision TF
+      - name: Init TF
+        id: tf
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: devsectop/tf-via-pr@v12
+        with:
+          command: init
+          arg-lock: false
+          working-directory: path/to/directory
+          format: true
+          validate: true
+
+      - name: Setup TFLint
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_wrapper: true
+
+      - name: Run TFLint
+        id: tflint
+        if: ${{ github.event_name == 'pull_request' }}
+        working-directory: path/to/directory
+        run: |
+          tflint --init
+          tflint --format compact
+        continue-on-error: true
+
+      - name: Comment if TFLint errors
+        if: ${{ github.event_name == 'pull_request' && steps.tflint.outputs.exitcode != 0 }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Compose TFLint output.
+          tflint="
+          <details><summary>TFLint error.</summary>
+
+          \`\`\`hcl
+          ${{ steps.tflint.outputs.stderr || steps.tflint.outputs.stdout }}
+          \`\`\`
+          </details>"
+
+          # Get body of PR comment from tf step output.
+          comment=$(gh api /repos/{owner}/{repo}/issues/comments/${{ steps.tf.outputs.comment-id }} --method GET --jq '.body')
+
+          # Replace placeholder with TFLint output.
+          comment="${comment//<!-- placeholder-2 -->/$tflint}"
+
+          # Update PR comment combined with TFLint output.
+          gh api /repos/{owner}/{repo}/issues/comments/${{ steps.tf.outputs.comment-id }} --method PATCH --field body="$comment"
+
+          # Exit workflow due to TFLint error.
+          exit 1
+
+      - name: ${{ format('{0}', github.event_name == 'push' && 'Apply' || 'Plan') }} TF
         uses: devsectop/tf-via-pr@v12
         with:
           command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
           arg-lock: ${{ github.event_name == 'push' }}
           working-directory: path/to/directory
-          plan-encrypt: ${{ secrets.PASSPHRASE }}

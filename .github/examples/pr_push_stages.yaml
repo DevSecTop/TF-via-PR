@@ -29,6 +29,7 @@ jobs:
         with:
           command: plan
           working-directory: path/to/directory
+          plan-encrypt: ${{ secrets.PASSPHRASE }}
 
   pre_apply:
     if: github.event_name == 'push'
@@ -52,6 +53,7 @@ jobs:
       - name: Check for diff
         id: check
         env:
+          GH_TOKEN: ${{ github.token }}
           path: path/to/directory
           plan: ${{ steps.tf.outputs.identifier }}
           pass: ${{ secrets.PASSPHRASE }} # For use with "plan-encrypt".
@@ -92,3 +94,4 @@ jobs:
         with:
           command: apply
           working-directory: path/to/directory
+          plan-encrypt: ${{ secrets.PASSPHRASE }}
