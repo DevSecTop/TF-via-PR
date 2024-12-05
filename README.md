@@ -99,7 +99,7 @@ The following workflows showcase common use cases, while a comprehensive list of
   <tr>
     <td>
       </br>
-      <a href="/.github/examples/pr_push_stages.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with <strong>conditional job stages</strong>.
+      <a href="/.github/examples/pr_push_stages.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with <strong>conditional job stages</strong> based on plan file.
       </br></br>
     </td>
     <td>
