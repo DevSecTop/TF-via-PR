@@ -95,14 +95,10 @@ jobs:
           Warning: main.tf:1:1: Warning - Missing version constraint for provider "random" in `required_providers` (terraform_required_providers)
           Warning: main.tf:1:1: Warning - terraform "required_version" attribute is required (terraform_required_version)
           \`\`\`
-          </details>'
+          </details>
+          '
 
-          # tflint_raw=$(cat <<EOF
-          # ${{ steps.tflint.outputs.stdout }}
-          # EOF
-          # )
-          # tflint=$(echo "$tflint_raw" | sed "s/\`/'/g")
-          # tflint=$(echo "$tflint_raw" | sed 's/`/"/g')
+          tflint=$(echo "$tflint" | sed 's/`/\\`/g')
 
           # Get body of PR comment from tf step output.
           comment=$(gh api /repos/{owner}/{repo}/issues/comments/${{ steps.tf.outputs.comment-id }} --method GET --jq '.body')
