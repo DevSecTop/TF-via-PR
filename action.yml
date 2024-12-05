@@ -431,7 +431,7 @@ inputs:
   # Action parameters.
   command:
     default: ""
-    description: "Command to run between: `plan`, `apply`. Leave empty for outputs only or `init` for checks only (e.g., `plan`)."
+    description: "Command to run between: `plan` or `apply`. Optionally `init` for checks and outputs only (e.g., `plan`)."
     required: false
   comment-pr:
     default: "update"

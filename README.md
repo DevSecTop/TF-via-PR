@@ -127,7 +127,7 @@ For each workflow run, a matrix-friendly job summary with logs is added as a fal
 
 | Type     | Name                | Description                                                                                                                          |
 | -------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| CLI      | `command`           | Command to run between: `plan` or `apply`. Leave empty for outputs only or `init` for checks only.</br>Example: `plan`               |
+| CLI      | `command`           | Command to run between: `plan` or `apply`. Optionally `init` for checks and outputs only.</br>Example: `plan`                        |
 | CLI      | `working-directory` | Specify the working directory of TF code, alias of `arg-chdir`.</br>Example: `path/to/directory`                                     |
 | CLI      | `tool`              | Provisioning tool to use between: `terraform` or `tofu`.</br>Default: `terraform`                                                    |
 | Check    | `format`            | Check format of TF code.</br>Default: `false`                                                                                        |
