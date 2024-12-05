@@ -86,16 +86,18 @@ jobs:
           # EOF
           # )
 
-          tflint="
-          <details><summary>TFLint error.</summary>
+          # tflint="
+          # <details><summary>TFLint error.</summary>
 
-          \`\`\`hcl
-          2 issue(s) found:
+          # \`\`\`hcl
+          # 2 issue(s) found:
 
-          Warning: main.tf:1:1: Warning - Missing version constraint for provider "random" in `required_providers` (terraform_required_providers)
-          Warning: main.tf:1:1: Warning - terraform "required_version" attribute is required (terraform_required_version)
-          \`\`\`
-          </details>"
+          # Warning: main.tf:1:1: Warning - Missing version constraint for provider "random" in `required_providers` (terraform_required_providers)
+          # Warning: main.tf:1:1: Warning - terraform "required_version" attribute is required (terraform_required_version)
+          # \`\`\`
+          # </details>"
+
+          tflint="${{ steps.tflint.outputs.stdout }}"
 
           # Get body of PR comment from tf step output.
           comment=$(gh api /repos/{owner}/{repo}/issues/comments/${{ steps.tf.outputs.comment-id }} --method GET --jq '.body')
