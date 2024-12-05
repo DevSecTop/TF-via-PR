@@ -54,7 +54,7 @@ jobs:
         env:
           path: path/to/directory
           plan: ${{ steps.tf.outputs.identifier }}
-          pass: ${{ secrets.TF_ENCRYPTION }} # For "plan-encrypt" users.
+          pass: ${{ secrets.PASSPHRASE }} # For use with "plan-encrypt".
         run: |
           echo "Download plan-file artifact."
           artifact_id=$(gh api /repos/{owner}/{repo}/actions/artifacts --method GET --field "name=$plan" --jq '.artifacts[0].id')
@@ -87,7 +87,7 @@ jobs:
       - name: Setup TF
         uses: hashicorp/setup-terraform@v3
 
-      - name: Plan TF
+      - name: Apply TF
         uses: devsectop/tf-via-pr@v12
         with:
           command: apply
