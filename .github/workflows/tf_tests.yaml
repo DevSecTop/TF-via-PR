@@ -90,9 +90,8 @@ jobs:
           mv "tfplan.decrypted" "tfplan"
 
           echo "Check if plan-file has diff."
-          tofu show "tfplan"
           diff_exists=$(tofu show "tfplan" | grep -q "^Plan:" && echo "true" || echo "false")
-          echo "$diff_exists"
+          echo "diff_exists=$diff_exists" >> $GITHUB_OUTPUT
 
       - run: echo ${{ steps.check.outputs.diff_exists }}
 
