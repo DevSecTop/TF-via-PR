@@ -75,7 +75,7 @@ jobs:
           # Exit workflow due to TFLint error.
           exit 1
 
-      - name: ${{ format('{0}', github.event_name == 'push' && 'Apply' || 'Plan') }} TF
+      - name: Provision TF
         uses: devsectop/tf-via-pr@v12
         with:
           command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
