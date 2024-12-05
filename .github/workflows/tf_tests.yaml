@@ -73,19 +73,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Compose TFLint output.
-          # tflint=$(cat <<EOF
-          # <details><summary>TFLint error.</summary>
-
-          # \`\`\`hcl
-          # 2 issue(s) found:
-
-          # Warning: main.tf:1:1: Warning - Missing version constraint for provider "random" in `required_providers` (terraform_required_providers)
-          # Warning: main.tf:1:1: Warning - terraform "required_version" attribute is required (terraform_required_version)
-          # \`\`\`
-          # </details>
-          # EOF
-          # )
-
           tflint='
           2 issue(s) found:
           Warning: main.tf:1:1: Warning - Missing version constraint for provider "random" in `required_providers` (terraform_required_providers)
@@ -96,9 +83,9 @@ jobs:
           tflint="
           <details><summary>TFLint error.</summary>
 
-          ```hcl
+          \`\`\`hcl
           ${tflint}
-          ```
+          \`\`\`
           </details>
           "
 
