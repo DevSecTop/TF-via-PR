@@ -73,7 +73,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Compose TFLint output.
-          tflint='${{ steps.tflint.outputs.stdout }}'
+          tflint="${{ steps.tflint.outputs.stdout }}"
           tflint="<details><summary>TFLint error.</summary>
 
           \`\`\`hcl
