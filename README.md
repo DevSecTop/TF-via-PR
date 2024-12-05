@@ -104,7 +104,7 @@ The following workflows showcase common use cases, while a comprehensive list of
     </td>
     <td>
       </br>
-      <a href="/.github/examples/schedule_refresh.yaml"><strong>Run on</strong></a> <code>schedule</code> (cron) event with `-refresh-only` to open an issue on <strong>configuration drift</strong>.
+      <a href="/.github/examples/schedule_refresh.yaml"><strong>Run on</strong></a> <code>schedule</code> (cron) event with <code>-refresh-only</code> to open an issue on <strong>configuration drift</strong>.
       </br></br>
     </td>
   </tr>
