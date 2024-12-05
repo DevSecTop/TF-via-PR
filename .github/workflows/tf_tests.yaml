@@ -97,7 +97,10 @@ jobs:
           # \`\`\`
           # </details>"
 
-          tflint_raw="${{ steps.tflint.outputs.stdout }}"
+          tflint_raw=$(cat <<EOF
+          ${{ steps.tflint.outputs.stdout }}
+          EOF
+          )
           tflint="${tflint_raw//`/"}"
 
           # Get body of PR comment from tf step output.
