@@ -104,19 +104,19 @@ The following workflows showcase common use cases, while a comprehensive list of
     </td>
     <td>
       </br>
-      <a href="/.github/examples/schedule_refresh.yaml"><strong>Run on</strong></a> <code>schedule</code> (cron) event with fmt/validate checks to open an issue on <strong>configuration drift</strong>.
+      <a href="/.github/examples/schedule_refresh.yaml"><strong>Run on</strong></a> <code>schedule</code> (cron) event with `-refresh-only` to open an issue on <strong>configuration drift</strong>.
       </br></br>
     </td>
   </tr>
   <tr>
     <td>
       </br>
-      <a href="/.github/examples/pr_self_hosted.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan or apply) event with Terraform and OpenTofu on <strong>self-hosted</strong> runner.
+      <a href="/.github/examples/pr_push_lint.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with <strong>fmt/validate checks</strong> and TFLint.
       </br></br>
     </td>
     <td>
       </br>
-      <a href="/.github/examples/schedule_refresh.yaml"><strong>Run on</strong></a> <code>schedule</code> (cron) event with fmt/validate checks to open an issue on <strong>configuration drift</strong>.
+      <a href="/.github/examples/pr_self_hosted.yaml"><strong>Run on</strong></a> <code>pull_request</code> (plan or apply) event with Terraform and OpenTofu on <strong>self-hosted</strong> runner.
       </br></br>
     </td>
   </tr>
