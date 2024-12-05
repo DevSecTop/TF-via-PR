@@ -94,6 +94,14 @@ The following workflows showcase common use cases, while a comprehensive list of
   </tr>
   <tr>
     <td>
+      <a href="/.github/examples/pr_push_stages.yaml">Run on</a> <code>pull_request</code> (plan) and <code>push</code> (apply) events with <strong>conditional job stages</strong>.
+    </td>
+    <td>
+      <a href="/.github/examples/schedule_refresh.yaml">Run on</a> <code>schedule</code> (cron) event with fmt/validate checks to open an issue on <strong>configuration drift</strong>.
+    </td>
+  </tr>
+  <tr>
+    <td>
       <a href="/.github/examples/pr_self_hosted.yaml">Run on</a> <code>pull_request</code> (plan or apply) event with Terraform and OpenTofu on <strong>self-hosted</strong> runner.
     </td>
     <td>
