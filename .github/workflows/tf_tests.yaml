@@ -53,6 +53,7 @@ jobs:
           working-directory: tests/${{ matrix.test }}
           format: true
           validate: true
+          tool: tofu
 
       - name: Setup TFLint
         if: ${{ github.event_name == 'pull_request' }}
