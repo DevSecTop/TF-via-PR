@@ -72,13 +72,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           # Compose TFLint output.
-          tflint="
-          <details><summary>TFLint error.</summary>
-
-          \`\`\`hcl
-          ${{ steps.tflint.outputs.stderr || steps.tflint.outputs.stdout }}
-          \`\`\`
-          </details>"
 
           # Get body of PR comment from tf step output.
           echo "Get body of PR comment from tf step output."
@@ -86,7 +79,8 @@ jobs:
 
           # Replace placeholder with TFLint output.
           echo "Replace placeholder with TFLint output."
-          comment="${comment//<!-- placeholder-2 -->/$tflint}"
+          comment="${comment//<!-- placeholder-2 -->/TFLint}"
+          # comment="${comment//<!-- placeholder-2 -->/$tflint}"
 
           # Update PR comment combined with TFLint output.
           echo "Update PR comment combined with TFLint output."
