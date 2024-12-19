@@ -43,7 +43,7 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ secrets.AWS_ROLE }}
-          role-session-name: devsectop-tf-via-pr-${{ github.run_id }}-${{ github.run_attempt}}
+          role-session-name: tf-via-pr-${{ github.run_id }}-${{ github.run_attempt}}
 
       - name: Setup TF
         uses: opentofu/setup-opentofu@12f4debbf681675350b6cd1f0ff8ecfbda62027b # v1.0.4
