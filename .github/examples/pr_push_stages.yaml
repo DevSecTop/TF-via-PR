@@ -25,7 +25,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Plan TF
-        uses: devsectop/tf-via-pr@v12
+        uses: op5dev/tf-via-pr@v12
         with:
           command: plan
           working-directory: path/to/directory
@@ -44,7 +44,7 @@ jobs:
 
       - name: Init TF
         id: tf
-        uses: devsectop/tf-via-pr@v12
+        uses: op5dev/tf-via-pr@v12
         with:
           command: init
           working-directory: path/to/directory
@@ -90,7 +90,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       - name: Apply TF
-        uses: devsectop/tf-via-pr@v12
+        uses: op5dev/tf-via-pr@v12
         with:
           command: apply
           working-directory: path/to/directory

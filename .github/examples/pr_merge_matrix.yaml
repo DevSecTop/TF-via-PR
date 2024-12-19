@@ -30,7 +30,7 @@ jobs:
         uses: opentofu/setup-opentofu@v1
 
       - name: Provision TF
-        uses: devsectop/tf-via-pr@v12
+        uses: op5dev/tf-via-pr@v12
         with:
           command: ${{ github.event_name == 'merge_group' && 'apply' || 'plan' }}
           arg-lock: ${{ github.event_name == 'merge_group' }}
