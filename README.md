@@ -1,10 +1,10 @@
 [![Terraform Compatible](https://img.shields.io/badge/Terraform-Compatible-844FBA?logo=terraform&logoColor=white)](https://github.com/hashicorp/setup-terraform "Terraform Compatible.")
 [![OpenTofu Compatible](https://img.shields.io/badge/OpenTofu-Compatible-FFDA18?logo=opentofu&logoColor=white)](https://github.com/opentofu/setup-opentofu "OpenTofu Compatible.")
 *
-[![GitHub license](https://img.shields.io/github/license/devsectop/tf-via-pr?logo=apache&label=License)](LICENSE.txt "Apache License 2.0.")
-[![GitHub release tag](https://img.shields.io/github/v/release/devsectop/tf-via-pr?logo=semanticrelease&label=Release)](https://github.com/devsectop/tf-via-pr/releases "View all releases.")
+[![GitHub license](https://img.shields.io/github/license/op5dev/tf-via-pr?logo=apache&label=License)](LICENSE.txt "Apache License 2.0.")
+[![GitHub release tag](https://img.shields.io/github/v/release/op5dev/tf-via-pr?logo=semanticrelease&label=Release)](https://github.com/op5dev/tf-via-pr/releases "View all releases.")
 *
-[![GitHub repository stargazers](https://img.shields.io/github/stars/devsectop/tf-via-pr)](https://github.com/devsectop/tf-via-pr "Become a stargazer.")
+[![GitHub repository stargazers](https://img.shields.io/github/stars/op5dev/tf-via-pr)](https://github.com/op5dev/tf-via-pr "Become a stargazer.")
 
 # Terraform/OpenTofu via Pull Request (TF-via-PR)
 
@@ -36,7 +36,7 @@
 
 ### View: [Usage Examples](#usage) · [In/Output Parameters](#parameters) · [Security](#security) · [Changelog](#changelog) · [License](#license)
 
-[![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/comment.png "View full-size image.")
+[![PR comment of plan output with "Diff of changes" section expanded.](/.github/assets/comment.png)](https://raw.githubusercontent.com/op5dev/tf-via-pr/refs/heads/main/.github/assets/comment.png "View full-size image.")
 </br></br>
 
 ## Usage
@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@4
       - uses: hashicorp/setup-terraform@v3
-      - uses: devsectop/tf-via-pr@v12
+      - uses: op5dev/tf-via-pr@v12
         with:
           # Run plan by default, or apply with lock on merge.
           command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
@@ -138,7 +138,7 @@ unzip <tf.plan>
 
 For each workflow run, a matrix-friendly job summary with logs is added as a fallback to the PR comment. Below this, you'll find a list of plan file artifacts generated during runtime.</br>
 
-[![Workflow job summary with plan file artifact.](/.github/assets/workflow.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/workflow.png "View full-size image.")
+[![Workflow job summary with plan file artifact.](/.github/assets/workflow.png)](https://raw.githubusercontent.com/op5dev/tf-via-pr/refs/heads/main/.github/assets/workflow.png "View full-size image.")
 </br></br>
 
 ## Parameters
@@ -163,7 +163,7 @@ For each workflow run, a matrix-friendly job summary with logs is added as a fal
 
 The default behavior of `comment-pr` is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</br>
 
-[![PR comment revision history comparing plan and apply outputs.](/.github/assets/revisions.png)](https://raw.githubusercontent.com/devsectop/tf-via-pr/refs/heads/main/.github/assets/revisions.png "View full-size image.")
+[![PR comment revision history comparing plan and apply outputs.](/.github/assets/revisions.png)](https://raw.githubusercontent.com/op5dev/tf-via-pr/refs/heads/main/.github/assets/revisions.png "View full-size image.")
 </br></br>
 
 ### Inputs - Arguments
@@ -247,16 +247,16 @@ View [security policy and reporting instructions](SECURITY.md).
 
 ## Changelog
 
-View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Releases.") to this project in [Keep a Changelog](https://keepachangelog.com "Keep a Changelog.") format, which adheres to [Semantic Versioning](https://semver.org "Semantic Versioning.").
+View [all notable changes](https://github.com/op5dev/tf-via-pr/releases "Releases.") to this project in [Keep a Changelog](https://keepachangelog.com "Keep a Changelog.") format, which adheres to [Semantic Versioning](https://semver.org "Semantic Versioning.").
 
 > [!TIP]
 >
 > All forms of **contribution are very welcome** and deeply appreciated for fostering open-source projects.
 >
-> - [Create a PR](https://github.com/devsectop/tf-via-pr/pulls "Create a pull request.") to contribute changes you'd like to see.
-> - [Raise an issue](https://github.com/devsectop/tf-via-pr/issues "Raise an issue.") to propose changes or report unexpected behavior.
-> - [Open a discussion](https://github.com/devsectop/tf-via-pr/discussions "Open a discussion.") to discuss broader topics or questions.
-> - [Become a stargazer](https://github.com/devsectop/tf-via-pr/stargazers "Become a stargazer.") if you find this project useful.
+> - [Create a PR](https://github.com/op5dev/tf-via-pr/pulls "Create a pull request.") to contribute changes you'd like to see.
+> - [Raise an issue](https://github.com/op5dev/tf-via-pr/issues "Raise an issue.") to propose changes or report unexpected behavior.
+> - [Open a discussion](https://github.com/op5dev/tf-via-pr/discussions "Open a discussion.") to discuss broader topics or questions.
+> - [Become a stargazer](https://github.com/op5dev/tf-via-pr/stargazers "Become a stargazer.") if you find this project useful.
 </br>
 
 ### To-Do
@@ -268,5 +268,5 @@ View [all notable changes](https://github.com/devsectop/tf-via-pr/releases "Rele
 ## License
 
 - This project is licensed under the permissive [Apache License 2.0](LICENSE.txt "Apache License 2.0.").
-- All works herein are my own, shared of my own volition, and [contributors](https://github.com/devsectop/tf-via-pr/graphs/contributors "Contributors.").
+- All works herein are my own, shared of my own volition, and [contributors](https://github.com/op5dev/tf-via-pr/graphs/contributors "Contributors.").
 - Copyright 2022-2024 [Rishav Dhar](https://github.com/rdhar "Rishav Dhar's GitHub profile.") — All wrongs reserved.
