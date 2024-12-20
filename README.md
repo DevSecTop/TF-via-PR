@@ -155,13 +155,15 @@ For each workflow run, a matrix-friendly job summary with logs is added as a fal
 | Check    | `plan-parity`       | Replace the plan file if it matches a newly-generated one to prevent stale apply (very rarely needed nowadays).</br>Default: `false` |
 | Security | `plan-encrypt`      | Encrypt plan file artifact with the given input.</br>Example: `${{ secrets.PASSPHRASE }}`                                            |
 | Security | `token`             | Specify a GitHub token.</br>Default: `${{ github.token }}`                                                                           |
-| UI       | `comment-pr`        | PR comment by: `update` existing comment, `recreate` and delete previous one, or `none`.</br>Default: `update`                       |
 | UI       | `label-pr`          | Add a PR label with the command input.</br>Default: `true`                                                                           |
+| UI       | `comment-pr`        | Add a PR comment: `always`, `on-change`, or `never`.</br>Default: `always`                                                           |
+| UI       | `comment-method`    | PR comment by: `update` existing comment or `recreate` and delete previous one.</br>Default: `update`                                |
+| UI       | `tag-actor`         | Tag the workflow triggering actor: `always`, `on-change`, or `never`.</br>Default: `always`                                          |
 | UI       | `hide-args`         | Hide comma-separated list of CLI arguments from the command input.</br>Default: `detailed-exitcode,lock,out,var=`                    |
 | UI       | `show-args`         | Show comma-separated list of CLI arguments in the command input.</br>Default: `workspace`                                            |
 </br>
 
-The default behavior of `comment-pr` is to update the existing PR comment with the latest plan output, making it easy to track changes over time through the comment's revision history.</br>
+The default behavior of `comment-method` is to update the existing PR comment with the latest plan/apply output, making it easy to track changes over time through the comment's revision history.</br>
 
 [![PR comment revision history comparing plan and apply outputs.](/.github/assets/revisions.png)](https://raw.githubusercontent.com/op5dev/tf-via-pr/refs/heads/main/.github/assets/revisions.png "View full-size image.")
 </br></br>

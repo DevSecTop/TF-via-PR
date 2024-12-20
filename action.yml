@@ -263,6 +263,8 @@ runs:
 
     - id: post
       if: ${{ !cancelled() && steps.identifier.outcome == 'success' && contains(fromJSON('["plan", "apply", "init"]'), inputs.command) }}
+      env:
+        exitcode: ${{ steps.apply.outputs.exit_code || steps.plan.outputs.exit_code || steps.validate.outputs.exit_code || steps.workspace.outputs.exit_code || steps.initialize.outputs.exit_code || steps.format.outputs.exit_code }}
       shell: bash
       run: |
         # Post output.
@@ -335,6 +337,18 @@ runs:
           diff=""
         fi
 
+        # Set flags for creating PR comment and tagging actor.
+        create_comment=""
+        tag_actor=""
+        if [[ $exitcode -ne 0 ]]; then
+          if [[ "${{ inputs.comment-pr }}" == "on-change" ]]; then create_comment="true"; fi
+          if [[ "${{ inputs.tag-actor }}" == "on-change" ]]; then tag_actor="true"; fi
+        fi
+        if [[ "${{ inputs.comment-pr }}" == "always" ]]; then create_comment="true"; fi
+        if [[ "${{ inputs.tag-actor }}" == "always" ]]; then tag_actor="true"; fi
+        if [[ "$tag_actor" == "true" ]]; then handle="@"; else handle=""; fi
+
+        # Collate body content.
         body=$(cat <<EOTFVIAPR
         <!-- placeholder-1 -->
         \`\`\`fish
@@ -346,7 +360,7 @@ runs:
         <details><summary>${summary}</br>
 
         <!-- placeholder-4 -->
-        ###### By @${GITHUB_TRIGGERING_ACTOR} at ${{ github.event.pull_request.updated_at || github.event.head_commit.timestamp || github.event.merge_group.head_commit.timestamp }} [(view log)](${run_url}).
+        ###### By ${handle}${GITHUB_TRIGGERING_ACTOR} at ${{ github.event.pull_request.updated_at || github.event.head_commit.timestamp || github.event.merge_group.head_commit.timestamp }} [(view log)](${run_url}).
         </summary>
 
         \`\`\`${syntax}
@@ -362,19 +376,19 @@ runs:
         # Post output to job summary.
         echo "$body" >> $GITHUB_STEP_SUMMARY
 
-        # Post PR comment per ${{ inputs.comment-pr }} and if the PR number is not 0.
-        if [[ "${{ inputs.comment-pr }}" != "none" && "${{ steps.identifier.outputs.pr }}" != "0" ]]; then
+        # Post PR comment if configured and PR exists.
+        if [[ "$create_comment" == "true" && "${{ steps.identifier.outputs.pr }}" != "0" ]]; then
           # Check if the PR contains a bot comment with the same identifier.
           list_comments=$(gh api /repos/{owner}/{repo}/issues/${{ steps.identifier.outputs.pr }}/comments --header "$GH_API" --method GET --field per_page=100)
           bot_comment=$(echo "$list_comments" | jq --raw-output --arg identifier "${{ steps.identifier.outputs.name }}" '.[] | select(.user.type == "Bot") | select(.body | contains($identifier)) | .id' | tail -n 1)
 
           if [[ -n "$bot_comment" ]]; then
-            if [[ "${{ inputs.comment-pr }}" == "recreate" ]]; then
+            if [[ "${{ inputs.comment-method }}" == "recreate" ]]; then
               # Delete previous comment before posting a new one.
               gh api /repos/{owner}/{repo}/issues/comments/${bot_comment} --header "$GH_API" --method DELETE
               pr_comment=$(gh api /repos/{owner}/{repo}/issues/${{ steps.identifier.outputs.pr }}/comments --header "$GH_API" --method POST --field "body=${body}")
               echo "comment_id=$(echo "$pr_comment" | jq --raw-output '.id')" >> "$GITHUB_OUTPUT"
-            elif [[ "${{ inputs.comment-pr }}" == "update" ]]; then
+            elif [[ "${{ inputs.comment-method }}" == "update" ]]; then
               # Update existing comment.
               pr_comment=$(gh api /repos/{owner}/{repo}/issues/comments/${bot_comment} --header "$GH_API" --method PATCH --field "body=${body}")
               echo "comment_id=$(echo "$pr_comment" | jq --raw-output '.id')" >> "$GITHUB_OUTPUT"
@@ -433,9 +447,13 @@ inputs:
     default: ""
     description: "Command to run between: `plan` or `apply`. Optionally `init` for checks and outputs only (e.g., `plan`)."
     required: false
-  comment-pr:
+  comment-method:
     default: "update"
-    description: "PR comment by: `update` existing comment, `recreate` and delete previous one, or `none` (e.g., `update`)."
+    description: "PR comment by: `update` existing comment or `recreate` and delete previous one (e.g., `update`)."
+    required: false
+  comment-pr:
+    default: "always"
+    description: "Add a PR comment: `always`, `on-change`, or `never` (e.g., `always`)."
     required: false
   format:
     default: "false"
@@ -460,6 +478,10 @@ inputs:
   show-args:
     default: "workspace"
     description: "Show comma-separated arguments in the command input (e.g., `workspace`)."
+    required: false
+  tag-actor:
+    default: "always"
+    description: "Tag the workflow triggering actor: `always`, `on-change`, or `never` (e.g., `always`)."
     required: false
   token:
     default: ${{ github.token }}

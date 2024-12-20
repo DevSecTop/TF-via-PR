@@ -48,7 +48,7 @@ jobs:
         with:
           command: init
           working-directory: path/to/directory
-          comment-pr: none
+          comment-pr: never
 
       - name: Check for diff
         id: check
