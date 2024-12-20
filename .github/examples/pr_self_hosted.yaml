@@ -31,7 +31,7 @@ jobs:
         uses: opentofu/setup-opentofu@v1
 
       - name: Provision TF
-        uses: op5dev/tf-via-pr@v12
+        uses: op5dev/tf-via-pr@v13
         with:
           command: ${{ github.event.pull_request.merged && 'apply' || 'plan' }}
           arg-lock: ${{ github.event.pull_request.merged }}
