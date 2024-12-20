@@ -54,7 +54,7 @@ jobs:
           tool: tofu
           format: true
           validate: true
-          comment-pr: on-change
+          comment-pr: never
 
       - name: Echo TF
         run: |
