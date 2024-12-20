@@ -26,7 +26,7 @@ jobs:
       - name: Init TF
         id: tf
         if: ${{ github.event_name == 'pull_request' }}
-        uses: op5dev/tf-via-pr@v12
+        uses: op5dev/tf-via-pr@v13
         with:
           command: init
           arg-lock: false
@@ -76,7 +76,7 @@ jobs:
           exit 1
 
       - name: Provision TF
-        uses: op5dev/tf-via-pr@v12
+        uses: op5dev/tf-via-pr@v13
         with:
           command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
           arg-lock: ${{ github.event_name == 'push' }}

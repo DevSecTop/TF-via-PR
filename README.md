@@ -62,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@4
       - uses: hashicorp/setup-terraform@v3
-      - uses: op5dev/tf-via-pr@v12
+      - uses: op5dev/tf-via-pr@v13
         with:
           # Run plan by default, or apply with lock on merge.
           command: ${{ github.event_name == 'push' && 'apply' || 'plan' }}
